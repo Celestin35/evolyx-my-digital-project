@@ -78,7 +78,7 @@ withDefaults(
                                 </span>
                             </span>
                             <span>
-                                Read the
+                                FAUT LIREEEEEEEEE
                                 <a
                                     href="https://laravel.com/docs"
                                     target="_blank"
