@@ -59,7 +59,7 @@ withDefaults(
                 >
                     <h1 class="mb-1 font-medium">Let's get started</h1>
                     <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                        LA DESCRIPTION en question
+                        INES's DESCRIPTION
                     </p>
                     <ul class="mb-4 flex flex-col lg:mb-6">
                         <li
