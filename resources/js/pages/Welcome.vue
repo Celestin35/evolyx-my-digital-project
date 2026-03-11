@@ -78,7 +78,7 @@ withDefaults(
                                 </span>
                             </span>
                             <span>
-                                FAUT LIREEEEEEEEE
+                                FAUT LIREEEEE la doc zebi
                                 <a
                                     href="https://laravel.com/docs"
                                     target="_blank"
