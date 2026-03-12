@@ -5,9 +5,13 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
 
     steps:
       - name: Checkout repo
@@ -16,7 +20,15 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
+          php-version: '8.4'
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
@@ -25,6 +37,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install npm dependencies
         run: npm install
@@ -40,7 +53,7 @@ jobs:
           git add public/build
 
           if ! git diff --cached --quiet; then
-            git commit -m "auto build assets"
+            git commit -m "auto build assets [skip ci]"
             git push
           fi
 
