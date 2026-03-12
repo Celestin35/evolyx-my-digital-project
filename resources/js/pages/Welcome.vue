@@ -59,7 +59,7 @@ withDefaults(
                 >
                     <h1 class="mb-1 font-medium">Let's get started</h1>
                     <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                        Dernier test de description
+                        Description of the application and what to do next. You can check out
                     </p>
                     <ul class="mb-4 flex flex-col lg:mb-6">
                         <li
