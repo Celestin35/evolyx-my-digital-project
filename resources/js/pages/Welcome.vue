@@ -57,9 +57,9 @@ withDefaults(
                 <div
                     class="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
                 >
-                    <h1 class="mb-1 font-medium">Test de test de test </h1>
+                    <h1 class="mb-1 font-medium">Bienvenue à tous  </h1>
                     <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                        Description of the application and what to do next. You can check out
+                       Description for Erwann
                     </p>
                     <ul class="mb-4 flex flex-col lg:mb-6">
                         <li
