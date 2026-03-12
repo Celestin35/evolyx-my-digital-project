@@ -67,5 +67,5 @@ jobs:
             echo "ERROR: WEBHOOK_TOKEN secret is missing or empty."
             exit 1
           fi
-          curl -X POST "${{ secrets.WEBHOOK_URL }}" \
+          curl --http1.1 --fail --show-error -X POST "${{ secrets.WEBHOOK_URL }}" \
           -H "X-Deploy-Token: ${{ secrets.WEBHOOK_TOKEN }}"
