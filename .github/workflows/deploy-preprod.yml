@@ -59,5 +59,13 @@ jobs:
 
       - name: Trigger deployment webhook
         run: |
+          if [ -z "${{ secrets.WEBHOOK_URL }}" ]; then
+            echo "ERROR: WEBHOOK_URL secret is missing or empty."
+            exit 1
+          fi
+          if [ -z "${{ secrets.WEBHOOK_TOKEN }}" ]; then
+            echo "ERROR: WEBHOOK_TOKEN secret is missing or empty."
+            exit 1
+          fi
           curl -X POST "${{ secrets.WEBHOOK_URL }}" \
           -H "X-Deploy-Token: ${{ secrets.WEBHOOK_TOKEN }}"
