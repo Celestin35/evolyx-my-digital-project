@@ -67,9 +67,9 @@ jobs:
             echo "ERROR: WEBHOOK_TOKEN secret is missing or empty."
             exit 1
           fi
-          demo=$(curl --fail --show-error -s -w "%{response_code}" -X POST "${{ secrets.WEBHOOK_URL }}" -H "${{ secrets.WEBHOOK_TOKEN }}")
+          demo=$(curl --fail --http1.1 --show-error -s -w "%{response_code}" -X POST "${{ secrets.WEBHOOK_URL }}" -H "${{ secrets.WEBHOOK_TOKEN }}")
           if [ $demo != "OK200" ]; then     
-          exit 27; 
+            exit 27 
           else
-            echo "Server returned:"; 
+            echo "Server returned:"
           fi
