@@ -11,4 +11,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });
 
+Route::inertia('/calories', 'Calories')->name('calories');
+
 require __DIR__.'/settings.php';
