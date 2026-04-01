@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -14,22 +17,21 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
+    protected $appends = [
         'name',
-        'email',
-        'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    protected $fillable = [
+        'email',
+        'password',
+        'first_name',
+        'sex',
+        'height',
+        'activity_level',
+        'birth_date',
+        'role_id',
+    ];
+
     protected $hidden = [
         'password',
         'two_factor_secret',
@@ -37,17 +39,81 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'birth_date' => 'date',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function weightEntries(): HasMany
+    {
+        return $this->hasMany(WeightEntry::class);
+    }
+
+    public function latestWeightEntry(): HasOne
+    {
+        return $this->hasOne(WeightEntry::class)->latestOfMany();
+    }
+
+    public function goals(): HasMany
+    {
+        return $this->hasMany(Goal::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function workoutSessions(): HasMany
+    {
+        return $this->hasMany(WorkoutSession::class);
+    }
+
+    public function performances(): HasMany
+    {
+        return $this->hasMany(Performance::class);
+    }
+
+    public function securityLogs(): HasMany
+    {
+        return $this->hasMany(SecurityLog::class);
+    }
+
+    public function exercises(): HasMany
+    {
+        return $this->hasMany(Exercise::class);
+    }
+
+    protected function age(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->birth_date?->age,
+        );
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->first_name,
+        );
+    }
+
+    protected function currentWeight(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->relationLoaded('latestWeightEntry')
+                ? $this->latestWeightEntry?->weight
+                : $this->latestWeightEntry()->value('weight'),
+        );
     }
 }
