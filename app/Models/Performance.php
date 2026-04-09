@@ -14,6 +14,7 @@ class Performance extends Model
         'duration_minutes',
         'distance_meters',
         'exercise_id',
+        'performed_session_id',
         'user_id',
     ];
 
@@ -35,5 +36,10 @@ class Performance extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function performedSession(): BelongsTo
+    {
+        return $this->belongsTo(PerformedSession::class);
     }
 }

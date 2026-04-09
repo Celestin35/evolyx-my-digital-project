@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->hasMany(Performance::class);
     }
 
+    public function performedSessions(): HasMany
+    {
+        return $this->hasMany(PerformedSession::class);
+    }
+
     public function securityLogs(): HasMany
     {
         return $this->hasMany(SecurityLog::class);

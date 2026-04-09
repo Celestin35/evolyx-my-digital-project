@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->decimal('weight', 5, 2);
             $table->decimal('body_fat', 5, 2)->nullable();
+            $table->decimal('muscle_mass', 5, 2)->nullable();
 
             $table->foreignId('user_id')
                 ->constrained('users')
