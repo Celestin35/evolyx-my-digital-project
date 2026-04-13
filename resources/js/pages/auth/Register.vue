@@ -14,35 +14,35 @@ import { store } from '@/routes/register';
 
 <template>
     <AuthBase
-        title="Create an account"
-        description="Enter your details below to create your account"
-    >
-        <Head title="Register" />
+        title="Create un compte"
+        description="Enter les informations ci-dessous pour créer votre compte"
+        >
+            <Head title="S'inscrire" />
 
-        <Form
-            v-bind="store.form()"
+            <Form
+                v-bind="store.form()"
             :reset-on-success="['password', 'password_confirmation']"
             v-slot="{ errors, processing }"
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">Name</Label>
+                    <Label for="first_name">Prénom</Label>
                     <Input
-                        id="name"
+                        id="first_name"
                         type="text"
                         required
                         autofocus
                         :tabindex="1"
-                        autocomplete="name"
-                        name="name"
-                        placeholder="Full name"
+                        autocomplete="given-name"
+                        name="first_name"
+                        placeholder="Celestin"
                     />
-                    <InputError :message="errors.name" />
+                    <InputError :message="errors.first_name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">Adresse email</Label>
                     <Input
                         id="email"
                         type="email"
@@ -56,11 +56,87 @@ import { store } from '@/routes/register';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
+                    <Label for="sex">Sexe</Label>
+                    <select
+                        id="sex"
+                        name="sex"
+                        required
+                        :tabindex="3"
+                        class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    >
+                        <option value="male">Homme</option>
+                        <option value="female">Femme</option>
+                    </select>
+                    <InputError :message="errors.sex" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="height">Taille (cm)</Label>
+                    <Input
+                        id="height"
+                        type="number"
+                        min="100"
+                        max="250"
+                        required
+                        :tabindex="4"
+                        name="height"
+                        placeholder="175"
+                    />
+                    <InputError :message="errors.height" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="weight">Poids actuel (kg)</Label>
+                    <Input
+                        id="weight"
+                        type="number"
+                        min="20"
+                        max="500"
+                        step="0.1"
+                        required
+                        :tabindex="5"
+                        name="weight"
+                        placeholder="72.5"
+                    />
+                    <InputError :message="errors.weight" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="activity_level">Niveau d'activité</Label>
+                    <select
+                        id="activity_level"
+                        name="activity_level"
+                        required
+                        :tabindex="6"
+                        class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    >
+                        <option value="sedentary">Sédentaire</option>
+                        <option value="light">Légère</option>
+                        <option value="moderate" selected>Moderée</option>
+                        <option value="active">Active</option>
+                        <option value="very_active">Très active</option>
+                    </select>
+                    <InputError :message="errors.activity_level" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="birth_date">Date de naissance</Label>
+                    <Input
+                        id="birth_date"
+                        type="date"
+                        required
+                        :tabindex="7"
+                        name="birth_date"
+                    />
+                    <InputError :message="errors.birth_date" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="password">Mot de passe</Label>
                     <PasswordInput
                         id="password"
                         required
-                        :tabindex="3"
+                        :tabindex="8"
                         autocomplete="new-password"
                         name="password"
                         placeholder="Password"
@@ -69,11 +145,11 @@ import { store } from '@/routes/register';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
+                    <Label for="password_confirmation">Confirmer le mot de passe</Label>
                     <PasswordInput
                         id="password_confirmation"
                         required
-                        :tabindex="4"
+                        :tabindex="9"
                         autocomplete="new-password"
                         name="password_confirmation"
                         placeholder="Confirm password"
@@ -84,22 +160,22 @@ import { store } from '@/routes/register';
                 <Button
                     type="submit"
                     class="mt-2 w-full"
-                    tabindex="5"
+                    tabindex="10"
                     :disabled="processing"
                     data-test="register-user-button"
                 >
                     <Spinner v-if="processing" />
-                    Create account
+                    Créer un compte
                 </Button>
             </div>
 
             <div class="text-center text-sm text-muted-foreground">
-                Already have an account?
+                Vous avez déja un compte ?
                 <TextLink
                     :href="login()"
                     class="underline underline-offset-4"
-                    :tabindex="6"
-                    >Log in</TextLink
+                    :tabindex="11"
+                    >Se connecter</TextLink
                 >
             </div>
         </Form>
