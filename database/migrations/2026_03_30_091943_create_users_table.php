@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('role_id')
                 ->constrained('roles')
                 ->restrictOnDelete();
+            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
 
