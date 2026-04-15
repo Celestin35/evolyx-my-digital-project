@@ -4,10 +4,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Nutrition" />
 
-    <AppLayout title="Dashboard" subtitle="Bienvenue sur votre tableau de bord personnel !">
+    <AppLayout>
         <section class="space-y-3">
+            <h1 class="text-3xl font-semibold tracking-tight">Nutrition</h1>
+            <p class="text-sm text-muted-foreground">Nutrition page scaffold.</p>
         </section>
     </AppLayout>
 </template>

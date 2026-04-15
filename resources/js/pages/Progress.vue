@@ -4,10 +4,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Progress" />
 
-    <AppLayout title="Dashboard" subtitle="Bienvenue sur votre tableau de bord personnel !">
+    <AppLayout>
         <section class="space-y-3">
+            <h1 class="text-3xl font-semibold tracking-tight">Progress</h1>
+            <p class="text-sm text-muted-foreground">Progress page scaffold.</p>
         </section>
     </AppLayout>
 </template>

@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import type { BreadcrumbItem } from '@/types';
+import DashboardHeader from '@/components/layout/DashboardHeader.vue'
+import DashboardSidebar from '@/components/layout/DashboardSidebar.vue'
 
-type Props = {
-    breadcrumbs?: BreadcrumbItem[];
-};
+defineProps<{
+  title: string,
+  subtitle?: string
+}>()
 
-withDefaults(defineProps<Props>(), {
-    breadcrumbs: () => [],
-});
 </script>
 
 <template>
-    <div class="min-h-screen bg-background text-foreground">
-        <main class="mx-auto flex w-full max-w-7xl flex-col px-6 py-8">
-            <slot />
-        </main>
+  <div class="flex min-h-dvh min-w-dvw  bg-gray-200 p-4">
+    <DashboardSidebar />
+
+    <div class="ml-4 flex min-w-0 flex-1 flex-col gap-4">
+      <DashboardHeader :title="title" :subtitle="subtitle" />
+      <main class="flex-1">
+        <slot />
+      </main>
     </div>
+  </div>
 </template>

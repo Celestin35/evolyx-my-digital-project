@@ -17,6 +17,11 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+    Route::inertia('sessions', 'Sessions')->name('sessions');
+    Route::inertia('nutrition', 'Nutrition')->name('nutrition');
+    Route::inertia('progress', 'Progress')->name('progress');
+    Route::inertia('community', 'Community')->name('community');
+    Route::inertia('profile', 'Profile')->name('profile');
     Route::get('/calories/data', [CaloriesController::class, 'getUserData'])->name('calories.data');
 });
 
