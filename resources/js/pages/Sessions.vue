@@ -4,12 +4,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 </script>
 
 <template>
-    <Head title="Sessions" />
+    <Head title="Séances" />
 
-    <AppLayout>
-        <section class="space-y-3">
-            <h1 class="text-3xl font-semibold tracking-tight">Sessions</h1>
-            <p class="text-sm text-muted-foreground">Sessions page scaffold.</p>
-        </section>
+    <AppLayout
+        title="Séances"
+        subtitle="Accédez à vos séances et à leur organisation."
+    >
+        <section />
     </AppLayout>
 </template>

@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\Role;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Models\WeightEntry;
 use Illuminate\Support\Facades\DB;
@@ -48,6 +49,19 @@ class CreateNewUser implements CreatesNewUsers
             $user->weightEntries()->create([
                 'weight' => $input['weight'],
             ]);
+
+            $freePlanId = SubscriptionPlan::query()
+                ->where('name', 'Free')
+                ->value('id');
+
+            if ($freePlanId) {
+                $user->subscriptions()->create([
+                    'start_date' => now(),
+                    'end_date' => now()->addMonth(),
+                    'is_active' => true,
+                    'subscription_plan_id' => $freePlanId,
+                ]);
+            }
 
             return $user;
         });

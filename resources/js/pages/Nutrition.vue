@@ -6,10 +6,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 <template>
     <Head title="Nutrition" />
 
-    <AppLayout>
-        <section class="space-y-3">
-            <h1 class="text-3xl font-semibold tracking-tight">Nutrition</h1>
-            <p class="text-sm text-muted-foreground">Nutrition page scaffold.</p>
-        </section>
+    <AppLayout title="Nutrition" subtitle="Consultez et organisez votre suivi nutritionnel.">
+        <section />
     </AppLayout>
 </template>

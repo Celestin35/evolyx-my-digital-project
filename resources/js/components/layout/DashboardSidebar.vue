@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { Settings } from 'lucide-vue-next';
 import {
     community,
     dashboard,
+    home,
     logout,
     nutrition,
     progress,
     sessions,
 } from '@/routes';
+import { edit as editProfile } from '@/routes/profile';
 import appleSvg from '../../../images/icons/apple-purple.svg';
 import dashboardSvg from '../../../images/icons/dashboard-purple.svg';
 import exitSvg from '../../../images/icons/exit-purple.svg';
@@ -22,13 +25,13 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
         class="hidden min-h-full w-1/5 flex-col items-center justify-between rounded-lg bg-evo-white px-8 py-12 lg:flex"
     >
         <div class="w-full">
-            <div class="mb-10 h-auto w-40">
+            <Link :href="home()" class="mb-10 block h-auto w-40">
                 <img
                     :src="logoEvolyxOrange"
                     alt="Evolyx"
                     class="h-auto max-w-full"
                 />
-            </div>
+            </Link>
 
             <nav class="flex flex-col justify-center gap-5 text-lg font-medium">
                 <Link
@@ -61,6 +64,13 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
             </nav>
         </div>
         <div class="w-full">
+            <Link
+                :href="editProfile()"
+                class="mb-5 flex items-center gap-4 text-left text-sm font-medium"
+            >
+                <Settings class="h-auto w-7 text-evo-purple" />
+                <span>Parametres</span>
+            </Link>
             <Link
                 :href="logout()"
                 method="post"

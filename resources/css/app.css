@@ -9,7 +9,7 @@
 @theme inline {
     --color-evo-white : #F7F7F5;
     --color-evo-black : #040305;
-    --color-evo-purple : #C012FF;
+    --color-evo-purple : #7A4896;
     --color-evo-orange : #FF813E;
 }
 
@@ -19,3 +19,4 @@ body {
 .container {
     @apply mx-auto max-w-7xl px-4;
 }
+

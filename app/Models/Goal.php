@@ -9,6 +9,7 @@ class Goal extends Model
 {
     protected $fillable = [
         'target_weight',
+        'weekly_weight_goal',
         'daily_calories',
         'is_active',
         'goal_end_date',
@@ -21,6 +22,7 @@ class Goal extends Model
     {
         return [
             'target_weight' => 'decimal:2',
+            'weekly_weight_goal' => 'decimal:2',
             'is_active' => 'boolean',
             'goal_end_date' => 'date',
         ];

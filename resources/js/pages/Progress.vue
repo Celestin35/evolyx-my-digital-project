@@ -4,12 +4,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 </script>
 
 <template>
-    <Head title="Progress" />
+    <Head title="Progression" />
 
-    <AppLayout>
-        <section class="space-y-3">
-            <h1 class="text-3xl font-semibold tracking-tight">Progress</h1>
-            <p class="text-sm text-muted-foreground">Progress page scaffold.</p>
-        </section>
+    <AppLayout
+        title="Progression"
+        subtitle="Visualisez l'évolution de vos résultats."
+    >
+        <section />
     </AppLayout>
 </template>

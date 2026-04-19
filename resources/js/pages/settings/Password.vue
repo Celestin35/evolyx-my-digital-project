@@ -13,100 +13,108 @@ import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Password settings',
+        title: 'Parametres du mot de passe',
         href: edit(),
     },
 ];
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Password settings" />
+    <AppLayout
+        :breadcrumbs="breadcrumbItems"
+        title="Parametres du mot de passe"
+        subtitle="Mettez a jour le mot de passe de votre compte."
+    >
+        <Head title="Parametres du mot de passe" />
 
-        <h1 class="sr-only">Password settings</h1>
+        <h1 class="sr-only">Parametres du mot de passe</h1>
 
         <SettingsLayout>
-            <div class="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Update password"
-                    description="Ensure your account is using a long, random password to stay secure"
-                />
+            <div class="rounded-lg bg-white p-6">
+                <div class="space-y-6">
+                    <Heading
+                        variant="small"
+                        title="Mot de passe"
+                        description="Mettez a jour le mot de passe avec un mot de passe long et securise."
+                    />
 
-                <Form
-                    v-bind="PasswordController.update.form()"
-                    :options="{
-                        preserveScroll: true,
-                    }"
-                    reset-on-success
-                    :reset-on-error="[
-                        'password',
-                        'password_confirmation',
-                        'current_password',
-                    ]"
-                    class="space-y-6"
-                    v-slot="{ errors, processing, recentlySuccessful }"
-                >
-                    <div class="grid gap-2">
-                        <Label for="current_password">Current password</Label>
-                        <PasswordInput
-                            id="current_password"
-                            name="current_password"
-                            class="mt-1 block w-full"
-                            autocomplete="current-password"
-                            placeholder="Current password"
-                        />
-                        <InputError :message="errors.current_password" />
-                    </div>
+                    <Form
+                        v-bind="PasswordController.update.form()"
+                        :options="{
+                            preserveScroll: true,
+                        }"
+                        reset-on-success
+                        :reset-on-error="[
+                            'password',
+                            'password_confirmation',
+                            'current_password',
+                        ]"
+                        class="space-y-6"
+                        v-slot="{ errors, processing, recentlySuccessful }"
+                    >
+                        <div class="grid gap-2">
+                            <Label for="current_password">Mot de passe actuel</Label>
+                            <PasswordInput
+                                id="current_password"
+                                name="current_password"
+                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                autocomplete="current-password"
+                                placeholder="Mot de passe actuel"
+                            />
+                            <InputError :message="errors.current_password" />
+                        </div>
 
-                    <div class="grid gap-2">
-                        <Label for="password">New password</Label>
-                        <PasswordInput
-                            id="password"
-                            name="password"
-                            class="mt-1 block w-full"
-                            autocomplete="new-password"
-                            placeholder="New password"
-                        />
-                        <InputError :message="errors.password" />
-                    </div>
+                        <div class="grid gap-2">
+                            <Label for="password">Nouveau mot de passe</Label>
+                            <PasswordInput
+                                id="password"
+                                name="password"
+                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                autocomplete="new-password"
+                                placeholder="Nouveau mot de passe"
+                            />
+                            <InputError :message="errors.password" />
+                        </div>
 
-                    <div class="grid gap-2">
-                        <Label for="password_confirmation"
-                            >Confirm password</Label
-                        >
-                        <PasswordInput
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            class="mt-1 block w-full"
-                            autocomplete="new-password"
-                            placeholder="Confirm password"
-                        />
-                        <InputError :message="errors.password_confirmation" />
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <Button
-                            :disabled="processing"
-                            data-test="update-password-button"
-                            >Save password</Button
-                        >
-
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p
-                                v-show="recentlySuccessful"
-                                class="text-sm text-neutral-600"
+                        <div class="grid gap-2">
+                            <Label for="password_confirmation"
+                                >Confirmer le mot de passe</Label
                             >
-                                Saved.
-                            </p>
-                        </Transition>
-                    </div>
-                </Form>
+                            <PasswordInput
+                                id="password_confirmation"
+                                name="password_confirmation"
+                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                autocomplete="new-password"
+                                placeholder="Confirmer le mot de passe"
+                            />
+                            <InputError :message="errors.password_confirmation" />
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <Button
+                                :disabled="processing"
+                                data-test="update-password-button"
+                                class="rounded-full bg-evo-black px-4 py-2 text-evo-white hover:bg-evo-black/90"
+                            >
+                                Enregistrer le mot de passe
+                            </Button>
+
+                            <Transition
+                                enter-active-class="transition ease-in-out"
+                                enter-from-class="opacity-0"
+                                leave-active-class="transition ease-in-out"
+                                leave-to-class="opacity-0"
+                            >
+                                <p
+                                    v-show="recentlySuccessful"
+                                    class="text-sm text-neutral-600"
+                                >
+                                    Enregistre.
+                                </p>
+                            </Transition>
+                        </div>
+                    </Form>
+                </div>
             </div>
         </SettingsLayout>
     </AppLayout>

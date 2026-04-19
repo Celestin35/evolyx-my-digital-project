@@ -13,19 +13,19 @@ import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'Compte',
         href: editProfile(),
     },
     {
-        title: 'Password',
+        title: 'Mot de passe',
         href: editPassword(),
     },
     {
-        title: 'Two-factor auth',
+        title: 'Double authentification',
         href: show(),
     },
     {
-        title: 'Appearance',
+        title: 'Apparence',
         href: editAppearance(),
     },
 ];
@@ -36,23 +36,26 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 <template>
     <div class="px-4 py-6">
         <Heading
-            title="Settings"
-            description="Manage your profile and account settings"
+            title="Parametres"
+            description="Gerez la securite et les preferences de votre compte."
         />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <aside class="w-full max-w-xl lg:w-48">
                 <nav
                     class="flex flex-col space-y-1 space-x-0"
-                    aria-label="Settings"
+                    aria-label="Parametres"
                 >
                     <Button
                         v-for="item in sidebarNavItems"
                         :key="toUrl(item.href)"
                         variant="ghost"
                         :class="[
-                            'w-full justify-start',
-                            { 'bg-muted': isCurrentOrParentUrl(item.href) },
+                            'w-full justify-start rounded-full px-4 py-2 text-evo-black hover:bg-neutral-100',
+                            {
+                                'bg-evo-black text-evo-white hover:bg-evo-black hover:text-evo-white':
+                                    isCurrentOrParentUrl(item.href),
+                            },
                         ]"
                         as-child
                     >
@@ -67,7 +70,7 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
             <Separator class="my-6 lg:hidden" />
 
             <div class="flex-1 md:max-w-2xl">
-                <section class="max-w-xl space-y-12">
+                <section class="max-w-xl space-y-6">
                     <slot />
                 </section>
             </div>
