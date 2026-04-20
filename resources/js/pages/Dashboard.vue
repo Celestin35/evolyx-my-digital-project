@@ -1,47 +1,36 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
-import type { BreadcrumbItem } from '@/types';
+import WeightChart from '@/components/WeightChart.vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-    },
-];
+type WeightEntry = {
+    id: number;
+    weight: number;
+    body_fat: number | null;
+    created_at: string | null;
+};
+
+defineProps<{
+    weightEntries: WeightEntry[];
+}>();
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Tableau de bord" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+    <AppLayout
+        title="Tableau de bord"
+        subtitle="Bienvenue sur votre tableau de bord personnel !"
+    >
+        <section
+            class="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-2 lg:grid-rows-2"
         >
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
+            <div class="flex min-h-0 h-full flex-col rounded-lg bg-white p-4">
+                <h2 class="mb-4 text-xl font-bold">Suivi du poids</h2>
+                <div class="min-h-0 flex-1">
+                    <WeightChart :weight-entries="weightEntries" />
                 </div>
             </div>
-            <div
-                class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
-            >
-                <PlaceholderPattern />
-            </div>
-        </div>
+        </section>
     </AppLayout>
 </template>

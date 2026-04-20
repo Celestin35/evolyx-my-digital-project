@@ -14,17 +14,17 @@ import { store } from '@/routes/register';
 
 <template>
     <AuthBase
-        title="Create un compte"
+        title="Créer un compte"
         description="Enter les informations ci-dessous pour créer votre compte"
         >
             <Head title="S'inscrire" />
 
             <Form
                 v-bind="store.form()"
-            :reset-on-success="['password', 'password_confirmation']"
-            v-slot="{ errors, processing }"
-            class="flex flex-col gap-6"
-        >
+                :reset-on-success="['password', 'password_confirmation']"
+                v-slot="{ errors, processing }"
+                class="flex flex-col gap-6"
+            >
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="first_name">Prénom</Label>
@@ -42,12 +42,26 @@ import { store } from '@/routes/register';
                 </div>
 
                 <div class="grid gap-2">
+                    <Label for="pseudo">Pseudo</Label>
+                    <Input
+                        id="pseudo"
+                        type="text"
+                        required
+                        :tabindex="2"
+                        autocomplete="username"
+                        name="pseudo"
+                        placeholder="celestin"
+                    />
+                    <InputError :message="errors.pseudo" />
+                </div>
+
+                <div class="grid gap-2">
                     <Label for="email">Adresse email</Label>
                     <Input
                         id="email"
                         type="email"
                         required
-                        :tabindex="2"
+                        :tabindex="3"
                         autocomplete="email"
                         name="email"
                         placeholder="email@example.com"
@@ -61,7 +75,7 @@ import { store } from '@/routes/register';
                         id="sex"
                         name="sex"
                         required
-                        :tabindex="3"
+                        :tabindex="4"
                         class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                     >
                         <option value="male">Homme</option>
@@ -78,7 +92,7 @@ import { store } from '@/routes/register';
                         min="100"
                         max="250"
                         required
-                        :tabindex="4"
+                        :tabindex="5"
                         name="height"
                         placeholder="175"
                     />
@@ -94,7 +108,7 @@ import { store } from '@/routes/register';
                         max="500"
                         step="0.1"
                         required
-                        :tabindex="5"
+                        :tabindex="6"
                         name="weight"
                         placeholder="72.5"
                     />
@@ -107,7 +121,7 @@ import { store } from '@/routes/register';
                         id="activity_level"
                         name="activity_level"
                         required
-                        :tabindex="6"
+                        :tabindex="7"
                         class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                     >
                         <option value="sedentary">Sédentaire</option>
@@ -125,7 +139,7 @@ import { store } from '@/routes/register';
                         id="birth_date"
                         type="date"
                         required
-                        :tabindex="7"
+                        :tabindex="8"
                         name="birth_date"
                     />
                     <InputError :message="errors.birth_date" />
@@ -136,7 +150,7 @@ import { store } from '@/routes/register';
                     <PasswordInput
                         id="password"
                         required
-                        :tabindex="8"
+                        :tabindex="9"
                         autocomplete="new-password"
                         name="password"
                         placeholder="Password"
@@ -149,7 +163,7 @@ import { store } from '@/routes/register';
                     <PasswordInput
                         id="password_confirmation"
                         required
-                        :tabindex="9"
+                        :tabindex="10"
                         autocomplete="new-password"
                         name="password_confirmation"
                         placeholder="Confirm password"
@@ -160,7 +174,7 @@ import { store } from '@/routes/register';
                 <Button
                     type="submit"
                     class="mt-2 w-full"
-                    tabindex="10"
+                    tabindex="11"
                     :disabled="processing"
                     data-test="register-user-button"
                 >
@@ -174,7 +188,7 @@ import { store } from '@/routes/register';
                 <TextLink
                     :href="login()"
                     class="underline underline-offset-4"
-                    :tabindex="11"
+                    :tabindex="12"
                     >Se connecter</TextLink
                 >
             </div>

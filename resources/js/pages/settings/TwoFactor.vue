@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Two-factor authentication',
+        title: 'Double authentification',
         href: show(),
     },
 ];
@@ -39,86 +39,95 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Two-factor authentication" />
+    <AppLayout
+        :breadcrumbs="breadcrumbs"
+        title="Double authentification"
+        subtitle="Renforcez la securite de votre connexion."
+    >
+        <Head title="Double authentification" />
 
-        <h1 class="sr-only">Two-factor authentication settings</h1>
+        <h1 class="sr-only">Parametres de double authentification</h1>
 
         <SettingsLayout>
-            <div class="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Two-factor authentication"
-                    description="Manage your two-factor authentication settings"
-                />
+            <div class="rounded-lg bg-white p-6">
+                <div class="space-y-6">
+                    <Heading
+                        variant="small"
+                        title="Double authentification"
+                        description="Gerez la double authentification de votre compte."
+                    />
 
-                <div
-                    v-if="!twoFactorEnabled"
-                    class="flex flex-col items-start justify-start space-y-4"
-                >
-                    <Badge variant="destructive">Disabled</Badge>
+                    <div
+                        v-if="!twoFactorEnabled"
+                        class="flex flex-col items-start justify-start space-y-4"
+                    >
+                        <Badge variant="destructive">Desactivee</Badge>
 
-                    <p class="text-muted-foreground">
-                        When you enable two-factor authentication, you will be
-                        prompted for a secure pin during login. This pin can be
-                        retrieved from a TOTP-supported application on your
-                        phone.
-                    </p>
+                        <p class="text-neutral-600">
+                            Lorsque vous activez la double authentification, un
+                            code de securite supplementaire vous sera demande a la
+                            connexion depuis votre application d'authentification.
+                        </p>
 
-                    <div>
-                        <Button
-                            v-if="hasSetupData"
-                            @click="showSetupModal = true"
-                        >
-                            <ShieldCheck />Continue setup
-                        </Button>
-                        <Form
-                            v-else
-                            v-bind="enable.form()"
-                            @success="showSetupModal = true"
-                            #default="{ processing }"
-                        >
-                            <Button type="submit" :disabled="processing">
-                                <ShieldCheck />Enable 2FA</Button
-                            ></Form
-                        >
-                    </div>
-                </div>
-
-                <div
-                    v-else
-                    class="flex flex-col items-start justify-start space-y-4"
-                >
-                    <Badge variant="default">Enabled</Badge>
-
-                    <p class="text-muted-foreground">
-                        With two-factor authentication enabled, you will be
-                        prompted for a secure, random pin during login, which
-                        you can retrieve from the TOTP-supported application on
-                        your phone.
-                    </p>
-
-                    <TwoFactorRecoveryCodes />
-
-                    <div class="relative inline">
-                        <Form v-bind="disable.form()" #default="{ processing }">
+                        <div>
                             <Button
-                                variant="destructive"
-                                type="submit"
-                                :disabled="processing"
+                                v-if="hasSetupData"
+                                class="rounded-full bg-evo-black px-4 py-2 text-evo-white hover:bg-evo-black/90"
+                                @click="showSetupModal = true"
                             >
-                                <ShieldBan />
-                                Disable 2FA
+                                <ShieldCheck />Continuer la configuration
                             </Button>
-                        </Form>
+                            <Form
+                                v-else
+                                v-bind="enable.form()"
+                                @success="showSetupModal = true"
+                                #default="{ processing }"
+                            >
+                                <Button
+                                    type="submit"
+                                    :disabled="processing"
+                                    class="rounded-full bg-evo-black px-4 py-2 text-evo-white hover:bg-evo-black/90"
+                                >
+                                    <ShieldCheck />Activer la 2FA
+                                </Button>
+                            </Form>
+                        </div>
                     </div>
-                </div>
 
-                <TwoFactorSetupModal
-                    v-model:isOpen="showSetupModal"
-                    :requiresConfirmation="requiresConfirmation"
-                    :twoFactorEnabled="twoFactorEnabled"
-                />
+                    <div
+                        v-else
+                        class="flex flex-col items-start justify-start space-y-4"
+                    >
+                        <Badge variant="default">Activee</Badge>
+
+                        <p class="text-neutral-600">
+                            Avec la double authentification activee, un code
+                            supplementaire vous sera demande a chaque connexion.
+                        </p>
+
+                        <TwoFactorRecoveryCodes />
+
+                        <div class="relative inline">
+                            <Form v-bind="disable.form()" #default="{ processing }">
+                                <Button
+                                    variant="destructive"
+                                    type="submit"
+                                    :disabled="processing"
+                                    class="rounded-full px-4 py-2"
+                                >
+                                    <ShieldBan />
+                                    Desactiver la 2FA
+                                </Button>
+                            </Form>
+                        </div>
+                    </div>
+
+                    <TwoFactorSetupModal
+                        v-model:isOpen="showSetupModal"
+                        :requiresConfirmation="requiresConfirmation"
+                        :twoFactorEnabled="twoFactorEnabled"
+                    />
+                </div>
             </div>
         </SettingsLayout>
     </AppLayout>

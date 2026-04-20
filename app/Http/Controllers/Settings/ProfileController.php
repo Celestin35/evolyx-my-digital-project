@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\SubscriptionPlan;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,9 +20,34 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user()->load([
+            'subscriptions' => fn ($query) => $query
+                ->where('is_active', true)
+                ->with('subscriptionPlan')
+                ->latest()
+                ->limit(1),
+        ]);
+
+        $activeSubscription = $user->subscriptions->first();
+        $subscriptionPlans = SubscriptionPlan::query()
+            ->orderBy('price')
+            ->get();
+
         return Inertia::render('settings/Profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'activeSubscription' => $activeSubscription ? [
+                'plan_name' => $activeSubscription->subscriptionPlan?->name,
+                'start_date' => $activeSubscription->start_date?->toDateString(),
+                'end_date' => $activeSubscription->end_date?->toDateString(),
+                'is_active' => $activeSubscription->is_active,
+            ] : null,
+            'subscriptionPlans' => $subscriptionPlans->map(fn (SubscriptionPlan $plan) => [
+                'name' => $plan->name,
+                'price' => $plan->price,
+                'ads_enabled' => $plan->ads_enabled,
+                'premium_features' => $plan->premium_features,
+            ])->values(),
         ]);
     }
 

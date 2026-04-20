@@ -64,49 +64,15 @@ class DemoDataSeeder extends Seeder
             ['user_id' => $users['demo@evolyx.local'], 'is_active' => true],
             [
                 'target_weight' => 61.50,
+                'weekly_weight_goal' => 0.25,
                 'daily_calories' => 2100,
-                'goal_end_date' => now()->addMonths(4)->toDateString(),
+                'goal_end_date' => now()->addDays(42)->toDateString(),
                 'macronutrient_id' => $macroIds[0],
-                'goal_type_id' => $goalTypes['Recomposition corporelle'],
+                'goal_type_id' => $goalTypes['Prise de masse'],
                 'created_at' => $now,
                 'updated_at' => $now,
             ]
         );
-
-        $weightEntries = [
-            [
-                'user_id' => $users['demo@evolyx.local'],
-                'weight' => 64.80,
-                'body_fat' => 24.50,
-                'created_at' => now()->subDays(14),
-                'updated_at' => now()->subDays(14),
-            ],
-            [
-                'user_id' => $users['demo@evolyx.local'],
-                'weight' => 64.10,
-                'body_fat' => 24.00,
-                'created_at' => now()->subDays(7),
-                'updated_at' => now()->subDays(7),
-            ],
-            [
-                'user_id' => $users['demo@evolyx.local'],
-                'weight' => 63.70,
-                'body_fat' => 23.60,
-                'created_at' => now()->subDay(),
-                'updated_at' => now()->subDay(),
-            ],
-        ];
-
-        foreach ($weightEntries as $entry) {
-            DB::table('weight_entries')->updateOrInsert(
-                ['user_id' => $entry['user_id'], 'created_at' => $entry['created_at']],
-                [
-                    'weight' => $entry['weight'],
-                    'body_fat' => $entry['body_fat'],
-                    'updated_at' => $entry['updated_at'],
-                ]
-            );
-        }
 
         $workoutSessions = [
             [

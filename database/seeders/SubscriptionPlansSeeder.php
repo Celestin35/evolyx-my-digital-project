@@ -22,7 +22,7 @@ class SubscriptionPlansSeeder extends Seeder
             ],
             [
                 'name' => 'Essential',
-                'price' => 7.99,
+                'price' => 3.99,
                 'ads_enabled' => false,
                 'premium_features' => false,
                 'created_at' => $now,

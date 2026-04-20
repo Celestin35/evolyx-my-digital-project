@@ -47,13 +47,20 @@ class CaloriesCalculationService
             activityLevel: (string) $data['activity_level'],
         );
 
-        $daysRemaining = max(1, Carbon::parse($data['goal_end_date'])->diffInDays(now()));
         $weightDelta = (float) $data['target_weight'] - (float) $data['current_weight'];
-        $dailyCalorieAdjustment = (abs($weightDelta) * 7700) / $daysRemaining;
+        $weeklyWeightGoal = round((float) $data['weekly_weight_goal'], 2);
+        $daysRemaining = $this->calculateGoalDurationInDays(
+            weightDelta: $weightDelta,
+            weeklyWeightGoal: $weeklyWeightGoal,
+        );
+
+        $dailyCalorieAdjustment = abs($weeklyWeightGoal) > 0
+            ? (abs($weeklyWeightGoal) * 7700) / 7
+            : 0.0;
 
         $rawTargetCalories = match (true) {
-            $weightDelta < 0 => $maintenanceCalories - $dailyCalorieAdjustment,
-            $weightDelta > 0 => $maintenanceCalories + $dailyCalorieAdjustment,
+            $weeklyWeightGoal < 0 => $maintenanceCalories - $dailyCalorieAdjustment,
+            $weeklyWeightGoal > 0 => $maintenanceCalories + $dailyCalorieAdjustment,
             default => $maintenanceCalories,
         };
 
@@ -62,20 +69,32 @@ class CaloriesCalculationService
             sex: (string) $data['sex'],
         );
 
-        $weeklyWeightChange = $daysRemaining > 0
-            ? ($weightDelta / $daysRemaining) * 7
-            : 0.0;
+        $goalEndDate = $daysRemaining === null
+            ? null
+            : Carbon::today()->addDays($daysRemaining)->toDateString();
 
         return [
             'bmr' => (int) round($bmr),
             'maintenance_calories' => (int) round($maintenanceCalories),
             'target_calories' => (int) round($safeTargetCalories),
             'daily_calorie_adjustment' => (int) round($dailyCalorieAdjustment),
-            'weekly_weight_change' => round($weeklyWeightChange, 2),
+            'weekly_weight_change' => $weeklyWeightGoal,
             'days_remaining' => $daysRemaining,
-            'is_realistic' => abs($weeklyWeightChange) <= 1,
+            'goal_end_date' => $goalEndDate,
+            'is_realistic' => abs($weeklyWeightGoal) <= 1,
             'macros' => $this->calculateMacros((int) round($safeTargetCalories)),
         ];
+    }
+
+    private function calculateGoalDurationInDays(float $weightDelta, float $weeklyWeightGoal): ?int
+    {
+        if ($weightDelta === 0.0 || $weeklyWeightGoal === 0.0) {
+            return null;
+        }
+
+        $weeksRequired = abs($weightDelta) / abs($weeklyWeightGoal);
+
+        return max(1, (int) ceil($weeksRequired * 7));
     }
 
     private function calculateBmr(float $weight, int $height, int $age, string $sex): float
