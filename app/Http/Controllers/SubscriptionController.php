@@ -34,7 +34,7 @@ class SubscriptionController extends Controller
             ->firstOrFail();
 
         if ($currentSubscription?->subscriptionPlan?->name === $selectedPlan->name) {
-            return to_route('profile')->with(
+            return to_route('profile.edit')->with(
                 'success',
                 'Cet abonnement est deja actif.',
             );
@@ -56,7 +56,7 @@ class SubscriptionController extends Controller
             ]);
         });
 
-        return to_route('profile')->with(
+        return to_route('profile.edit')->with(
             'success',
             'Abonnement mis a jour avec succes.',
         );

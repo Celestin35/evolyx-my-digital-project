@@ -41,6 +41,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const successMessage = computed(() => page.props.flash?.success ?? null);
 
 const accountInfoForm = useForm({
     pseudo: user.value.pseudo ?? '',
@@ -195,6 +196,13 @@ const confirmSubscriptionChange = () => {
                         title="Informations du compte"
                         description="Modifiez les informations principales de votre compte."
                     />
+
+                    <div
+                        v-if="successMessage"
+                        class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
+                    >
+                        {{ successMessage }}
+                    </div>
 
                     <div class="space-y-6">
                         <div class="grid gap-2">
