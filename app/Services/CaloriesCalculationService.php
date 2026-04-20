@@ -123,6 +123,15 @@ class CaloriesCalculationService
         return $bmr * $factor;
     }
 
+    private function applyGoalAdjustment(float $maintenanceCalories, ?string $goal): float
+    {
+        return match ($goal) {
+            'weight_loss' => $maintenanceCalories - 400,
+            'muscle_gain' => $maintenanceCalories + 250,
+            default => $maintenanceCalories,
+        };
+    }
+
     private function applySafetyFloor(float $calories, string $sex): float
     {
         $sex = strtolower($sex);

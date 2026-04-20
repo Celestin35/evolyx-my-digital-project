@@ -22,7 +22,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::inertia('sessions', 'Sessions')->name('sessions');
-    Route::inertia('nutrition', 'Nutrition')->name('nutrition');
+    Route::get('nutrition', [CaloriesController::class, 'show'])->name('nutrition');
     Route::inertia('progress', 'Progress')->name('progress');
     Route::inertia('community', 'Community')->name('community');
     Route::get('profile', [UserController::class, 'show'])->name('profile');
@@ -32,7 +32,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
     Route::get('/calories/data', [CaloriesController::class, 'getUserData'])->name('calories.data');
 });
-
-Route::inertia('/calories', 'Calories')->name('calories');
 
 require __DIR__.'/settings.php';
