@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Sport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,7 @@ class UserController extends Controller
     {
         $user = $request->user()->load([
             'role',
+            'sports',
             'latestWeightEntry',
             'goals' => fn ($query) => $query
                 ->where('is_active', true)
@@ -37,7 +39,19 @@ class UserController extends Controller
                 'age' => $user->age,
                 'current_weight' => $user->current_weight,
                 'role' => $user->role?->name,
+                'sport_ids' => $user->sports->pluck('id')->values(),
+                'sports' => $user->sports->map(fn ($sport) => [
+                    'id' => $sport->id,
+                    'name' => $sport->name,
+                ])->values(),
             ],
+            'availableSports' => Sport::query()
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn ($sport) => [
+                    'id' => $sport->id,
+                    'name' => $sport->name,
+                ]),
             'activeGoal' => $activeGoal ? [
                 'target_weight' => $activeGoal->target_weight,
                 'weekly_weight_goal' => $activeGoal->weekly_weight_goal,
@@ -58,9 +72,21 @@ class UserController extends Controller
                 'required',
                 Rule::in(['sedentary', 'light', 'moderate', 'active', 'very_active']),
             ],
+            'sport_ids' => ['required', 'array', 'min:1'],
+            'sport_ids.*' => ['integer', Rule::exists('sports', 'id')],
         ]);
 
-        $request->user()->update($validatedData);
+        $user = $request->user();
+        $user->update([
+            'first_name' => $validatedData['first_name'],
+            'sex' => $validatedData['sex'],
+            'height' => $validatedData['height'],
+            'birth_date' => $validatedData['birth_date'],
+            'activity_level' => $validatedData['activity_level'],
+        ]);
+        $user->sports()->sync(
+            collect($validatedData['sport_ids'])->map(fn ($id) => (int) $id)->unique()->values()->all(),
+        );
 
         return to_route('profile')->with(
             'success',

@@ -22,6 +22,7 @@ class EquipmentSeeder extends Seeder
             ['name' => 'Barre de traction', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'Anneaux de gymnastique', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'Foam roller', 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Machine guidee', 'created_at' => $now, 'updated_at' => $now],
         ], ['name'], ['updated_at']);
     }
 }

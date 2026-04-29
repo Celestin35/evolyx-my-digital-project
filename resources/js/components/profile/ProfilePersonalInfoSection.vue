@@ -22,10 +22,21 @@ type ProfileUser = {
     age: number | null;
     current_weight: string | number | null;
     role: string | null;
+    sport_ids: number[];
+    sports: Array<{
+        id: number;
+        name: string;
+    }>;
+};
+
+type SportOption = {
+    id: number;
+    name: string;
 };
 
 const props = defineProps<{
     user: ProfileUser;
+    availableSports: SportOption[];
 }>();
 
 const isEditing = ref(false);
@@ -36,6 +47,7 @@ const personalInfoForm = useForm({
     height: props.user.height ?? '',
     birth_date: props.user.birth_date ?? '',
     activity_level: props.user.activity_level ?? '',
+    sport_ids: props.user.sport_ids ?? [],
 });
 
 const formattedSex = computed(() => formatSexLabel(props.user.sex));
@@ -50,6 +62,7 @@ const startEdit = () => {
         height: props.user.height ?? '',
         birth_date: props.user.birth_date ?? '',
         activity_level: props.user.activity_level ?? '',
+        sport_ids: props.user.sport_ids ?? [],
     });
     personalInfoForm.reset();
     personalInfoForm.clearErrors();
@@ -65,6 +78,7 @@ const cancelEdit = () => {
 const savePersonalInfo = () => {
     personalInfoForm.patch('/profile/personal-info', {
         preserveScroll: true,
+        
         onSuccess: () => {
             isEditing.value = false;
         },
@@ -127,6 +141,13 @@ const savePersonalInfo = () => {
                     >
                         <p class="font-medium">Niveau d'activite :</p>
                         <p>{{ formattedActivityLevel }}</p>
+                    </div>
+                    <div
+                        v-if="user.sports.length"
+                        class="flex items-start gap-1"
+                    >
+                        <p class="font-medium">Sports :</p>
+                        <p>{{ user.sports.map((sport) => sport.name).join(', ') }}</p>
                     </div>
                     <div v-if="user.age" class="flex items-center gap-1">
                         <p class="font-medium">Age :</p>
@@ -251,6 +272,31 @@ const savePersonalInfo = () => {
                             class="text-sm text-red-600"
                         >
                             {{ personalInfoForm.errors.activity_level }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="block font-medium">Sports pratiques</p>
+                        <div class="grid gap-2 rounded-md border border-neutral-300 p-3">
+                            <label
+                                v-for="sport in availableSports"
+                                :key="sport.id"
+                                class="flex items-center gap-2 text-sm"
+                            >
+                                <input
+                                    v-model="personalInfoForm.sport_ids"
+                                    type="checkbox"
+                                    :value="sport.id"
+                                    class="h-4 w-4 accent-evo-black"
+                                />
+                                <span>{{ sport.name }}</span>
+                            </label>
+                        </div>
+                        <p
+                            v-if="personalInfoForm.errors.sport_ids"
+                            class="text-sm text-red-600"
+                        >
+                            {{ personalInfoForm.errors.sport_ids }}
                         </p>
                     </div>
 

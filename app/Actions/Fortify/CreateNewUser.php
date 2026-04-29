@@ -7,9 +7,9 @@ use App\Concerns\ProfileValidationRules;
 use App\Models\Role;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
-use App\Models\WeightEntry;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -30,6 +30,8 @@ class CreateNewUser implements CreatesNewUsers
             'weight' => ['required', 'numeric', 'min:20', 'max:500'],
             'activity_level' => ['required', 'in:sedentary,light,moderate,active,very_active'],
             'birth_date' => ['required', 'date', 'before:today'],
+            'sport_ids' => ['required', 'array', 'min:1'],
+            'sport_ids.*' => ['integer', Rule::exists('sports', 'id')],
             'password' => $this->passwordRules(),
         ])->validate();
 
@@ -49,6 +51,16 @@ class CreateNewUser implements CreatesNewUsers
             $user->weightEntries()->create([
                 'weight' => $input['weight'],
             ]);
+
+            $sportIds = collect($input['sport_ids'] ?? [])
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (! empty($sportIds)) {
+                $user->sports()->sync($sportIds);
+            }
 
             $freePlanId = SubscriptionPlan::query()
                 ->where('name', 'Free')

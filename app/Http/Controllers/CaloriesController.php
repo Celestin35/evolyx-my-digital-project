@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Services\CaloriesCalculationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CaloriesController extends Controller
 {
@@ -20,9 +22,15 @@ class CaloriesController extends Controller
                 ->with(['goalType', 'macronutrient'])
                 ->latest()
                 ->limit(1),
+            'subscriptions' => fn ($query) => $query
+                ->where('is_active', true)
+                ->with('subscriptionPlan')
+                ->latest()
+                ->limit(1),
         ]);
 
         $activeGoal = $user->goals->first();
+        $activeSubscription = $user->subscriptions->first();
 
         $goalPlan = $activeGoal
             ? $caloriesCalculationService->calculateGoalPlan([
@@ -55,7 +63,69 @@ class CaloriesController extends Controller
                     ? (int) round($activeGoal->daily_calories * 0.42)
                     : null,
             ],
+            'can_edit_macros' => (bool) $activeSubscription?->subscriptionPlan?->premium_features,
+            'active_subscription_plan' => $activeSubscription?->subscriptionPlan?->name,
         ]);
+    }
+
+    public function updateMacros(Request $request): RedirectResponse
+    {
+        $validatedData = $request->validate([
+            'protein' => ['required', 'integer', 'min:0', 'max:600'],
+            'carbs' => ['required', 'integer', 'min:0', 'max:900'],
+            'fats' => ['required', 'integer', 'min:0', 'max:300'],
+        ]);
+
+        $user = $request->user()->load([
+            'subscriptions' => fn ($query) => $query
+                ->where('is_active', true)
+                ->with('subscriptionPlan')
+                ->latest()
+                ->limit(1),
+            'goals' => fn ($query) => $query
+                ->where('is_active', true)
+                ->with('macronutrient')
+                ->latest()
+                ->limit(1),
+        ]);
+
+        $activeSubscription = $user->subscriptions->first();
+        $hasPremiumFeatures = (bool) $activeSubscription?->subscriptionPlan?->premium_features;
+
+        if (! $hasPremiumFeatures) {
+            return to_route('nutrition')->withErrors([
+                'macros' => 'Cette fonctionnalite est reservee a l abonnement Premium.',
+            ]);
+        }
+
+        $activeGoal = $user->goals->first();
+
+        if (! $activeGoal || ! $activeGoal->macronutrient) {
+            return to_route('nutrition')->withErrors([
+                'macros' => 'Aucun objectif actif avec macros n est disponible.',
+            ]);
+        }
+
+        $targetCalories = ($validatedData['protein'] * 4)
+            + ($validatedData['carbs'] * 4)
+            + ($validatedData['fats'] * 9);
+
+        DB::transaction(function () use ($activeGoal, $validatedData, $targetCalories) {
+            $activeGoal->macronutrient()->update([
+                'protein' => $validatedData['protein'],
+                'carbs' => $validatedData['carbs'],
+                'fats' => $validatedData['fats'],
+            ]);
+
+            $activeGoal->update([
+                'daily_calories' => $targetCalories,
+            ]);
+        });
+
+        return to_route('nutrition')->with(
+            'success',
+            'Macros mises a jour avec succes.',
+        );
     }
 
     public function getUserData(Request $request, CaloriesCalculationService $caloriesCalculationService)

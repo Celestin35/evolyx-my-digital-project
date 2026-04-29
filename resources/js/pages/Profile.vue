@@ -18,6 +18,16 @@ type ProfileUser = {
     age: number | null;
     current_weight: string | number | null;
     role: string | null;
+    sport_ids: number[];
+    sports: Array<{
+        id: number;
+        name: string;
+    }>;
+};
+
+type SportOption = {
+    id: number;
+    name: string;
 };
 
 type ActiveGoal = {
@@ -27,8 +37,9 @@ type ActiveGoal = {
     goal_type: string | null;
 };
 
-defineProps<{
+const props = defineProps<{
     user: ProfileUser;
+    availableSports: SportOption[];
     activeGoal: ActiveGoal | null;
 }>();
 
@@ -105,11 +116,11 @@ onBeforeUnmount(() => {
     <AppLayout title="Profil" subtitle="Gerez vos informations personnelles.">
         <section ref="sectionsRoot" class="flex flex-col gap-4 lg:flex-row">
             <div class="flex w-full flex-col gap-4 lg:w-1/2">
-                <ProfilePersonalInfoSection :user="user" />
+                <ProfilePersonalInfoSection :user="props.user" :available-sports="props.availableSports" />
             </div>
 
             <div class="flex w-full flex-col gap-4 lg:w-1/2">
-                <ProfileGoalSection :user="user" :active-goal="activeGoal" />
+                <ProfileGoalSection :user="props.user" :active-goal="props.activeGoal" />
             </div>
         </section>
     </AppLayout>

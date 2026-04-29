@@ -15,9 +15,24 @@ class ExerciseEquipmentSeeder extends Seeder
         $pairs = [
             ['Developpe couche halteres', 'Halteres'],
             ['Developpe couche halteres', 'Banc'],
+            ['Developpe incline halteres', 'Halteres'],
+            ['Developpe incline halteres', 'Banc'],
+            ['Developpe militaire', 'Barre olympique'],
+            ['Elevations laterales', 'Halteres'],
             ['Rowing barre', 'Barre olympique'],
+            ['Tirage vertical', 'Machine guidee'],
+            ['Rowing poulie basse', 'Machine guidee'],
+            ['Face pull', 'Machine guidee'],
             ['Squat goblet', 'Kettlebell'],
             ['Squat goblet', 'Halteres'],
+            ['Presse a cuisses', 'Machine guidee'],
+            ['Souleve de terre roumain', 'Barre olympique'],
+            ['Fentes marchees', 'Halteres'],
+            ['Hip thrust', 'Barre olympique'],
+            ['Leg curl', 'Machine guidee'],
+            ['Curl biceps halteres', 'Halteres'],
+            ['Extension triceps poulie', 'Machine guidee'],
+            ['Crunch cable', 'Machine guidee'],
             ['Pompes strictes', 'Poids du corps'],
             ['Tractions pronation', 'Barre de traction'],
             ['Dips', 'Poids du corps'],
@@ -39,6 +54,6 @@ class ExerciseEquipmentSeeder extends Seeder
             ];
         }
 
-        DB::table('exercise_equipment')->upsert($rows, ['exercise_id', 'equipment_id'], []);
+        DB::table('exercise_equipment')->insertOrIgnore($rows);
     }
 }

@@ -12,6 +12,7 @@ class PerformedSession extends Model
         'user_id',
         'workout_session_id',
         'performed_at',
+        'completed_at',
         'notes',
     ];
 
@@ -19,6 +20,7 @@ class PerformedSession extends Model
     {
         return [
             'performed_at' => 'datetime',
+            'completed_at' => 'datetime',
         ];
     }
 
