@@ -93,6 +93,8 @@ const performedSessionForm = useForm({
 const selectedCalendarDate = ref<Date | null>(null);
 const selectedPerformedSession = ref<PerformedSession | null>(null);
 const wantsPerformanceEntry = ref<boolean | null>(null);
+const isWorkoutSessionModalOpen = ref(false);
+const isCustomExerciseModalOpen = ref(false);
 
 const completeSessionForm = useForm({
     notes: '',
@@ -269,6 +271,18 @@ const closeCompleteSessionModal = () => {
     completeSessionForm.reset();
 };
 
+const closeWorkoutSessionModal = () => {
+    isWorkoutSessionModalOpen.value = false;
+    workoutSessionForm.reset();
+    workoutSessionForm.clearErrors();
+};
+
+const closeCustomExerciseModal = () => {
+    isCustomExerciseModalOpen.value = false;
+    customExerciseForm.reset();
+    customExerciseForm.clearErrors();
+};
+
 const toggleExercise = (exerciseId: number) => {
     const alreadySelected =
         workoutSessionForm.exercise_ids.includes(exerciseId);
@@ -288,18 +302,14 @@ const toggleExercise = (exerciseId: number) => {
 const createWorkoutSession = () => {
     workoutSessionForm.post('/sessions/workout-sessions', {
         preserveScroll: true,
-        onSuccess: () => {
-            workoutSessionForm.reset();
-        },
+        onSuccess: closeWorkoutSessionModal,
     });
 };
 
 const createCustomExercise = () => {
     customExerciseForm.post('/sessions/exercises', {
         preserveScroll: true,
-        onSuccess: () => {
-            customExerciseForm.reset();
-        },
+        onSuccess: closeCustomExerciseModal,
     });
 };
 
@@ -352,430 +362,454 @@ const completeSelectedSession = () => {
             </p>
         </section>
 
-        <section class="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-            <div class="space-y-4">
-                <section class="rounded-lg bg-white p-6">
-                    <div class="flex items-center justify-between gap-3">
-                        <h2 class="text-lg font-semibold">
-                            Calendrier des seances
-                        </h2>
-                        <p class="text-sm text-neutral-500">
-                            {{ performedSessions.length }} seance(s)
+        <div class="space-y-4">
+            <section class="rounded-lg bg-white p-6">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 class="text-lg font-semibold">
+                        Calendrier des seances
+                    </h2>
+                    <p class="text-sm text-neutral-500">
+                        {{ performedSessions.length }} seance(s)
+                    </p>
+                </div>
+
+                <div
+                    class="mt-4 overflow-hidden rounded-lg border border-neutral-200"
+                >
+                    <VueCal
+                        locale="fr"
+                        active-view="month"
+                        :time="false"
+                        :disable-views="['years', 'year']"
+                        events-on-month-view
+                        :events="calendarEvents"
+                        @cell-click="onCalendarCellClick"
+                        @event-click="onCalendarEventClick"
+                        style="height: 500px"
+                    />
+                </div>
+            </section>
+
+            <section class="rounded-lg bg-white p-6">
+                <h2 class="text-lg font-semibold">
+                    Ajouter une seance au calendrier
+                </h2>
+                <p
+                    v-if="selectedCalendarDateLabel"
+                    class="mt-2 text-sm text-neutral-600"
+                >
+                    Jour selectionne depuis le calendrier:
+                    {{ selectedCalendarDateLabel }}
+                </p>
+
+                <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                    <div class="space-y-2">
+                        <label
+                            for="performed_workout_session"
+                            class="block font-medium"
+                        >
+                            Seance type
+                        </label>
+                        <select
+                            id="performed_workout_session"
+                            v-model="performedSessionForm.workout_session_id"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                        >
+                            <option value="">Selectionner une seance</option>
+                            <option
+                                v-for="session in workoutSessions"
+                                :key="session.id"
+                                :value="session.id"
+                            >
+                                {{ session.name }}
+                            </option>
+                        </select>
+                        <p
+                            v-if="
+                                performedSessionForm.errors.workout_session_id
+                            "
+                            class="text-sm text-red-600"
+                        >
+                            {{
+                                performedSessionForm.errors.workout_session_id
+                            }}
                         </p>
                     </div>
 
-                    <div
-                        class="mt-4 overflow-hidden rounded-lg border border-neutral-200"
-                    >
-                        <VueCal
-                            locale="fr"
-                            active-view="month"
-                            :time="false"
-                            :disable-views="['years', 'year']"
-                            events-on-month-view
-                            :events="calendarEvents"
-                            @cell-click="onCalendarCellClick"
-                            @event-click="onCalendarEventClick"
-                            style="height: 480px"
+                    <div class="space-y-2">
+                        <label for="performed_at" class="block font-medium">
+                            Date et heure
+                        </label>
+                        <input
+                            id="performed_at"
+                            v-model="performedSessionForm.performed_at"
+                            type="datetime-local"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
                         />
+                        <p
+                            v-if="performedSessionForm.errors.performed_at"
+                            class="text-sm text-red-600"
+                        >
+                            {{ performedSessionForm.errors.performed_at }}
+                        </p>
                     </div>
-                </section>
 
-                <section class="rounded-lg bg-white p-6">
-                    <h2 class="text-lg font-semibold">
-                        Ajouter une seance au calendrier
-                    </h2>
-                    <p
-                        v-if="selectedCalendarDateLabel"
-                        class="mt-2 text-sm text-neutral-600"
-                    >
-                        Jour selectionne depuis le calendrier:
-                        {{ selectedCalendarDateLabel }}
-                    </p>
-
-                    <div class="mt-4 space-y-4">
-                        <div class="space-y-2">
-                            <label
-                                for="performed_workout_session"
-                                class="block font-medium"
-                            >
-                                Seance type
-                            </label>
-                            <select
-                                id="performed_workout_session"
-                                v-model="
-                                    performedSessionForm.workout_session_id
-                                "
-                                class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
-                            >
-                                <option value="">
-                                    Selectionner une seance
-                                </option>
-                                <option
-                                    v-for="session in workoutSessions"
-                                    :key="session.id"
-                                    :value="session.id"
-                                >
-                                    {{ session.name }}
-                                </option>
-                            </select>
-                            <p
-                                v-if="
-                                    performedSessionForm.errors
-                                        .workout_session_id
-                                "
-                                class="text-sm text-red-600"
-                            >
-                                {{
-                                    performedSessionForm.errors
-                                        .workout_session_id
-                                }}
-                            </p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label for="performed_at" class="block font-medium">
-                                Date et heure
-                            </label>
-                            <input
-                                id="performed_at"
-                                v-model="performedSessionForm.performed_at"
-                                type="datetime-local"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="performedSessionForm.errors.performed_at"
-                                class="text-sm text-red-600"
-                            >
-                                {{ performedSessionForm.errors.performed_at }}
-                            </p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="performed_notes"
-                                class="block font-medium"
-                            >
-                                Notes (optionnel)
-                            </label>
-                            <textarea
-                                id="performed_notes"
-                                v-model="performedSessionForm.notes"
-                                rows="3"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="performedSessionForm.errors.notes"
-                                class="text-sm text-red-600"
-                            >
-                                {{ performedSessionForm.errors.notes }}
-                            </p>
-                        </div>
-
-                        <div class="flex items-center gap-3">
-                            <button
-                                type="button"
-                                class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90 disabled:opacity-50"
-                                :disabled="performedSessionForm.processing"
-                                @click="createPerformedSession"
-                            >
-                                {{
-                                    performedSessionForm.processing
-                                        ? 'Ajout...'
-                                        : 'Ajouter au calendrier'
-                                }}
-                            </button>
-                        </div>
+                    <div class="space-y-2 lg:col-span-2">
+                        <label for="performed_notes" class="block font-medium">
+                            Notes (optionnel)
+                        </label>
+                        <textarea
+                            id="performed_notes"
+                            v-model="performedSessionForm.notes"
+                            rows="3"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="performedSessionForm.errors.notes"
+                            class="text-sm text-red-600"
+                        >
+                            {{ performedSessionForm.errors.notes }}
+                        </p>
                     </div>
-                </section>
-            </div>
 
-            <div class="space-y-4">
-                <section class="rounded-lg bg-white p-6">
-                    <h2 class="text-lg font-semibold">Creer une seance type</h2>
-
-                    <div class="mt-4 space-y-4">
-                        <div class="space-y-2">
-                            <label for="session_name" class="block font-medium"
-                                >Nom</label
-                            >
-                            <input
-                                id="session_name"
-                                v-model="workoutSessionForm.name"
-                                type="text"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="workoutSessionForm.errors.name"
-                                class="text-sm text-red-600"
-                            >
-                                {{ workoutSessionForm.errors.name }}
-                            </p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="session_description"
-                                class="block font-medium"
-                            >
-                                Description
-                            </label>
-                            <textarea
-                                id="session_description"
-                                v-model="workoutSessionForm.description"
-                                rows="3"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="workoutSessionForm.errors.description"
-                                class="text-sm text-red-600"
-                            >
-                                {{ workoutSessionForm.errors.description }}
-                            </p>
-                        </div>
-
-                        <div class="space-y-3">
-                            <p class="font-medium">
-                                Exercices existants par sport
-                            </p>
-                            <div
-                                class="max-h-64 space-y-3 overflow-y-auto rounded-lg border border-neutral-200 p-3"
-                            >
-                                <div
-                                    v-for="group in exerciseGroups"
-                                    :key="group.sport.id"
-                                    class="space-y-2"
-                                >
-                                    <p
-                                        class="text-sm font-semibold text-neutral-600"
-                                    >
-                                        {{ group.sport.name }}
-                                    </p>
-                                    <div class="space-y-2">
-                                        <label
-                                            v-for="exercise in group.exercises"
-                                            :key="exercise.id"
-                                            class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm"
-                                        >
-                                            <span
-                                                class="flex items-center gap-2"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    :checked="
-                                                        workoutSessionForm.exercise_ids.includes(
-                                                            exercise.id,
-                                                        )
-                                                    "
-                                                    class="h-4 w-4 accent-evo-black"
-                                                    @change="
-                                                        toggleExercise(
-                                                            exercise.id,
-                                                        )
-                                                    "
-                                                />
-                                                <span>{{ exercise.name }}</span>
-                                            </span>
-                                            <span
-                                                class="text-xs text-neutral-500"
-                                            >
-                                                {{ exercise.category_name }}
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <p
-                                v-if="workoutSessionForm.errors.exercise_ids"
-                                class="text-sm text-red-600"
-                            >
-                                {{ workoutSessionForm.errors.exercise_ids }}
-                            </p>
-                        </div>
-
+                    <div class="flex items-center gap-3 lg:col-span-2">
                         <button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90 disabled:opacity-50"
-                            :disabled="workoutSessionForm.processing"
-                            @click="createWorkoutSession"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="performedSessionForm.processing"
+                            @click="createPerformedSession"
                         >
                             {{
-                                workoutSessionForm.processing
-                                    ? 'Creation...'
-                                    : 'Creer la seance type'
+                                performedSessionForm.processing
+                                    ? 'Ajout...'
+                                    : 'Ajouter au calendrier'
                             }}
                         </button>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold">
+                            Creation de contenu
+                        </h2>
+                        <p class="mt-1 text-sm text-neutral-600">
+                            Ajoutez une seance type ou un exercice personnalise.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button
+                            type="button"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
+                            @click="isWorkoutSessionModalOpen = true"
+                        >
+                            Creer une seance type
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
+                            @click="isCustomExerciseModalOpen = true"
+                        >
+                            Creer un exercice
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="rounded-lg bg-white p-6">
+                <h2 class="text-lg font-semibold">
+                    Dernieres seances effectuees
+                </h2>
+
+                <div
+                    v-if="recentCompletedSessions.length > 0"
+                    class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+                >
+                    <div
+                        v-for="session in recentCompletedSessions"
+                        :key="session.id"
+                        class="rounded-lg border border-neutral-200 p-4"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="font-semibold">
+                                {{ session.workout_session_name ?? 'Seance' }}
+                            </p>
+                            <p class="text-xs text-emerald-700">Validee</p>
+                        </div>
+                        <p
+                            v-if="session.notes"
+                            class="mt-2 text-sm text-neutral-600"
+                        >
+                            {{ session.notes }}
+                        </p>
+                        <p class="mt-2 text-xs text-neutral-500">
+                            {{ session.performances.length }} performance(s)
+                        </p>
+                    </div>
+                </div>
+                <p v-else class="mt-4 text-sm text-neutral-600">
+                    Aucune seance effectuee pour le moment.
+                </p>
+
+                <p
+                    v-if="flashSuccessMessage"
+                    class="mt-4 text-sm text-emerald-700"
+                >
+                    {{ flashSuccessMessage }}
+                </p>
+            </section>
+        </div>
+
+        <div
+            v-if="isWorkoutSessionModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+        >
+            <section
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
+            >
+                <div class="flex items-start justify-between gap-4">
+                    <h2 class="text-lg font-semibold">Creer une seance type</h2>
+                    <button
+                        type="button"
+                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        @click="closeWorkoutSessionModal"
+                    >
+                        Fermer
+                    </button>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <div class="space-y-2">
+                        <label for="session_name" class="block font-medium"
+                            >Nom</label
+                        >
+                        <input
+                            id="session_name"
+                            v-model="workoutSessionForm.name"
+                            type="text"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="workoutSessionForm.errors.name"
+                            class="text-sm text-red-600"
+                        >
+                            {{ workoutSessionForm.errors.name }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="session_description"
+                            class="block font-medium"
+                        >
+                            Description
+                        </label>
+                        <textarea
+                            id="session_description"
+                            v-model="workoutSessionForm.description"
+                            rows="3"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="workoutSessionForm.errors.description"
+                            class="text-sm text-red-600"
+                        >
+                            {{ workoutSessionForm.errors.description }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="font-medium">Exercices existants par sport</p>
+                        <div
+                            class="max-h-64 space-y-3 overflow-y-auto rounded-lg border border-neutral-200 p-3"
+                        >
+                            <div
+                                v-for="group in exerciseGroups"
+                                :key="group.sport.id"
+                                class="space-y-2"
+                            >
+                                <p class="text-sm font-semibold text-neutral-600">
+                                    {{ group.sport.name }}
+                                </p>
+                                <div class="space-y-2">
+                                    <label
+                                        v-for="exercise in group.exercises"
+                                        :key="exercise.id"
+                                        class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                :checked="
+                                                    workoutSessionForm.exercise_ids.includes(
+                                                        exercise.id,
+                                                    )
+                                                "
+                                                class="h-4 w-4 accent-evo-black"
+                                                @change="
+                                                    toggleExercise(exercise.id)
+                                                "
+                                            />
+                                            <span>{{ exercise.name }}</span>
+                                        </span>
+                                        <span class="text-xs text-neutral-500">
+                                            {{ exercise.category_name }}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <p
+                            v-if="workoutSessionForm.errors.exercise_ids"
+                            class="text-sm text-red-600"
+                        >
+                            {{ workoutSessionForm.errors.exercise_ids }}
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="workoutSessionForm.processing"
+                        @click="createWorkoutSession"
+                    >
+                        {{
+                            workoutSessionForm.processing
+                                ? 'Creation...'
+                                : 'Creer la seance type'
+                        }}
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div
+            v-if="isCustomExerciseModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+        >
+            <section
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
+            >
+                <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">
                         Creer un exercice personnalise
                     </h2>
+                    <button
+                        type="button"
+                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        @click="closeCustomExerciseModal"
+                    >
+                        Fermer
+                    </button>
+                </div>
 
-                    <div class="mt-4 space-y-4">
-                        <div class="space-y-2">
-                            <label for="exercise_name" class="block font-medium"
-                                >Nom</label
-                            >
-                            <input
-                                id="exercise_name"
-                                v-model="customExerciseForm.name"
-                                type="text"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="customExerciseForm.errors.name"
-                                class="text-sm text-red-600"
-                            >
-                                {{ customExerciseForm.errors.name }}
-                            </p>
-                        </div>
+                <div class="mt-4 space-y-4">
+                    <div class="space-y-2">
+                        <label for="exercise_name" class="block font-medium"
+                            >Nom</label
+                        >
+                        <input
+                            id="exercise_name"
+                            v-model="customExerciseForm.name"
+                            type="text"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="customExerciseForm.errors.name"
+                            class="text-sm text-red-600"
+                        >
+                            {{ customExerciseForm.errors.name }}
+                        </p>
+                    </div>
 
-                        <div class="space-y-2">
-                            <label
-                                for="exercise_sport"
-                                class="block font-medium"
-                                >Sport</label
+                    <div class="space-y-2">
+                        <label for="exercise_sport" class="block font-medium"
+                            >Sport</label
+                        >
+                        <select
+                            id="exercise_sport"
+                            v-model="customExerciseForm.sport_id"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                        >
+                            <option value="">Selectionner un sport</option>
+                            <option
+                                v-for="sport in sports"
+                                :key="sport.id"
+                                :value="sport.id"
                             >
-                            <select
-                                id="exercise_sport"
-                                v-model="customExerciseForm.sport_id"
-                                class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
-                            >
-                                <option value="">Selectionner un sport</option>
-                                <option
-                                    v-for="sport in sports"
-                                    :key="sport.id"
-                                    :value="sport.id"
-                                >
-                                    {{ sport.name }}
-                                </option>
-                            </select>
-                            <p
-                                v-if="customExerciseForm.errors.sport_id"
-                                class="text-sm text-red-600"
-                            >
-                                {{ customExerciseForm.errors.sport_id }}
-                            </p>
-                        </div>
+                                {{ sport.name }}
+                            </option>
+                        </select>
+                        <p
+                            v-if="customExerciseForm.errors.sport_id"
+                            class="text-sm text-red-600"
+                        >
+                            {{ customExerciseForm.errors.sport_id }}
+                        </p>
+                    </div>
 
-                        <div class="space-y-2">
-                            <label
-                                for="exercise_category"
-                                class="block font-medium"
-                                >Categorie</label
+                    <div class="space-y-2">
+                        <label for="exercise_category" class="block font-medium"
+                            >Categorie</label
+                        >
+                        <select
+                            id="exercise_category"
+                            v-model="customExerciseForm.exercise_category_id"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                        >
+                            <option value="">Selectionner une categorie</option>
+                            <option
+                                v-for="category in exerciseCategories"
+                                :key="category.id"
+                                :value="category.id"
                             >
-                            <select
-                                id="exercise_category"
-                                v-model="
-                                    customExerciseForm.exercise_category_id
-                                "
-                                class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
-                            >
-                                <option value="">
-                                    Selectionner une categorie
-                                </option>
-                                <option
-                                    v-for="category in exerciseCategories"
-                                    :key="category.id"
-                                    :value="category.id"
-                                >
-                                    {{ category.name }}
-                                </option>
-                            </select>
-                            <p
-                                v-if="
-                                    customExerciseForm.errors
-                                        .exercise_category_id
-                                "
-                                class="text-sm text-red-600"
-                            >
-                                {{
-                                    customExerciseForm.errors
-                                        .exercise_category_id
-                                }}
-                            </p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="exercise_description"
-                                class="block font-medium"
-                            >
-                                Description
-                            </label>
-                            <textarea
-                                id="exercise_description"
-                                v-model="customExerciseForm.description"
-                                rows="3"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                        </div>
-
-                        <button
-                            type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:bg-neutral-100 disabled:opacity-50"
-                            :disabled="customExerciseForm.processing"
-                            @click="createCustomExercise"
+                                {{ category.name }}
+                            </option>
+                        </select>
+                        <p
+                            v-if="
+                                customExerciseForm.errors.exercise_category_id
+                            "
+                            class="text-sm text-red-600"
                         >
                             {{
-                                customExerciseForm.processing
-                                    ? 'Creation...'
-                                    : 'Creer l exercice'
+                                customExerciseForm.errors.exercise_category_id
                             }}
-                        </button>
+                        </p>
                     </div>
-                </section>
 
-                <section class="rounded-lg bg-white p-6">
-                    <h2 class="text-lg font-semibold">
-                        Dernieres seances effectuees
-                    </h2>
-
-                    <div
-                        v-if="recentCompletedSessions.length > 0"
-                        class="mt-4 space-y-3"
-                    >
-                        <div
-                            v-for="session in recentCompletedSessions"
-                            :key="session.id"
-                            class="rounded-lg border border-neutral-200 p-4"
+                    <div class="space-y-2">
+                        <label
+                            for="exercise_description"
+                            class="block font-medium"
                         >
-                            <div
-                                class="flex items-center justify-between gap-3"
-                            >
-                                <p class="font-semibold">
-                                    {{
-                                        session.workout_session_name ?? 'Seance'
-                                    }}
-                                </p>
-                                <p class="text-xs text-emerald-700">Validee</p>
-                            </div>
-                            <p
-                                v-if="session.notes"
-                                class="mt-2 text-sm text-neutral-600"
-                            >
-                                {{ session.notes }}
-                            </p>
-                            <p class="mt-2 text-xs text-neutral-500">
-                                {{ session.performances.length }} performance(s)
-                            </p>
-                        </div>
+                            Description
+                        </label>
+                        <textarea
+                            id="exercise_description"
+                            v-model="customExerciseForm.description"
+                            rows="3"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
                     </div>
-                    <p v-else class="mt-4 text-sm text-neutral-600">
-                        Aucune seance effectuee pour le moment.
-                    </p>
 
-                    <p
-                        v-if="flashSuccessMessage"
-                        class="mt-4 text-sm text-emerald-700"
+                    <button
+                        type="button"
+                        class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="customExerciseForm.processing"
+                        @click="createCustomExercise"
                     >
-                        {{ flashSuccessMessage }}
-                    </p>
-                </section>
-            </div>
-        </section>
+                        {{
+                            customExerciseForm.processing
+                                ? 'Creation...'
+                                : 'Creer l exercice'
+                        }}
+                    </button>
+                </div>
+            </section>
+        </div>
 
         <div
             v-if="selectedPerformedSession"
@@ -799,7 +833,7 @@ const completeSelectedSession = () => {
                     </div>
                     <button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm"
+                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
                         @click="closeCompleteSessionModal"
                     >
                         Fermer
@@ -817,14 +851,14 @@ const completeSelectedSession = () => {
                     <div class="flex flex-wrap gap-3">
                         <button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white hover:cursor-pointer"
                             @click="wantsPerformanceEntry = true"
                         >
                             Oui, ajouter des performances
                         </button>
                         <button
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium"
+                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
                             @click="completeSelectedSession"
                         >
                             Non, valider la seance
@@ -929,7 +963,7 @@ const completeSelectedSession = () => {
                     <div class="flex flex-wrap items-center gap-3">
                         <button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90 disabled:opacity-50"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="completeSessionForm.processing"
                             @click="completeSelectedSession"
                         >
@@ -942,7 +976,7 @@ const completeSelectedSession = () => {
                         <button
                             v-if="wantsPerformanceEntry"
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium"
+                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
                             @click="wantsPerformanceEntry = false"
                         >
                             Valider sans performances

@@ -119,10 +119,9 @@ const saveMacros = () => {
     >
         <div
             v-if="caloriesOverview.target_calories"
-            class="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]"
+            class="space-y-4"
         >
-            <div class="space-y-4">
-                <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-6">
                     <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
                         Objectif du jour
                     </p>
@@ -148,9 +147,9 @@ const saveMacros = () => {
                         partir de votre objectif actif. Vous n'avez rien a
                         recalculer manuellement.
                     </p>
-                </section>
+            </section>
 
-                <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
@@ -166,14 +165,14 @@ const saveMacros = () => {
                     </div>
 
                     <div
-                        class="mt-6 flex flex-col items-center gap-6 md:flex-row md:justify-between"
+                        class="mt-6 flex flex-col items-center gap-12 md:flex-row"
                     >
                         <div
-                            class="relative flex h-44 w-44 items-center justify-center rounded-full"
+                            class="relative flex h-55 w-55 items-center justify-center rounded-full shrink-0"
                             :style="ringStyle"
                         >
                             <div
-                                class="flex h-32 w-32 flex-col items-center justify-center rounded-full bg-white text-center"
+                                class="flex h-40 w-40 flex-col items-center justify-center rounded-full bg-white text-center"
                             >
                                 <p class="text-3xl font-semibold">
                                     {{ remainingCalories }}
@@ -184,7 +183,7 @@ const saveMacros = () => {
                             </div>
                         </div>
 
-                        <div class="w-full max-w-xs space-y-3">
+                        <div class="w-full flex-1 space-y-3">
                             <div class="rounded-lg border border-neutral-200 p-4">
                                 <p class="text-sm text-neutral-500">Consommees</p>
                                 <p class="mt-2 text-2xl font-semibold">
@@ -199,9 +198,9 @@ const saveMacros = () => {
                             </div>
                         </div>
                     </div>
-                </section>
+            </section>
 
-                <section class="relative rounded-lg bg-white p-6">
+            <section class="relative rounded-lg bg-white p-6">
                     <div
                         class="transition"
                         :class="{
@@ -215,7 +214,7 @@ const saveMacros = () => {
                             <button
                                 v-if="canEditMacros && !isEditingMacros"
                                 type="button"
-                                class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:bg-neutral-100"
+                                class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
                                 @click="startMacrosEdit"
                             >
                                 Modifier mes macros
@@ -250,7 +249,7 @@ const saveMacros = () => {
                                     <div class="mt-3 flex items-center justify-between">
                                         <button
                                             type="button"
-                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:bg-neutral-100"
+                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
                                             @click="stepMacro('protein', -1)"
                                         >
                                             -
@@ -258,7 +257,7 @@ const saveMacros = () => {
                                         <p class="text-2xl font-semibold">{{ macrosForm.protein }} g</p>
                                         <button
                                             type="button"
-                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:bg-neutral-100"
+                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
                                             @click="stepMacro('protein', 1)"
                                         >
                                             +
@@ -271,7 +270,7 @@ const saveMacros = () => {
                                     <div class="mt-3 flex items-center justify-between">
                                         <button
                                             type="button"
-                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:bg-neutral-100"
+                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
                                             @click="stepMacro('carbs', -1)"
                                         >
                                             -
@@ -279,7 +278,7 @@ const saveMacros = () => {
                                         <p class="text-2xl font-semibold">{{ macrosForm.carbs }} g</p>
                                         <button
                                             type="button"
-                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:bg-neutral-100"
+                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
                                             @click="stepMacro('carbs', 1)"
                                         >
                                             +
@@ -292,7 +291,7 @@ const saveMacros = () => {
                                     <div class="mt-3 flex items-center justify-between">
                                         <button
                                             type="button"
-                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:bg-neutral-100"
+                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
                                             @click="stepMacro('fats', -1)"
                                         >
                                             -
@@ -300,7 +299,7 @@ const saveMacros = () => {
                                         <p class="text-2xl font-semibold">{{ macrosForm.fats }} g</p>
                                         <button
                                             type="button"
-                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:bg-neutral-100"
+                                            class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
                                             @click="stepMacro('fats', 1)"
                                         >
                                             +
@@ -325,7 +324,7 @@ const saveMacros = () => {
                             <div class="flex items-center gap-3">
                                 <button
                                     type="button"
-                                    class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90 disabled:opacity-50"
+                                    class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                                     :disabled="macrosForm.processing"
                                     @click="saveMacros"
                                 >
@@ -333,7 +332,7 @@ const saveMacros = () => {
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:bg-neutral-100"
+                                    class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
                                     @click="cancelMacrosEdit"
                                 >
                                     Annuler
@@ -368,19 +367,7 @@ const saveMacros = () => {
                             </p>
                         </div>
                     </div>
-                </section>
-
-                <section class="rounded-lg border border-dashed border-neutral-300 bg-white p-6">
-                    <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
-                        Suite du suivi
-                    </p>
-                    <p class="mt-3 text-sm text-neutral-600">
-                        Dans une version future, cette page pourra aussi afficher
-                        l'historique de vos repas, vos calories par moment de la
-                        journee et vos moyennes de la semaine.
-                    </p>
-                </section>
-            </div>
+            </section>
 
             <section class="rounded-lg bg-white p-6">
                 <div class="flex items-start justify-between gap-4">
@@ -462,7 +449,7 @@ const saveMacros = () => {
 
                             <button
                                 type="button"
-                                class="inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white opacity-80"
+                                class="inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white opacity-80 hover:cursor-pointer"
                             >
                                 Ajouter ce repas
                             </button>

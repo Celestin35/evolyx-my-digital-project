@@ -72,9 +72,9 @@ onMounted(() => {
                                 return '';
                             }
 
-                            return DateTime.fromISO(rawPoint.dateIso).toFormat(
-                                'd LLLL yyyy',
-                            );
+                            return DateTime.fromISO(rawPoint.dateIso)
+                                .setLocale('fr')
+                                .toFormat('d LLLL yyyy');
                         },
                         label(context) {
                             const rawPoint = context.raw as
@@ -104,6 +104,11 @@ onMounted(() => {
             scales: {
                 x: {
                     type: 'time',
+                    adapters: {
+                        date: {
+                            locale: 'fr',
+                        },
+                    },
                     bounds: 'data',
                     time: {
                         unit: 'month',

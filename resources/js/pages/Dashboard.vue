@@ -37,6 +37,32 @@ const props = defineProps<{
     recentPerformances: RecentPerformance[];
 }>();
 
+const formatRelativeDayLabel = (date: Date | null) => {
+    if (!date) {
+        return '';
+    }
+
+    const today = new Date();
+    const sessionDate = new Date(date);
+
+    today.setHours(0, 0, 0, 0);
+    sessionDate.setHours(0, 0, 0, 0);
+
+    const daysDiff = Math.round(
+        (today.getTime() - sessionDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (daysDiff <= 0) {
+        return "aujourd'hui";
+    }
+
+    if (daysDiff === 1) {
+        return 'hier';
+    }
+
+    return `il y a ${daysDiff} jours`;
+};
+
 const formattedRecentSessions = computed(() =>
     [...props.recentPerformedSessions]
         .sort((firstSession, secondSession) => {
@@ -68,20 +94,29 @@ const formattedRecentSessions = computed(() =>
                           month: 'long',
                       }).format(date)
                     : '-',
+                relativeDateLabel: formatRelativeDayLabel(date),
             };
-        }),
+        })
+        .slice(0, 4),
 );
 
 const formattedRecentPerformances = computed(() =>
-    props.recentPerformances.map((performance) => ({
-        ...performance,
-        dateLabel: performance.performed_at
-            ? new Intl.DateTimeFormat('fr-FR', {
-                  day: 'numeric',
-                  month: 'short',
-              }).format(new Date(performance.performed_at))
-            : '-',
-    })),
+    [...props.recentPerformances]
+        .sort(
+            (firstPerformance, secondPerformance) =>
+                new Date(secondPerformance.performed_at ?? 0).getTime() -
+                new Date(firstPerformance.performed_at ?? 0).getTime(),
+        )
+        .slice(0, 3)
+        .map((performance) => ({
+            ...performance,
+            dateLabel: performance.performed_at
+                ? new Intl.DateTimeFormat('fr-FR', {
+                      day: 'numeric',
+                      month: 'short',
+                  }).format(new Date(performance.performed_at))
+                : '-',
+        })),
 );
 
 const formatPerformanceDetails = (performance: RecentPerformance) => {
@@ -114,87 +149,15 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
         title="Tableau de bord"
         subtitle="Bienvenue sur votre tableau de bord personnel !"
     >
-        <section
-            class="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[1.05fr_0.95fr]"
-        >
-            <div class="flex min-h-[360px] flex-col rounded-lg bg-white p-4">
+        <section class="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-2">
+            <div class="flex min-h-90 flex-col rounded-lg bg-white p-4">
                 <h2 class="mb-4 text-xl font-bold">Suivi du poids</h2>
                 <div class="min-h-0 flex-1">
                     <WeightChart :weight-entries="weightEntries" />
                 </div>
             </div>
 
-            <div class="rounded-lg bg-white p-4 lg:col-start-2 lg:row-span-2">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <h2 class="text-xl font-bold">Dernieres seances</h2>
-                        <p class="mt-1 text-sm text-neutral-600">
-                            Frise des dernieres validations.
-                        </p>
-                    </div>
-                    <div
-                        class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
-                    >
-                        {{ formattedRecentSessions.length }} validee(s)
-                    </div>
-                </div>
-
-                <div
-                    v-if="formattedRecentSessions.length > 0"
-                    class="mt-6 overflow-x-auto pb-2"
-                >
-                    <div
-                        class="relative grid min-w-[680px] gap-3"
-                        :style="{
-                            gridTemplateColumns: `repeat(${formattedRecentSessions.length}, minmax(0, 1fr))`,
-                        }"
-                    >
-                        <div
-                            class="absolute top-7 right-[8%] left-[8%] h-px bg-neutral-200"
-                        ></div>
-
-                        <div
-                            v-for="session in formattedRecentSessions"
-                            :key="session.id"
-                            class="relative flex min-w-0 flex-col items-center text-center"
-                        >
-                            <div
-                                class="z-10 flex h-14 w-14 flex-col items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-800"
-                            >
-                                <span class="text-base leading-none font-bold">
-                                    {{ session.dayLabel }}
-                                </span>
-                                <span
-                                    class="mt-1 text-[10px] leading-none uppercase"
-                                >
-                                    {{ session.monthLabel }}
-                                </span>
-                            </div>
-
-                            <div
-                                class="mt-3 w-full rounded-lg border border-neutral-200 p-3"
-                            >
-                                <p class="truncate text-sm font-semibold">
-                                    {{ session.workout_session_name }}
-                                </p>
-                                <p class="mt-1 text-xs text-neutral-500">
-                                    {{ session.fullDateLabel }}
-                                </p>
-                                <p class="mt-2 text-xs text-emerald-700">
-                                    {{ session.performances_count }}
-                                    performance(s)
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <p v-else class="mt-6 text-sm text-neutral-600">
-                    Aucune seance recente.
-                </p>
-            </div>
-
-            <div class="rounded-lg bg-white p-4 lg:col-start-1 lg:row-start-2">
+            <div class="min-h-90 rounded-lg bg-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Dernieres performances</h2>
                     <div
@@ -234,6 +197,61 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
 
                 <p v-else class="mt-4 text-sm text-neutral-600">
                     Aucune performance recente.
+                </p>
+            </div>
+
+            <div class="rounded-lg bg-white p-4 lg:col-span-2">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold">Dernieres seances</h2>
+                        <p class="mt-1 text-sm text-neutral-600">
+                            Vos dernieres validations.
+                        </p>
+                    </div>
+                    <div
+                        class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
+                    >
+                        {{ formattedRecentSessions.length }} validee(s)
+                    </div>
+                </div>
+
+                <div
+                    v-if="formattedRecentSessions.length > 0"
+                    class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+                >
+                    <div
+                        v-for="session in formattedRecentSessions"
+                        :key="session.id"
+                        class="min-w-0 rounded-lg border border-neutral-200 bg-neutral-50 p-4"
+                    >
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border border-emerald-200 bg-white text-emerald-800"
+                            >
+                                <span class="text-lg leading-none font-bold">
+                                    {{ session.dayLabel }}
+                                </span>
+                                <span class="mt-1 text-[10px] uppercase">
+                                    {{ session.monthLabel }}
+                                </span>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="truncate font-semibold">
+                                    {{ session.workout_session_name }}
+                                </p>
+                                <p
+                                    v-if="session.relativeDateLabel"
+                                    class="mt-1 text-xs text-neutral-500"
+                                >
+                                    ({{ session.relativeDateLabel }})
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p v-else class="mt-6 text-sm text-neutral-600">
+                    Aucune seance recente.
                 </p>
             </div>
         </section>
