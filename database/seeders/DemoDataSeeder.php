@@ -15,6 +15,7 @@ class DemoDataSeeder extends Seeder
         $plans = DB::table('subscription_plans')->pluck('id', 'name');
         $goalTypes = DB::table('goal_types')->pluck('id', 'name');
         $exercises = DB::table('exercises')->pluck('id', 'name');
+        $sports = DB::table('sports')->pluck('id', 'name');
 
         $macros = [
             [
@@ -74,18 +75,44 @@ class DemoDataSeeder extends Seeder
             ]
         );
 
+        DB::table('sport_user')->updateOrInsert([
+            'user_id' => $users['demo@evolyx.local'],
+            'sport_id' => $sports['Musculation'],
+        ]);
+
         $workoutSessions = [
             [
                 'user_id' => $users['demo@evolyx.local'],
-                'name' => 'Full body debutant',
-                'description' => 'Seance equilibree orientee tonification et progression globale.',
+                'name' => 'Push force',
+                'description' => 'Pectoraux, epaules et triceps avec priorite sur la progression en charge.',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
                 'user_id' => $users['demo@evolyx.local'],
-                'name' => 'Mobilite du matin',
-                'description' => 'Routine courte pour demarrer la journee avec plus d amplitude.',
+                'name' => 'Pull dos biceps',
+                'description' => 'Tirages horizontaux et verticaux pour suivre le dos et les bras.',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'user_id' => $users['demo@evolyx.local'],
+                'name' => 'Legs hypertrophie',
+                'description' => 'Jambes completes avec quadriceps, ischios et fessiers.',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'user_id' => $users['demo@evolyx.local'],
+                'name' => 'Upper volume',
+                'description' => 'Haut du corps avec plus de volume pour alimenter les courbes de progression.',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'user_id' => $users['demo@evolyx.local'],
+                'name' => 'Bras epaules',
+                'description' => 'Seance courte orientee deltoides, biceps et triceps.',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -106,95 +133,164 @@ class DemoDataSeeder extends Seeder
             ->where('user_id', $users['demo@evolyx.local'])
             ->pluck('id', 'name');
 
-        DB::table('workout_session_exercise')->upsert([
-            [
-                'workout_session_id' => $sessions['Full body debutant'],
-                'exercise_id' => $exercises['Squat goblet'],
-                'rest_time' => 90,
-                'position' => 1,
+        $sessionExercises = [
+            'Push force' => [
+                ['Developpe couche halteres', 120],
+                ['Developpe incline halteres', 105],
+                ['Developpe militaire', 120],
+                ['Elevations laterales', 60],
+                ['Extension triceps poulie', 60],
             ],
-            [
-                'workout_session_id' => $sessions['Full body debutant'],
-                'exercise_id' => $exercises['Developpe couche halteres'],
-                'rest_time' => 90,
-                'position' => 2,
+            'Pull dos biceps' => [
+                ['Tirage vertical', 120],
+                ['Rowing barre', 120],
+                ['Rowing poulie basse', 90],
+                ['Face pull', 60],
+                ['Curl biceps halteres', 60],
             ],
-            [
-                'workout_session_id' => $sessions['Full body debutant'],
-                'exercise_id' => $exercises['Rowing barre'],
-                'rest_time' => 90,
-                'position' => 3,
+            'Legs hypertrophie' => [
+                ['Presse a cuisses', 150],
+                ['Squat goblet', 120],
+                ['Souleve de terre roumain', 150],
+                ['Hip thrust', 120],
+                ['Leg curl', 75],
             ],
-            [
-                'workout_session_id' => $sessions['Mobilite du matin'],
-                'exercise_id' => $exercises['Salutation au soleil'],
-                'rest_time' => 30,
-                'position' => 1,
+            'Upper volume' => [
+                ['Developpe couche halteres', 90],
+                ['Tirage vertical', 90],
+                ['Developpe incline halteres', 90],
+                ['Rowing poulie basse', 90],
+                ['Crunch cable', 60],
             ],
-            [
-                'workout_session_id' => $sessions['Mobilite du matin'],
-                'exercise_id' => $exercises['Ouverture thoracique'],
-                'rest_time' => 30,
-                'position' => 2,
-            ],
-            [
-                'workout_session_id' => $sessions['Mobilite du matin'],
-                'exercise_id' => $exercises['Respiration diaphragmatique'],
-                'rest_time' => 15,
-                'position' => 3,
-            ],
-        ], ['workout_session_id', 'exercise_id'], ['rest_time', 'position']);
-
-        $performances = [
-            [
-                'performed_at' => now()->subDays(5),
-                'weight' => 18.00,
-                'repetitions' => 12,
-                'duration_minutes' => null,
-                'distance_meters' => null,
-                'exercise_id' => $exercises['Squat goblet'],
-                'user_id' => $users['demo@evolyx.local'],
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'performed_at' => now()->subDays(5),
-                'weight' => 14.00,
-                'repetitions' => 10,
-                'duration_minutes' => null,
-                'distance_meters' => null,
-                'exercise_id' => $exercises['Developpe couche halteres'],
-                'user_id' => $users['demo@evolyx.local'],
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'performed_at' => now()->subDays(2),
-                'weight' => null,
-                'repetitions' => null,
-                'duration_minutes' => 25,
-                'distance_meters' => 2400,
-                'exercise_id' => $exercises['Marche active'],
-                'user_id' => $users['demo@evolyx.local'],
-                'created_at' => $now,
-                'updated_at' => $now,
+            'Bras epaules' => [
+                ['Developpe militaire', 105],
+                ['Elevations laterales', 60],
+                ['Face pull', 60],
+                ['Curl biceps halteres', 60],
+                ['Extension triceps poulie', 60],
             ],
         ];
 
-        foreach ($performances as $performance) {
-            DB::table('performances')->updateOrInsert(
+        $pivotRows = [];
+        foreach ($sessionExercises as $sessionName => $exerciseRows) {
+            foreach ($exerciseRows as $index => [$exerciseName, $restTime]) {
+                $pivotRows[] = [
+                    'workout_session_id' => $sessions[$sessionName],
+                    'exercise_id' => $exercises[$exerciseName],
+                    'rest_time' => $restTime,
+                    'position' => $index + 1,
+                ];
+            }
+        }
+
+        DB::table('workout_session_exercise')->upsert(
+            $pivotRows,
+            ['workout_session_id', 'exercise_id'],
+            ['rest_time', 'position']
+        );
+
+        $completedSchedule = [
+            'Push force',
+            'Pull dos biceps',
+            'Legs hypertrophie',
+            'Upper volume',
+            'Bras epaules',
+        ];
+
+        $performanceProfiles = [
+            'Developpe couche halteres' => ['weight' => 18.00, 'step' => 0.65, 'repetitions' => 8, 'rep_cycle' => 4],
+            'Developpe incline halteres' => ['weight' => 15.00, 'step' => 0.50, 'repetitions' => 9, 'rep_cycle' => 3],
+            'Developpe militaire' => ['weight' => 22.50, 'step' => 0.45, 'repetitions' => 6, 'rep_cycle' => 3],
+            'Elevations laterales' => ['weight' => 6.00, 'step' => 0.15, 'repetitions' => 14, 'rep_cycle' => 5],
+            'Extension triceps poulie' => ['weight' => 18.00, 'step' => 0.45, 'repetitions' => 12, 'rep_cycle' => 4],
+            'Tirage vertical' => ['weight' => 38.00, 'step' => 0.90, 'repetitions' => 10, 'rep_cycle' => 4],
+            'Rowing barre' => ['weight' => 35.00, 'step' => 0.80, 'repetitions' => 8, 'rep_cycle' => 4],
+            'Rowing poulie basse' => ['weight' => 32.00, 'step' => 0.75, 'repetitions' => 10, 'rep_cycle' => 4],
+            'Face pull' => ['weight' => 16.00, 'step' => 0.35, 'repetitions' => 15, 'rep_cycle' => 5],
+            'Curl biceps halteres' => ['weight' => 9.00, 'step' => 0.20, 'repetitions' => 11, 'rep_cycle' => 4],
+            'Presse a cuisses' => ['weight' => 85.00, 'step' => 2.00, 'repetitions' => 10, 'rep_cycle' => 5],
+            'Squat goblet' => ['weight' => 22.00, 'step' => 0.70, 'repetitions' => 12, 'rep_cycle' => 4],
+            'Souleve de terre roumain' => ['weight' => 42.50, 'step' => 1.10, 'repetitions' => 8, 'rep_cycle' => 4],
+            'Hip thrust' => ['weight' => 60.00, 'step' => 1.60, 'repetitions' => 10, 'rep_cycle' => 5],
+            'Leg curl' => ['weight' => 24.00, 'step' => 0.60, 'repetitions' => 12, 'rep_cycle' => 4],
+            'Crunch cable' => ['weight' => 20.00, 'step' => 0.50, 'repetitions' => 14, 'rep_cycle' => 4],
+        ];
+
+        for ($week = 15; $week >= 0; $week--) {
+            foreach ([0, 2, 4] as $dayOffsetIndex => $dayOffset) {
+                $sessionName = $completedSchedule[($week + $dayOffsetIndex) % count($completedSchedule)];
+                $performedAt = now()
+                    ->subWeeks($week)
+                    ->startOfWeek()
+                    ->addDays($dayOffset)
+                    ->setTime(18, 30);
+
+                DB::table('performed_sessions')->updateOrInsert(
+                    [
+                        'user_id' => $users['demo@evolyx.local'],
+                        'workout_session_id' => $sessions[$sessionName],
+                        'performed_at' => $performedAt,
+                    ],
+                    [
+                        'completed_at' => $performedAt->copy()->addMinutes(70),
+                        'notes' => 'Seance demo validee pour alimenter le suivi de progression.',
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]
+                );
+
+                $performedSessionId = DB::table('performed_sessions')
+                    ->where('user_id', $users['demo@evolyx.local'])
+                    ->where('workout_session_id', $sessions[$sessionName])
+                    ->where('performed_at', $performedAt)
+                    ->value('id');
+
+                $progressIndex = 15 - $week;
+
+                foreach ($sessionExercises[$sessionName] as [$exerciseName]) {
+                    $profile = $performanceProfiles[$exerciseName];
+                    $weight = round($profile['weight'] + ($progressIndex * $profile['step']) + ($dayOffsetIndex * 0.15), 2);
+                    $repetitions = $profile['repetitions'] + (($progressIndex + $dayOffsetIndex) % $profile['rep_cycle']);
+
+                    DB::table('performances')->updateOrInsert(
+                        [
+                            'performed_session_id' => $performedSessionId,
+                            'exercise_id' => $exercises[$exerciseName],
+                        ],
+                        [
+                            'performed_at' => $performedAt,
+                            'weight' => $weight,
+                            'repetitions' => $repetitions,
+                            'duration_minutes' => null,
+                            'distance_meters' => null,
+                            'user_id' => $users['demo@evolyx.local'],
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]
+                    );
+                }
+            }
+        }
+
+        foreach ([
+            ['Push force', 1],
+            ['Pull dos biceps', 3],
+            ['Legs hypertrophie', 5],
+            ['Upper volume', 8],
+        ] as [$sessionName, $daysFromNow]) {
+            $plannedAt = now()->addDays($daysFromNow)->setTime(18, 0);
+
+            DB::table('performed_sessions')->updateOrInsert(
                 [
-                    'user_id' => $performance['user_id'],
-                    'exercise_id' => $performance['exercise_id'],
-                    'performed_at' => $performance['performed_at'],
+                    'user_id' => $users['demo@evolyx.local'],
+                    'workout_session_id' => $sessions[$sessionName],
+                    'performed_at' => $plannedAt,
                 ],
                 [
-                    'weight' => $performance['weight'],
-                    'repetitions' => $performance['repetitions'],
-                    'duration_minutes' => $performance['duration_minutes'],
-                    'distance_meters' => $performance['distance_meters'],
-                    'created_at' => $performance['created_at'],
-                    'updated_at' => $performance['updated_at'],
+                    'completed_at' => null,
+                    'notes' => 'Seance programmee via les donnees demo.',
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ]
             );
         }

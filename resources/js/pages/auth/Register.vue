@@ -10,6 +10,15 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
+
+type SportOption = {
+    id: number;
+    name: string;
+};
+
+defineProps<{
+    availableSports: SportOption[];
+}>();
 </script>
 
 <template>
@@ -143,6 +152,26 @@ import { store } from '@/routes/register';
                         name="birth_date"
                     />
                     <InputError :message="errors.birth_date" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label>Sports pratiques</Label>
+                    <div class="grid gap-2 rounded-md border p-3">
+                        <label
+                            v-for="sport in availableSports"
+                            :key="sport.id"
+                            class="flex items-center gap-2 text-sm"
+                        >
+                            <input
+                                type="checkbox"
+                                name="sport_ids[]"
+                                :value="sport.id"
+                                class="h-4 w-4 accent-evo-black"
+                            />
+                            <span>{{ sport.name }}</span>
+                        </label>
+                    </div>
+                    <InputError :message="errors.sport_ids" />
                 </div>
 
                 <div class="grid gap-2">

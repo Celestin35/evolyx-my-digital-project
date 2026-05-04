@@ -1,0 +1,43 @@
+FROM composer:2 AS composer_deps
+
+WORKDIR /app
+
+# Installe les dependances PHP de production
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
+COPY . .
+RUN composer dump-autoload --optimize
+
+FROM node:22 AS frontend_build
+
+WORKDIR /app
+
+# Installe les dependances front et build les assets Vite
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+FROM php:8.4-cli
+
+WORKDIR /var/www/html
+
+# Installe les extensions PHP utiles en production
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libzip-dev \
+    && docker-php-ext-install pdo_mysql pdo_sqlite zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copie le code, les dependances PHP et le build front dans l'image finale
+COPY . .
+COPY --from=composer_deps /app/vendor ./vendor
+COPY --from=frontend_build /app/public/build ./public/build
+
+EXPOSE 8000
+
+# Cache la configuration Laravel et lance le serveur
+CMD ["sh", "-c", "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=8000"]

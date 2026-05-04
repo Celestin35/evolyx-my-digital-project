@@ -1,0 +1,14 @@
+.git
+.github
+.env
+.env.backup
+.env.production
+node_modules
+vendor
+storage/logs
+public/build
+public/hot
+npm-debug.log
+yarn-error.log
+.idea
+.vscode

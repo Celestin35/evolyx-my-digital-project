@@ -1,0 +1,15 @@
+services:
+  # Configuration locale : Laravel/Vue avec SQLite, code synchronise avec le PC
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evolyx-app
+    env_file:
+      - .env
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+      - "5173:5173"
