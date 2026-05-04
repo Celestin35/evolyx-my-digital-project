@@ -326,12 +326,9 @@ const submitWeightEntry = () => {
         title="Progression"
         subtitle="Suivez votre poids et ajoutez vos nouvelles mesures."
     >
-        <section class="grid gap-4 xl:grid-cols-2">
-            <div class="space-y-4">
-                <section class="rounded-lg bg-white p-6">
-                    <div
-                        class="flex flex-wrap items-center justify-between gap-3"
-                    >
+        <div class="space-y-4">
+            <section class="rounded-lg bg-white p-6">
+                <div class="flex flex-wrap items-center justify-between gap-3">
                         <div>
                             <h2 class="text-lg font-semibold">
                                 Courbe de poids
@@ -346,7 +343,7 @@ const submitWeightEntry = () => {
                                 v-for="option in rangeOptions"
                                 :key="option.value"
                                 type="button"
-                                class="rounded-full border px-3 py-1.5 text-sm font-medium transition"
+                                class="rounded-full border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
                                 :class="
                                     selectedRange === option.value
                                         ? 'border-evo-black bg-evo-black text-evo-white'
@@ -373,9 +370,9 @@ const submitWeightEntry = () => {
                             Aucune entree disponible sur cette periode.
                         </div>
                     </div>
-                </section>
+            </section>
 
-                <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-6">
                     <h2 class="text-lg font-semibold">
                         Ajouter une entree de poids
                     </h2>
@@ -434,7 +431,7 @@ const submitWeightEntry = () => {
                     <div class="mt-5 flex flex-wrap items-center gap-3">
                         <button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90 disabled:opacity-50"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="weightEntryForm.processing"
                             @click="submitWeightEntry"
                         >
@@ -454,14 +451,10 @@ const submitWeightEntry = () => {
                             {{ flashSuccessMessage ?? 'Entree enregistree.' }}
                         </p>
                     </div>
-                </section>
-            </div>
+            </section>
 
-            <div class="space-y-4">
-                <section class="rounded-lg bg-white p-6">
-                    <div
-                        class="flex flex-wrap items-start justify-between gap-3"
-                    >
+            <section class="rounded-lg bg-white p-6">
+                <div class="flex flex-wrap items-start justify-between gap-3">
                         <div>
                             <h2 class="text-lg font-semibold">
                                 Graphique de performance
@@ -553,7 +546,7 @@ const submitWeightEntry = () => {
                                     v-for="option in rangeOptions"
                                     :key="option.value"
                                     type="button"
-                                    class="rounded-full border px-3 py-1.5 text-sm font-medium transition"
+                                    class="rounded-full border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
                                     :class="
                                         selectedPerformanceRange ===
                                         option.value
@@ -587,16 +580,16 @@ const submitWeightEntry = () => {
                             Aucune performance disponible avec ces filtres.
                         </div>
                     </div>
-                </section>
+            </section>
 
-                <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-6">
                     <h2 class="text-lg font-semibold">
                         Dernieres performances
                     </h2>
 
                     <div
                         v-if="recentPerformances.length > 0"
-                        class="mt-4 space-y-3"
+                        class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3"
                     >
                         <div
                             v-for="performance in recentPerformances"
@@ -693,8 +686,7 @@ const submitWeightEntry = () => {
                     <p v-else class="mt-4 text-sm text-neutral-600">
                         Aucune performance enregistree pour le moment.
                     </p>
-                </section>
-            </div>
-        </section>
+            </section>
+        </div>
     </AppLayout>
 </template>
