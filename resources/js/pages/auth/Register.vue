@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
+import { ArrowLeft, Check, ChevronRight, Dumbbell, UserRound } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -19,208 +21,351 @@ type SportOption = {
 defineProps<{
     availableSports: SportOption[];
 }>();
+
+const currentStep = ref<'account' | 'profile'>('account');
+
+const form = useForm({
+    first_name: '',
+    pseudo: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+    sex: '',
+    height: '',
+    weight: '',
+    activity_level: 'moderate',
+    birth_date: '',
+    sport_ids: [] as number[],
+});
+
+const selectedSportsCount = computed(() => form.sport_ids.length);
+
+function goToProfile() {
+    form.clearErrors('first_name', 'pseudo', 'email', 'password', 'password_confirmation');
+
+    if (!form.first_name.trim()) {
+        form.setError('first_name', 'Le nom est requis.');
+    }
+
+    if (!form.pseudo.trim()) {
+        form.setError('pseudo', 'Le pseudo est requis.');
+    }
+
+    if (!form.email.trim()) {
+        form.setError('email', "L'email est requis.");
+    }
+
+    if (form.password.length < 8) {
+        form.setError('password', 'Le mot de passe doit contenir au moins 8 caractères.');
+    }
+
+    if (form.password !== form.password_confirmation) {
+        form.setError('password_confirmation', 'Les mots de passe ne correspondent pas.');
+    }
+
+    if (
+        form.errors.first_name
+        || form.errors.pseudo
+        || form.errors.email
+        || form.errors.password
+        || form.errors.password_confirmation
+    ) {
+        return;
+    }
+
+    currentStep.value = 'profile';
+}
+
+function goToAccount() {
+    currentStep.value = 'account';
+}
+
+function toggleSport(sportId: number) {
+    form.sport_ids = form.sport_ids.includes(sportId)
+        ? form.sport_ids.filter((id) => id !== sportId)
+        : [...form.sport_ids, sportId];
+}
+
+function submit() {
+    form.post(store.url(), {
+        onError: (errors) => {
+            const accountFields = ['first_name', 'pseudo', 'email', 'password', 'password_confirmation'];
+
+            if (accountFields.some((field) => errors[field])) {
+                currentStep.value = 'account';
+            }
+        },
+        onSuccess: () => form.reset('password', 'password_confirmation'),
+    });
+}
 </script>
 
 <template>
     <AuthBase
         title="Créer un compte"
-        description="Enter les informations ci-dessous pour créer votre compte"
-        >
-            <Head title="S'inscrire" />
+        description="Renseigne l'essentiel, puis complète ton profil sportif."
+    >
+        <Head title="S'inscrire" />
 
-            <Form
-                v-bind="store.form()"
-                :reset-on-success="['password', 'password_confirmation']"
-                v-slot="{ errors, processing }"
-                class="flex flex-col gap-6"
+        <div class="mb-7 grid grid-cols-2 gap-2 rounded-lg bg-evo-black/5 p-1 text-sm font-medium">
+            <button
+                type="button"
+                class="flex items-center justify-center gap-2 rounded-md px-3 py-2 transition"
+                :class="currentStep === 'account' ? 'bg-evo-black text-evo-white shadow-sm' : 'text-evo-black/60'"
+                @click="goToAccount"
             >
-            <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="first_name">Prénom</Label>
-                    <Input
-                        id="first_name"
-                        type="text"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="given-name"
-                        name="first_name"
-                        placeholder="Celestin"
-                    />
-                    <InputError :message="errors.first_name" />
+                <UserRound class="size-4" />
+                Compte
+            </button>
+            <button
+                type="button"
+                class="flex items-center justify-center gap-2 rounded-md px-3 py-2 transition"
+                :class="currentStep === 'profile' ? 'bg-evo-black text-evo-white shadow-sm' : 'text-evo-black/60'"
+                @click="goToProfile"
+            >
+                <Dumbbell class="size-4" />
+                Profil
+            </button>
+        </div>
+
+        <form class="space-y-6" @submit.prevent="submit">
+            <section v-show="currentStep === 'account'" class="space-y-5">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="grid gap-2">
+                        <Label for="first_name">Nom</Label>
+                        <Input
+                            id="first_name"
+                            v-model="form.first_name"
+                            type="text"
+                            required
+                            autofocus
+                            autocomplete="given-name"
+                            placeholder="Célestin"
+                            class="h-11 border-evo-black/15 bg-white/80"
+                        />
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="pseudo">Pseudo</Label>
+                        <Input
+                            id="pseudo"
+                            v-model="form.pseudo"
+                            type="text"
+                            required
+                            autocomplete="username"
+                            placeholder="celestin"
+                            class="h-11 border-evo-black/15 bg-white/80"
+                        />
+                    </div>
+                </div>
+                <div v-if="form.errors.first_name || form.errors.pseudo" class="grid gap-1">
+                    <InputError :message="form.errors.first_name" />
+                    <InputError :message="form.errors.pseudo" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="pseudo">Pseudo</Label>
-                    <Input
-                        id="pseudo"
-                        type="text"
-                        required
-                        :tabindex="2"
-                        autocomplete="username"
-                        name="pseudo"
-                        placeholder="celestin"
-                    />
-                    <InputError :message="errors.pseudo" />
-                </div>
-
-                <div class="grid gap-2">
-                    <Label for="email">Adresse email</Label>
+                    <Label for="email">Email</Label>
                     <Input
                         id="email"
+                        v-model="form.email"
                         type="email"
                         required
-                        :tabindex="3"
                         autocomplete="email"
-                        name="email"
                         placeholder="email@example.com"
+                        class="h-11 border-evo-black/15 bg-white/80"
                     />
-                    <InputError :message="errors.email" />
+                    <InputError :message="form.errors.email" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="sex">Sexe</Label>
-                    <select
-                        id="sex"
-                        name="sex"
-                        required
-                        :tabindex="4"
-                        class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                    >
-                        <option value="male">Homme</option>
-                        <option value="female">Femme</option>
-                    </select>
-                    <InputError :message="errors.sex" />
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="grid gap-2">
+                        <Label for="password">Mot de passe</Label>
+                        <PasswordInput
+                            id="password"
+                            v-model="form.password"
+                            required
+                            autocomplete="new-password"
+                            placeholder="••••••••"
+                            class="h-11 border-evo-black/15 bg-white/80"
+                        />
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="password_confirmation">Confirmation</Label>
+                        <PasswordInput
+                            id="password_confirmation"
+                            v-model="form.password_confirmation"
+                            required
+                            autocomplete="new-password"
+                            placeholder="••••••••"
+                            class="h-11 border-evo-black/15 bg-white/80"
+                        />
+                    </div>
+                </div>
+                <div v-if="form.errors.password || form.errors.password_confirmation" class="grid gap-1">
+                    <InputError :message="form.errors.password" />
+                    <InputError :message="form.errors.password_confirmation" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="height">Taille (cm)</Label>
-                    <Input
-                        id="height"
-                        type="number"
-                        min="100"
-                        max="250"
-                        required
-                        :tabindex="5"
-                        name="height"
-                        placeholder="175"
-                    />
-                    <InputError :message="errors.height" />
+                <Button
+                    type="button"
+                    class="h-11 w-full bg-evo-black text-evo-white hover:bg-evo-black/90"
+                    @click="goToProfile"
+                >
+                    Continuer
+                    <ChevronRight class="size-4" />
+                </Button>
+            </section>
+
+            <section v-show="currentStep === 'profile'" class="space-y-5">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="grid gap-2">
+                        <Label for="height">Taille</Label>
+                        <div class="relative">
+                            <Input
+                                id="height"
+                                v-model="form.height"
+                                type="number"
+                                min="100"
+                                max="250"
+                                required
+                                placeholder="175"
+                                class="h-11 border-evo-black/15 bg-white/80 pr-12"
+                            />
+                            <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-evo-black/45">cm</span>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="weight">Poids</Label>
+                        <div class="relative">
+                            <Input
+                                id="weight"
+                                v-model="form.weight"
+                                type="number"
+                                min="20"
+                                max="500"
+                                step="0.1"
+                                required
+                                placeholder="72.5"
+                                class="h-11 border-evo-black/15 bg-white/80 pr-12"
+                            />
+                            <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-evo-black/45">kg</span>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="form.errors.height || form.errors.weight" class="grid gap-1">
+                    <InputError :message="form.errors.height" />
+                    <InputError :message="form.errors.weight" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="weight">Poids actuel (kg)</Label>
-                    <Input
-                        id="weight"
-                        type="number"
-                        min="20"
-                        max="500"
-                        step="0.1"
-                        required
-                        :tabindex="6"
-                        name="weight"
-                        placeholder="72.5"
-                    />
-                    <InputError :message="errors.weight" />
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="grid gap-2">
+                        <Label for="sex">Sexe</Label>
+                        <select
+                            id="sex"
+                            v-model="form.sex"
+                            required
+                            class="h-11 w-full rounded-md border border-evo-black/15 bg-white/80 px-3 text-sm outline-none transition focus:border-evo-purple focus:ring-3 focus:ring-evo-purple/20"
+                        >
+                            <option value="" disabled>Sélectionner</option>
+                            <option value="male">Homme</option>
+                            <option value="female">Femme</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="birth_date">Date de naissance</Label>
+                        <Input
+                            id="birth_date"
+                            v-model="form.birth_date"
+                            type="date"
+                            required
+                            class="h-11 border-evo-black/15 bg-white/80"
+                        />
+                    </div>
+                </div>
+                <div v-if="form.errors.sex || form.errors.birth_date" class="grid gap-1">
+                    <InputError :message="form.errors.sex" />
+                    <InputError :message="form.errors.birth_date" />
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="activity_level">Niveau d'activité</Label>
                     <select
                         id="activity_level"
-                        name="activity_level"
+                        v-model="form.activity_level"
                         required
-                        :tabindex="7"
-                        class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                        class="h-11 w-full rounded-md border border-evo-black/15 bg-white/80 px-3 text-sm outline-none transition focus:border-evo-purple focus:ring-3 focus:ring-evo-purple/20"
                     >
                         <option value="sedentary">Sédentaire</option>
-                        <option value="light">Légère</option>
-                        <option value="moderate" selected>Moderée</option>
-                        <option value="active">Active</option>
-                        <option value="very_active">Très active</option>
+                        <option value="light">Léger</option>
+                        <option value="moderate">Modéré</option>
+                        <option value="active">Actif</option>
+                        <option value="very_active">Très actif</option>
                     </select>
-                    <InputError :message="errors.activity_level" />
+                    <InputError :message="form.errors.activity_level" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="birth_date">Date de naissance</Label>
-                    <Input
-                        id="birth_date"
-                        type="date"
-                        required
-                        :tabindex="8"
-                        name="birth_date"
-                    />
-                    <InputError :message="errors.birth_date" />
-                </div>
-
-                <div class="grid gap-2">
-                    <Label>Sports pratiques</Label>
-                    <div class="grid gap-2 rounded-md border p-3">
+                <div class="grid gap-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <Label>Sports pratiqués</Label>
+                        <span class="text-xs font-medium text-evo-black/50">
+                            {{ selectedSportsCount }} sélectionné{{ selectedSportsCount > 1 ? 's' : '' }}
+                        </span>
+                    </div>
+                    <div class="grid max-h-48 gap-2 overflow-y-auto rounded-lg border border-evo-black/10 bg-white/70 p-2 sm:grid-cols-2">
                         <label
                             v-for="sport in availableSports"
                             :key="sport.id"
-                            class="flex items-center gap-2 text-sm"
+                            class="flex cursor-pointer items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm transition"
+                            :class="form.sport_ids.includes(sport.id) ? 'border-evo-purple bg-evo-purple/10 text-evo-black' : 'border-transparent bg-white/70 text-evo-black/70 hover:border-evo-black/10'"
                         >
+                            <span>{{ sport.name }}</span>
                             <input
                                 type="checkbox"
-                                name="sport_ids[]"
-                                :value="sport.id"
-                                class="h-4 w-4 accent-evo-black"
+                                class="sr-only"
+                                :checked="form.sport_ids.includes(sport.id)"
+                                @change="toggleSport(sport.id)"
                             />
-                            <span>{{ sport.name }}</span>
+                            <Check
+                                class="size-4"
+                                :class="form.sport_ids.includes(sport.id) ? 'text-evo-purple opacity-100' : 'opacity-0'"
+                            />
                         </label>
                     </div>
-                    <InputError :message="errors.sport_ids" />
+                    <InputError :message="form.errors.sport_ids" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="password">Mot de passe</Label>
-                    <PasswordInput
-                        id="password"
-                        required
-                        :tabindex="9"
-                        autocomplete="new-password"
-                        name="password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="errors.password" />
+                <div class="grid gap-3 sm:grid-cols-[auto_1fr]">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="h-11 border-evo-black/15 bg-white/80 px-4"
+                        @click="goToAccount"
+                    >
+                        <ArrowLeft class="size-4" />
+                        Retour
+                    </Button>
+                    <Button
+                        type="submit"
+                        class="h-11 bg-evo-black text-evo-white hover:bg-evo-black/90"
+                        :disabled="form.processing"
+                        data-test="register-user-button"
+                    >
+                        <Spinner v-if="form.processing" />
+                        Créer un compte
+                    </Button>
                 </div>
+            </section>
 
-                <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirmer le mot de passe</Label>
-                    <PasswordInput
-                        id="password_confirmation"
-                        required
-                        :tabindex="10"
-                        autocomplete="new-password"
-                        name="password_confirmation"
-                        placeholder="Confirm password"
-                    />
-                    <InputError :message="errors.password_confirmation" />
-                </div>
-
-                <Button
-                    type="submit"
-                    class="mt-2 w-full"
-                    tabindex="11"
-                    :disabled="processing"
-                    data-test="register-user-button"
-                >
-                    <Spinner v-if="processing" />
-                    Créer un compte
-                </Button>
+            <div class="text-center text-sm text-evo-black/60">
+                Vous avez déjà un compte ?
+                <TextLink :href="login()" class="font-medium text-evo-black underline underline-offset-4">
+                    Se connecter
+                </TextLink>
             </div>
-
-            <div class="text-center text-sm text-muted-foreground">
-                Vous avez déja un compte ?
-                <TextLink
-                    :href="login()"
-                    class="underline underline-offset-4"
-                    :tabindex="12"
-                    >Se connecter</TextLink
-                >
-            </div>
-        </Form>
+        </form>
     </AuthBase>
 </template>

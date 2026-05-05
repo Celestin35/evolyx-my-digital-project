@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
+import { LogIn } from 'lucide-vue-next';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -22,14 +23,14 @@ defineProps<{
 
 <template>
     <AuthBase
-        title="Log in to your account"
-        description="Enter your email and password below to log in"
+        title="Connexion"
+        description="Reprends ton suivi sportif et nutritionnel."
     >
-        <Head title="Log in" />
+        <Head title="Connexion" />
 
         <div
             v-if="status"
-            class="mb-4 text-center text-sm font-medium text-green-600"
+            class="mb-5 rounded-lg border border-green-500/20 bg-green-500/10 px-4 py-3 text-center text-sm font-medium text-green-700"
         >
             {{ status }}
         </div>
@@ -38,11 +39,11 @@ defineProps<{
             v-bind="store.form()"
             :reset-on-success="['password']"
             v-slot="{ errors, processing }"
-            class="flex flex-col gap-6"
+            class="space-y-6"
         >
-            <div class="grid gap-6">
+            <div class="space-y-5">
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">Email</Label>
                     <Input
                         id="email"
                         type="email"
@@ -52,20 +53,21 @@ defineProps<{
                         :tabindex="1"
                         autocomplete="email"
                         placeholder="email@example.com"
+                        class="h-11 border-evo-black/15 bg-white/80"
                     />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
-                    <div class="flex items-center justify-between">
-                        <Label for="password">Password</Label>
+                    <div class="flex items-center justify-between gap-3">
+                        <Label for="password">Mot de passe</Label>
                         <TextLink
                             v-if="canResetPassword"
                             :href="request()"
-                            class="text-sm"
+                            class="text-sm font-medium text-evo-black/60 hover:text-evo-black"
                             :tabindex="5"
                         >
-                            Forgot password?
+                            Mot de passe oublié ?
                         </TextLink>
                     </div>
                     <PasswordInput
@@ -74,36 +76,40 @@ defineProps<{
                         required
                         :tabindex="2"
                         autocomplete="current-password"
-                        placeholder="Password"
+                        placeholder="••••••••"
+                        class="h-11 border-evo-black/15 bg-white/80"
                     />
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <Label for="remember" class="flex items-center space-x-3">
+                    <Label for="remember" class="flex items-center gap-3 text-evo-black/70">
                         <Checkbox id="remember" name="remember" :tabindex="3" />
-                        <span>Remember me</span>
+                        <span>Rester connecté</span>
                     </Label>
                 </div>
 
                 <Button
                     type="submit"
-                    class="mt-4 w-full"
+                    class="h-11 w-full bg-evo-black text-evo-white hover:bg-evo-black/90"
                     :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"
                 >
                     <Spinner v-if="processing" />
-                    Log in
+                    <LogIn v-else class="size-4" />
+                    Se connecter
                 </Button>
             </div>
 
             <div
-                class="text-center text-sm text-muted-foreground"
+                class="text-center text-sm text-evo-black/60"
                 v-if="canRegister"
             >
-                Don't have an account?
-                <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+                Pas encore de compte ?
+                <TextLink :href="register()" class="font-medium text-evo-black underline underline-offset-4" :tabindex="5">
+                    Créer un compte
+                </TextLink>
             </div>
         </Form>
     </AuthBase>
