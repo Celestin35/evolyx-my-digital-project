@@ -22,7 +22,7 @@ class GoalController extends Controller
         }
 
         $validatedData = $request->validate([
-            'target_weight' => ['required', 'numeric', 'min:20', 'max:500'],
+            'target_weight' => ['required', 'numeric', 'min:20', 'max:600'],
             'weekly_weight_goal' => [
                 'required',
                 'numeric',

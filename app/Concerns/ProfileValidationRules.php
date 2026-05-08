@@ -41,7 +41,9 @@ trait ProfileValidationRules
         return [
             'required',
             'string',
-            'max:255',
+            'min:3',
+            'max:30',
+            'regex:/^[A-Za-z0-9_]+$/',
             $userId === null
                 ? Rule::unique(User::class, 'pseudo')
                 : Rule::unique(User::class, 'pseudo')->ignore($userId),
@@ -58,11 +60,33 @@ trait ProfileValidationRules
         return [
             'required',
             'string',
-            'email',
+            'email:rfc',
             'max:255',
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),
+        ];
+    }
+
+    /**
+     * Get French validation messages for profile/account fields.
+     *
+     * @return array<string, string>
+     */
+    protected function profileValidationMessages(): array
+    {
+        return [
+            'first_name.required' => 'Le nom est requis.',
+            'first_name.max' => 'Le nom ne peut pas depasser 50 caracteres.',
+            'pseudo.required' => 'Le pseudo est requis.',
+            'pseudo.min' => 'Le pseudo doit contenir au moins 3 caracteres.',
+            'pseudo.max' => 'Le pseudo ne peut pas depasser 30 caracteres.',
+            'pseudo.regex' => 'Le pseudo ne peut contenir que des lettres, des chiffres et des underscores.',
+            'pseudo.unique' => 'Ce pseudo est deja utilise.',
+            'email.required' => 'L\'email est requis.',
+            'email.email' => 'L\'email doit etre une adresse valide.',
+            'email.max' => 'L\'email ne peut pas depasser 255 caracteres.',
+            'email.unique' => 'Un compte existe deja avec cet email.',
         ];
     }
 }

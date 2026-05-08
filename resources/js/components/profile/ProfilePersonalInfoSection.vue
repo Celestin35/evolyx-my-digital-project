@@ -54,6 +54,22 @@ const formattedSex = computed(() => formatSexLabel(props.user.sex));
 const formattedActivityLevel = computed(() =>
     formatActivityLevelLabel(props.user.activity_level),
 );
+const todayDate = computed(() => formatDateInput(new Date()));
+const minimumBirthDate = computed(() => {
+    const date = new Date();
+
+    date.setFullYear(date.getFullYear() - 15);
+
+    return formatDateInput(date);
+});
+
+function formatDateInput(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
 
 const startEdit = () => {
     personalInfoForm.defaults({
@@ -76,6 +92,45 @@ const cancelEdit = () => {
 };
 
 const savePersonalInfo = () => {
+    personalInfoForm.clearErrors('sex', 'height', 'activity_level', 'birth_date', 'sport_ids');
+    const height = Number(personalInfoForm.height);
+
+    if (!['male', 'female', 'other'].includes(personalInfoForm.sex)) {
+        personalInfoForm.setError('sex', 'Selectionne ton sexe.');
+
+        return;
+    }
+
+    if (personalInfoForm.height === '' || !Number.isInteger(height) || height < 50 || height > 300) {
+        personalInfoForm.setError('height', 'La taille doit etre un nombre entier entre 50 et 300 cm.');
+
+        return;
+    }
+
+    if (!activityLevelOptions.some((option) => option.value === personalInfoForm.activity_level)) {
+        personalInfoForm.setError('activity_level', 'Selectionne un niveau d activite.');
+
+        return;
+    }
+
+    if (!personalInfoForm.birth_date) {
+        personalInfoForm.setError('birth_date', 'La date de naissance est requise.');
+
+        return;
+    }
+
+    if (personalInfoForm.birth_date > todayDate.value) {
+        personalInfoForm.setError('birth_date', 'La date de naissance ne peut pas etre dans le futur.');
+
+        return;
+    }
+
+    if (personalInfoForm.birth_date > minimumBirthDate.value) {
+        personalInfoForm.setError('birth_date', 'Tu dois avoir au moins 15 ans pour utiliser l\'application.');
+
+        return;
+    }
+
     personalInfoForm.patch('/profile/personal-info', {
         preserveScroll: true,
         
@@ -214,8 +269,8 @@ const savePersonalInfo = () => {
                             id="personal_height"
                             v-model="personalInfoForm.height"
                             type="number"
-                            min="100"
-                            max="250"
+                            min="50"
+                            max="300"
                             class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
                         />
                         <p
@@ -237,6 +292,7 @@ const savePersonalInfo = () => {
                             id="personal_birth_date"
                             v-model="personalInfoForm.birth_date"
                             type="date"
+                            :max="minimumBirthDate"
                             class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
                         />
                         <p
@@ -277,6 +333,9 @@ const savePersonalInfo = () => {
 
                     <div class="space-y-2">
                         <p class="block font-medium">Sports pratiques</p>
+                        <p class="text-xs text-neutral-500">
+                            Si ton sport n'est pas dans la liste, tu pourras le creer ensuite depuis l'application.
+                        </p>
                         <div class="grid gap-2 rounded-md border border-neutral-300 p-3">
                             <label
                                 v-for="sport in availableSports"

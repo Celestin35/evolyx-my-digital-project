@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\RegistrationAccountValidationController;
 use App\Http\Controllers\CaloriesController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\ProgressController;
@@ -20,6 +21,10 @@ Route::get('/', function () {
         ? redirect()->route('register')
         : redirect()->route('login');
 })->name('home');
+
+Route::post('register/validate-account', RegistrationAccountValidationController::class)
+    ->middleware('guest')
+    ->name('register.validate-account');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');

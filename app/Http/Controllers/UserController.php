@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sport;
+use App\Concerns\ProfileValidationRules;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
+    use ProfileValidationRules;
+
     public function show(Request $request): Response
     {
         $user = $request->user()->load([
@@ -66,14 +69,30 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'first_name' => ['required', 'string', 'max:50'],
             'sex' => ['required', Rule::in(['male', 'female', 'other'])],
-            'height' => ['required', 'integer', 'min:100', 'max:250'],
-            'birth_date' => ['required', 'date', 'before:today'],
+            'height' => ['required', 'integer', 'min:50', 'max:300'],
+            'birth_date' => ['required', 'date', 'before_or_equal:'.now()->subYears(15)->toDateString()],
             'activity_level' => [
                 'required',
                 Rule::in(['sedentary', 'light', 'moderate', 'active', 'very_active']),
             ],
-            'sport_ids' => ['required', 'array', 'min:1'],
+            'sport_ids' => ['sometimes', 'array'],
             'sport_ids.*' => ['integer', Rule::exists('sports', 'id')],
+        ], [
+            'first_name.required' => 'Le nom est requis.',
+            'first_name.max' => 'Le nom ne peut pas depasser 50 caracteres.',
+            'sex.required' => 'Le sexe est requis.',
+            'sex.in' => 'Le sexe selectionne est invalide.',
+            'height.required' => 'La taille est requise.',
+            'height.integer' => 'La taille doit etre un nombre entier en centimetres.',
+            'height.min' => 'La taille doit etre comprise entre 50 et 300 cm.',
+            'height.max' => 'La taille doit etre comprise entre 50 et 300 cm.',
+            'activity_level.required' => 'Le niveau d\'activite est requis.',
+            'activity_level.in' => 'Le niveau d\'activite selectionne est invalide.',
+            'birth_date.required' => 'La date de naissance est requise.',
+            'birth_date.date' => 'La date de naissance doit etre une date valide.',
+            'birth_date.before_or_equal' => 'Tu dois avoir au moins 15 ans pour utiliser l\'application.',
+            'sport_ids.array' => 'La selection de sports est invalide.',
+            'sport_ids.*.exists' => 'Un sport selectionne est invalide.',
         ]);
 
         $user = $request->user();
@@ -97,20 +116,9 @@ class UserController extends Controller
     public function updateAccountInfo(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
-            'pseudo' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('users', 'pseudo')->ignore($request->user()->id),
-            ],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($request->user()->id),
-            ],
-        ]);
+            'pseudo' => $this->pseudoRules($request->user()->id),
+            'email' => $this->emailRules($request->user()->id),
+        ], $this->profileValidationMessages());
 
         $user = $request->user();
         $user->fill($validatedData);

@@ -13,7 +13,7 @@ defineProps<{
   <div class="flex min-h-dvh w-full overflow-hidden bg-gray-200 p-4">
     <DashboardSidebar />
 
-    <div class="ml-4 flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden lg:ml-[calc(20%+0.6rem)]">
       <DashboardHeader :title="title" :subtitle="subtitle" />
       <main class="min-h-0 flex-1 overflow-hidden">
         <slot />

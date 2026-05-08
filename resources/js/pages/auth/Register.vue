@@ -23,6 +23,7 @@ defineProps<{
 }>();
 
 const currentStep = ref<'account' | 'profile'>('account');
+const validatingAccount = ref(false);
 
 const form = useForm({
     first_name: '',
@@ -38,9 +39,33 @@ const form = useForm({
     sport_ids: [] as number[],
 });
 
-const selectedSportsCount = computed(() => form.sport_ids.length);
+const activityLevelOptions = [
+    { value: 'sedentary', label: 'Sedentaire (travail assis, peu ou pas de sport)' },
+    { value: 'light', label: 'Leger (1 a 2 seances de sport par semaine)' },
+    { value: 'moderate', label: 'Modere (3 a 4 seances de sport par semaine)' },
+    { value: 'active', label: 'Actif (5 a 6 seances de sport par semaine)' },
+    { value: 'very_active', label: 'Tres actif (sport quotidien ou travail physique)' },
+];
 
-function goToProfile() {
+const selectedSportsCount = computed(() => form.sport_ids.length);
+const todayDate = computed(() => formatDateInput(new Date()));
+const minimumBirthDate = computed(() => {
+    const date = new Date();
+
+    date.setFullYear(date.getFullYear() - 15);
+
+    return formatDateInput(date);
+});
+
+function formatDateInput(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
+
+function validateAccountFields() {
     form.clearErrors('first_name', 'pseudo', 'email', 'password', 'password_confirmation');
 
     if (!form.first_name.trim()) {
@@ -49,14 +74,24 @@ function goToProfile() {
 
     if (!form.pseudo.trim()) {
         form.setError('pseudo', 'Le pseudo est requis.');
+    } else if (form.pseudo.length < 3 || form.pseudo.length > 30 || !/^[A-Za-z0-9_]+$/.test(form.pseudo)) {
+        form.setError('pseudo', 'Le pseudo doit faire 3 a 30 caracteres et ne contenir que des lettres, chiffres et underscores.');
     }
 
     if (!form.email.trim()) {
         form.setError('email', "L'email est requis.");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+        form.setError('email', "L'email doit etre une adresse valide.");
     }
 
-    if (form.password.length < 8) {
-        form.setError('password', 'Le mot de passe doit contenir au moins 8 caractères.');
+    if (
+        form.password.length < 12
+        || !/[a-z]/.test(form.password)
+        || !/[A-Z]/.test(form.password)
+        || !/\d/.test(form.password)
+        || !/[^A-Za-z0-9]/.test(form.password)
+    ) {
+        form.setError('password', 'Le mot de passe doit contenir au moins 12 caracteres, une majuscule, une minuscule, un chiffre et un symbole.');
     }
 
     if (form.password !== form.password_confirmation) {
@@ -70,7 +105,58 @@ function goToProfile() {
         || form.errors.password
         || form.errors.password_confirmation
     ) {
+        return false;
+    }
+
+    return true;
+}
+
+async function goToProfile() {
+    if (!validateAccountFields()) {
         return;
+    }
+
+    validatingAccount.value = true;
+
+    try {
+        const response = await fetch('/register/validate-account', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({
+                first_name: form.first_name,
+                pseudo: form.pseudo,
+                email: form.email,
+                password: form.password,
+                password_confirmation: form.password_confirmation,
+            }),
+        });
+
+        if (response.status === 422) {
+            const data = await response.json();
+
+            Object.entries(data.errors ?? {}).forEach(([field, messages]) => {
+                const [message] = messages as string[];
+
+                form.setError(field as keyof typeof form.errors, message);
+            });
+
+            return;
+        }
+
+        if (!response.ok) {
+            form.setError('password', 'Impossible de valider le compte pour le moment.');
+
+            return;
+        }
+
+        form.clearErrors('first_name', 'pseudo', 'email', 'password', 'password_confirmation');
+    } finally {
+        validatingAccount.value = false;
     }
 
     currentStep.value = 'profile';
@@ -86,7 +172,50 @@ function toggleSport(sportId: number) {
         : [...form.sport_ids, sportId];
 }
 
+function validateProfileFields() {
+    form.clearErrors('sex', 'height', 'weight', 'activity_level', 'birth_date', 'sport_ids');
+    const height = Number(form.height);
+    const weight = Number(form.weight);
+
+    if (!['male', 'female', 'other'].includes(form.sex)) {
+        form.setError('sex', 'Selectionne ton sexe.');
+    }
+
+    if (form.height === '' || !Number.isInteger(height) || height < 50 || height > 300) {
+        form.setError('height', 'La taille doit etre un nombre entier entre 50 et 300 cm.');
+    }
+
+    if (form.weight === '' || Number.isNaN(weight) || weight < 20 || weight > 600) {
+        form.setError('weight', 'Le poids doit etre un nombre entre 20 et 600 kg.');
+    }
+
+    if (!activityLevelOptions.some((option) => option.value === form.activity_level)) {
+        form.setError('activity_level', 'Selectionne un niveau d activite.');
+    }
+
+    if (!form.birth_date) {
+        form.setError('birth_date', 'La date de naissance est requise.');
+    } else if (form.birth_date > todayDate.value) {
+        form.setError('birth_date', 'La date de naissance ne peut pas etre dans le futur.');
+    } else if (form.birth_date > minimumBirthDate.value) {
+        form.setError('birth_date', 'Tu dois avoir au moins 15 ans pour utiliser l\'application.');
+    }
+
+    return !(
+        form.errors.sex
+        || form.errors.height
+        || form.errors.weight
+        || form.errors.activity_level
+        || form.errors.birth_date
+        || form.errors.sport_ids
+    );
+}
+
 function submit() {
+    if (!validateProfileFields()) {
+        return;
+    }
+
     form.post(store.url(), {
         onError: (errors) => {
             const accountFields = ['first_name', 'pseudo', 'email', 'password', 'password_confirmation'];
@@ -210,8 +339,10 @@ function submit() {
                 <Button
                     type="button"
                     class="h-11 w-full bg-evo-black text-evo-white hover:bg-evo-black/90"
+                    :disabled="validatingAccount"
                     @click="goToProfile"
                 >
+                    <Spinner v-if="validatingAccount" />
                     Continuer
                     <ChevronRight class="size-4" />
                 </Button>
@@ -226,8 +357,8 @@ function submit() {
                                 id="height"
                                 v-model="form.height"
                                 type="number"
-                                min="100"
-                                max="250"
+                                min="50"
+                                max="300"
                                 required
                                 placeholder="175"
                                 class="h-11 border-evo-black/15 bg-white/80 pr-12"
@@ -244,7 +375,7 @@ function submit() {
                                 v-model="form.weight"
                                 type="number"
                                 min="20"
-                                max="500"
+                                max="600"
                                 step="0.1"
                                 required
                                 placeholder="72.5"
@@ -281,6 +412,7 @@ function submit() {
                             id="birth_date"
                             v-model="form.birth_date"
                             type="date"
+                            :max="minimumBirthDate"
                             required
                             class="h-11 border-evo-black/15 bg-white/80"
                         />
@@ -299,11 +431,13 @@ function submit() {
                         required
                         class="h-11 w-full rounded-md border border-evo-black/15 bg-white/80 px-3 text-sm outline-none transition focus:border-evo-purple focus:ring-3 focus:ring-evo-purple/20"
                     >
-                        <option value="sedentary">Sédentaire</option>
-                        <option value="light">Léger</option>
-                        <option value="moderate">Modéré</option>
-                        <option value="active">Actif</option>
-                        <option value="very_active">Très actif</option>
+                        <option
+                            v-for="option in activityLevelOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </option>
                     </select>
                     <InputError :message="form.errors.activity_level" />
                 </div>
@@ -315,6 +449,9 @@ function submit() {
                             {{ selectedSportsCount }} sélectionné{{ selectedSportsCount > 1 ? 's' : '' }}
                         </span>
                     </div>
+                    <p class="text-xs text-evo-black/50">
+                        Si ton sport n'est pas dans la liste, tu pourras le creer ensuite depuis l'application.
+                    </p>
                     <div class="grid max-h-48 gap-2 overflow-y-auto rounded-lg border border-evo-black/10 bg-white/70 p-2 sm:grid-cols-2">
                         <label
                             v-for="sport in availableSports"

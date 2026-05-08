@@ -22,7 +22,7 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
 
 <template>
     <aside
-        class="hidden min-h-full w-1/5 flex-col items-center justify-between rounded-lg bg-evo-white px-8 py-12 lg:flex"
+        class="fixed left-4 top-4 hidden h-[calc(100dvh-2rem)] w-[calc(20%-0.4rem)] flex-col items-center justify-between rounded-lg bg-evo-white px-8 py-12 lg:flex"
     >
         <div class="w-full">
             <Link :href="home()" class="mb-10 block h-auto w-40">
