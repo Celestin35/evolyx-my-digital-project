@@ -24,6 +24,7 @@ defineProps<{
 
 const currentStep = ref<'account' | 'profile'>('account');
 const validatingAccount = ref(false);
+const accountValidationError = ref('');
 
 const form = useForm({
     first_name: '',
@@ -67,6 +68,7 @@ function formatDateInput(date: Date) {
 
 function validateAccountFields() {
     form.clearErrors('first_name', 'pseudo', 'email', 'password', 'password_confirmation');
+    accountValidationError.value = '';
 
     if (!form.first_name.trim()) {
         form.setError('first_name', 'Le nom est requis.');
@@ -117,6 +119,7 @@ async function goToProfile() {
     }
 
     validatingAccount.value = true;
+    accountValidationError.value = '';
 
     try {
         const response = await fetch('/register/validate-account', {
@@ -149,14 +152,26 @@ async function goToProfile() {
         }
 
         if (!response.ok) {
-            form.setError('password', 'Impossible de valider le compte pour le moment.');
+            if (response.status === 419) {
+                accountValidationError.value = 'La session a expiré. Recharge la page puis réessaie.';
+            } else if (response.status === 403) {
+                accountValidationError.value = 'Tu es déjà connecté. Déconnecte-toi pour créer un autre compte.';
+            } else {
+                accountValidationError.value = 'Une erreur serveur empêche la vérification du compte. Réessaie dans un instant.';
+            }
 
             return;
         }
 
         form.clearErrors('first_name', 'pseudo', 'email', 'password', 'password_confirmation');
+    } catch {
+        accountValidationError.value = 'Impossible de joindre le serveur. Vérifie ta connexion puis réessaie.';
     } finally {
         validatingAccount.value = false;
+    }
+
+    if (accountValidationError.value) {
+        return;
     }
 
     currentStep.value = 'profile';
@@ -335,6 +350,7 @@ function submit() {
                     <InputError :message="form.errors.password" />
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
+                <InputError :message="accountValidationError" />
 
                 <Button
                     type="button"
