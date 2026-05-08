@@ -34,17 +34,17 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 </script>
 
 <template>
-    <div class="px-4 py-6">
+    <div class="p-4">
         <Heading
-            title="Parametres"
-            description="Gerez la securite et les preferences de votre compte."
+            title="Paramètres"
+            description="Gérez la sécurité et les préférences de votre compte."
         />
 
-        <div class="flex flex-col lg:flex-row lg:space-x-12">
+        <div class="flex flex-col gap-4 lg:flex-row">
             <aside class="w-full max-w-xl lg:w-48">
                 <nav
                     class="flex flex-col space-y-1 space-x-0"
-                    aria-label="Parametres"
+                    aria-label="Paramètres"
                 >
                     <Button
                         v-for="item in sidebarNavItems"
@@ -67,10 +67,10 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
                 </nav>
             </aside>
 
-            <Separator class="my-6 lg:hidden" />
+            <Separator class="my-4 lg:hidden" />
 
             <div class="flex-1 md:max-w-2xl">
-                <section class="max-w-xl space-y-6">
+                <section class="max-w-xl space-y-4">
                     <slot />
                 </section>
             </div>

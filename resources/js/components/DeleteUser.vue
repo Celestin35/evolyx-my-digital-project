@@ -22,11 +22,11 @@ const passwordInput = useTemplateRef('passwordInput');
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-4">
         <Heading
             variant="small"
             title="Supprimer le compte"
-            description="Supprimez votre compte et toutes ses donnees."
+            description="Supprimez votre compte et toutes ses données."
         />
         <div
             class="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4"
@@ -34,7 +34,7 @@ const passwordInput = useTemplateRef('passwordInput');
             <div class="relative space-y-0.5 text-red-600">
                 <p class="font-medium">Attention</p>
                 <p class="text-sm">
-                    Cette action est definitive et ne peut pas etre annulee.
+                    Cette action est définitive et ne peut pas être annulée.
                 </p>
             </div>
             <Dialog>
@@ -51,7 +51,7 @@ const passwordInput = useTemplateRef('passwordInput');
                         :options="{
                             preserveScroll: true,
                         }"
-                        class="space-y-6"
+                        class="space-y-4"
                         v-slot="{ errors, processing, reset, clearErrors }"
                     >
                         <DialogHeader class="space-y-3">
@@ -60,8 +60,8 @@ const passwordInput = useTemplateRef('passwordInput');
                             >
                             <DialogDescription>
                                 Une fois votre compte supprime, toutes vos
-                                donnees seront egalement supprimees de facon
-                                definitive. Saisissez votre mot de passe pour
+                                données seront également supprimées de façon
+                                définitive. Saisissez votre mot de passe pour
                                 confirmer cette action.
                             </DialogDescription>
                         </DialogHeader>

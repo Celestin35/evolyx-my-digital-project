@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
 <template>
     <Head title="Profil" />
 
-    <AppLayout title="Profil" subtitle="Gerez vos informations personnelles.">
+    <AppLayout title="Profil" subtitle="Gérez vos informations personnelles.">
         <section ref="sectionsRoot" class="flex flex-col gap-4 lg:flex-row">
             <div class="flex w-full flex-col gap-4 lg:w-1/2">
                 <ProfilePersonalInfoSection :user="props.user" :available-sports="props.availableSports" />

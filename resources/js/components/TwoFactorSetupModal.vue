@@ -46,18 +46,18 @@ const pinInputContainerRef = useTemplateRef('pinInputContainerRef');
 const modalConfig = computed<TwoFactorConfigContent>(() => {
     if (props.twoFactorEnabled) {
         return {
-            title: 'Double authentification activee',
+            title: 'Double authentification activée',
             description:
-                "La double authentification est activee. Scannez le QR code ou saisissez la cle dans votre application d'authentification.",
+                "La double authentification est activée. Scannez le QR code ou saisissez la clé dans votre application d'authentification.",
             buttonText: 'Fermer',
         };
     }
 
     if (showVerificationStep.value) {
         return {
-            title: "Verifier le code d'authentification",
+            title: "Vérifier le code d'authentification",
             description:
-                "Saisissez le code a 6 chiffres depuis votre application d'authentification.",
+                "Saisissez le code à 6 chiffres depuis votre application d'authentification.",
             buttonText: 'Continuer',
         };
     }
@@ -65,7 +65,7 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
     return {
         title: 'Activer la double authentification',
         description:
-            "Pour finaliser l'activation, scannez le QR code ou saisissez la cle dans votre application d'authentification.",
+            "Pour finaliser l'activation, scannez le QR code ou saisissez la clé dans votre application d'authentification.",
         buttonText: 'Continuer',
     };
 });
@@ -149,7 +149,7 @@ watch(
             </DialogHeader>
 
             <div
-                class="relative flex w-auto flex-col items-center justify-center space-y-5"
+                class="relative flex w-auto flex-col items-center justify-center space-y-4"
             >
                 <template v-if="!showVerificationStep">
                     <AlertError v-if="errors?.length" :errors="errors" />
@@ -168,7 +168,7 @@ watch(
                                 </div>
                                 <div
                                     v-else
-                                    class="relative z-10 overflow-hidden border p-5"
+                                    class="relative z-10 overflow-hidden border p-4"
                                 >
                                     <div
                                         v-html="qrCodeSvg"

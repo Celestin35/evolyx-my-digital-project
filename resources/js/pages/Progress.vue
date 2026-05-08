@@ -64,9 +64,9 @@ const metricOptions: Array<{
     unit: string;
 }> = [
     { value: 'weight', label: 'Charge', unit: 'kg' },
-    { value: 'repetitions', label: 'Repetitions', unit: 'rep' },
+    { value: 'repetitions', label: 'Répétitions', unit: 'rep' },
     { value: 'volume', label: 'Volume', unit: 'kg' },
-    { value: 'duration_minutes', label: 'Duree', unit: 'min' },
+    { value: 'duration_minutes', label: 'Durée', unit: 'min' },
     { value: 'distance_meters', label: 'Distance', unit: 'm' },
 ];
 
@@ -327,14 +327,14 @@ const submitWeightEntry = () => {
         subtitle="Suivez votre poids et ajoutez vos nouvelles mesures."
     >
         <div class="space-y-4">
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                         <div>
                             <h2 class="text-lg font-semibold">
                                 Courbe de poids
                             </h2>
                             <p class="mt-1 text-sm text-neutral-600">
-                                Suivi dedie aux mesures corporelles.
+                                Suivi dédié aux mesures corporelles.
                             </p>
                         </div>
 
@@ -367,21 +367,21 @@ const submitWeightEntry = () => {
                             v-else
                             class="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-500"
                         >
-                            Aucune entree disponible sur cette periode.
+                            Aucune entrée disponible sur cette période.
                         </div>
                     </div>
             </section>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                     <h2 class="text-lg font-semibold">
-                        Ajouter une entree de poids
+                        Ajouter une entrée de poids
                     </h2>
 
                     <p class="mt-2 text-sm text-neutral-600">
                         La masse grasse est optionnelle.
                     </p>
 
-                    <div class="mt-5 grid gap-4 md:grid-cols-2">
+                    <div class="mt-4 grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
                             <label for="entry_weight" class="block font-medium">
                                 Poids (kg)
@@ -428,7 +428,7 @@ const submitWeightEntry = () => {
                         </div>
                     </div>
 
-                    <div class="mt-5 flex flex-wrap items-center gap-3">
+                    <div class="mt-4 flex flex-wrap items-center gap-4">
                         <button
                             type="button"
                             class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
@@ -438,7 +438,7 @@ const submitWeightEntry = () => {
                             {{
                                 weightEntryForm.processing
                                     ? 'Enregistrement...'
-                                    : 'Ajouter l entree'
+                                    : "Ajouter l'entrée"
                             }}
                         </button>
                         <p
@@ -448,25 +448,25 @@ const submitWeightEntry = () => {
                             "
                             class="text-sm text-emerald-700"
                         >
-                            {{ flashSuccessMessage ?? 'Entree enregistree.' }}
+                            {{ flashSuccessMessage ?? 'Entrée enregistrée.' }}
                         </p>
                     </div>
             </section>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                         <div>
                             <h2 class="text-lg font-semibold">
                                 Graphique de performance
                             </h2>
                             <p class="mt-1 text-sm text-neutral-600">
-                                Les metriques disponibles dependent de
+                                Les métriques disponibles dépendent de
                                 l'exercice.
                             </p>
                         </div>
                     </div>
 
-                    <div class="mt-5 grid gap-3 md:grid-cols-2">
+                    <div class="mt-4 grid gap-4 md:grid-cols-2">
                         <div class="space-y-2">
                             <label
                                 for="performance_sport"
@@ -540,7 +540,7 @@ const submitWeightEntry = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <p class="font-medium">Periode</p>
+                            <p class="font-medium">Période</p>
                             <div class="flex flex-wrap gap-2">
                                 <button
                                     v-for="option in rangeOptions"
@@ -582,14 +582,14 @@ const submitWeightEntry = () => {
                     </div>
             </section>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                     <h2 class="text-lg font-semibold">
-                        Dernieres performances
+                        Dernières performances
                     </h2>
 
                     <div
                         v-if="recentPerformances.length > 0"
-                        class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+                        class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
                     >
                         <div
                             v-for="performance in recentPerformances"
@@ -655,7 +655,7 @@ const submitWeightEntry = () => {
                                     "
                                     class="rounded-full bg-neutral-100 px-2 py-1"
                                 >
-                                    Duree:
+                                    Durée:
                                     {{
                                         formatPerformanceValue(
                                             performance,

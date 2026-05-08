@@ -19,11 +19,11 @@ export const sexOptions = [
 ] as const;
 
 export const activityLevelOptions = [
-    { value: 'sedentary', label: 'Sedentaire' },
-    { value: 'light', label: 'Leger' },
-    { value: 'moderate', label: 'Modere' },
-    { value: 'active', label: 'Actif' },
-    { value: 'very_active', label: 'Tres actif' },
+    { value: 'sedentary', label: 'Sédentaire (travail assis, peu ou pas de sport)' },
+    { value: 'light', label: 'Léger (1 à 2 séances de sport par semaine)' },
+    { value: 'moderate', label: 'Modéré (3 à 4 séances de sport par semaine)' },
+    { value: 'active', label: 'Actif (5 à 6 séances de sport par semaine)' },
+    { value: 'very_active', label: 'Très actif (sport quotidien ou travail physique)' },
 ] as const;
 
 export const parseWeight = (value: string | number | null): number | null => {
@@ -71,11 +71,11 @@ export const formatSexLabel = (value: string | null): string | null => {
 export const formatActivityLevelLabel = (value: string | null): string | null => {
     return (
         {
-            sedentary: 'Sedentaire',
-            light: 'Leger',
-            moderate: 'Modere',
-            active: 'Actif',
-            very_active: 'Tres actif',
+            sedentary: 'Sédentaire (travail assis, peu ou pas de sport)',
+            light: 'Léger (1 à 2 séances de sport par semaine)',
+            moderate: 'Modéré (3 à 4 séances de sport par semaine)',
+            active: 'Actif (5 à 6 séances de sport par semaine)',
+            very_active: 'Très actif (sport quotidien ou travail physique)',
         }[value ?? ''] ?? value
     );
 };

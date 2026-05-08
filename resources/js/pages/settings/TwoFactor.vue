@@ -42,30 +42,30 @@ onUnmounted(() => {
     <AppLayout
         :breadcrumbs="breadcrumbs"
         title="Double authentification"
-        subtitle="Renforcez la securite de votre connexion."
+        subtitle="Renforcez la sécurité de votre connexion."
     >
         <Head title="Double authentification" />
 
-        <h1 class="sr-only">Parametres de double authentification</h1>
+        <h1 class="sr-only">Paramètres de double authentification</h1>
 
         <SettingsLayout>
-            <div class="rounded-lg bg-white p-6">
-                <div class="space-y-6">
+            <div class="rounded-lg bg-white p-4">
+                <div class="space-y-4">
                     <Heading
                         variant="small"
                         title="Double authentification"
-                        description="Gerez la double authentification de votre compte."
+                        description="Gérez la double authentification de votre compte."
                     />
 
                     <div
                         v-if="!twoFactorEnabled"
                         class="flex flex-col items-start justify-start space-y-4"
                     >
-                        <Badge variant="destructive">Desactivee</Badge>
+                        <Badge variant="destructive">Désactivée</Badge>
 
                         <p class="text-neutral-600">
                             Lorsque vous activez la double authentification, un
-                            code de securite supplementaire vous sera demande a la
+                            code de sécurité supplémentaire vous sera demandé à la
                             connexion depuis votre application d'authentification.
                         </p>
 
@@ -98,11 +98,11 @@ onUnmounted(() => {
                         v-else
                         class="flex flex-col items-start justify-start space-y-4"
                     >
-                        <Badge variant="default">Activee</Badge>
+                        <Badge variant="default">Activée</Badge>
 
                         <p class="text-neutral-600">
-                            Avec la double authentification activee, un code
-                            supplementaire vous sera demande a chaque connexion.
+                            Avec la double authentification activée, un code
+                            supplémentaire vous sera demandé à chaque connexion.
                         </p>
 
                         <TwoFactorRecoveryCodes />
@@ -116,7 +116,7 @@ onUnmounted(() => {
                                     class="rounded-full px-4 py-2"
                                 >
                                     <ShieldBan />
-                                    Desactiver la 2FA
+                                    Désactiver la 2FA
                                 </Button>
                             </Form>
                         </div>

@@ -54,7 +54,7 @@ class ProgressController extends Controller
     public function storeWeightEntry(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
-            'weight' => ['required', 'numeric', 'min:20', 'max:500'],
+            'weight' => ['required', 'numeric', 'min:20', 'max:600'],
             'body_fat' => ['nullable', 'numeric', 'min:2', 'max:75'],
         ]);
 

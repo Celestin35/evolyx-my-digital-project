@@ -22,10 +22,10 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
 
 <template>
     <aside
-        class="hidden min-h-full w-1/5 flex-col items-center justify-between rounded-lg bg-evo-white px-8 py-12 lg:flex"
+        class="fixed left-4 top-4 hidden h-[calc(100dvh-2rem)] w-1/5 flex-col items-center justify-between rounded-lg bg-evo-white p-4 lg:flex"
     >
         <div class="w-full">
-            <Link :href="home()" class="mb-10 block h-auto w-40">
+            <Link :href="home()" class="mb-4 block h-auto w-40">
                 <img
                     :src="logoEvolyxOrange"
                     alt="Evolyx"
@@ -33,7 +33,7 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
                 />
             </Link>
 
-            <nav class="flex flex-col justify-center gap-5 text-lg font-medium">
+            <nav class="flex flex-col justify-center gap-4 text-lg font-medium">
                 <Link
                     :href="dashboard()"
                     class="hover:color-evo-orange flex items-center gap-4"
@@ -66,10 +66,10 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
         <div class="w-full">
             <Link
                 :href="editProfile()"
-                class="mb-5 flex items-center gap-4 text-left text-sm font-medium"
+                class="mb-4 flex items-center gap-4 text-left text-sm font-medium"
             >
                 <Settings class="h-auto w-7 text-evo-purple" />
-                <span>Parametres</span>
+                <span>Paramètres</span>
             </Link>
             <Link
                 :href="logout()"

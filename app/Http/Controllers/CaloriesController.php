@@ -31,6 +31,7 @@ class CaloriesController extends Controller
 
         $activeGoal = $user->goals->first();
         $activeSubscription = $user->subscriptions->first();
+        $hasPremiumFeatures = (bool) $activeSubscription?->subscriptionPlan?->premium_features;
 
         $goalPlan = $activeGoal
             ? $caloriesCalculationService->calculateGoalPlan([
@@ -53,7 +54,7 @@ class CaloriesController extends Controller
                 'goal_type' => $activeGoal?->goalType?->name,
                 'goal_end_date' => $activeGoal?->goal_end_date?->toDateString(),
                 'target_weight' => $activeGoal?->target_weight,
-                'macros' => $activeGoal?->macronutrient ? [
+                'macros' => $hasPremiumFeatures && $activeGoal?->macronutrient ? [
                     'protein' => $activeGoal->macronutrient->protein,
                     'fats' => $activeGoal->macronutrient->fats,
                     'carbs' => $activeGoal->macronutrient->carbs,
@@ -63,7 +64,7 @@ class CaloriesController extends Controller
                     ? (int) round($activeGoal->daily_calories * 0.42)
                     : null,
             ],
-            'can_edit_macros' => (bool) $activeSubscription?->subscriptionPlan?->premium_features,
+            'can_edit_macros' => $hasPremiumFeatures,
             'active_subscription_plan' => $activeSubscription?->subscriptionPlan?->name,
         ]);
     }

@@ -42,10 +42,10 @@ onMounted(async () => {
     <Card class="w-full">
         <CardHeader>
             <CardTitle class="flex gap-3">
-                <LockKeyhole class="size-4" />Codes de recuperation 2FA
+                <LockKeyhole class="size-4" />Codes de récupération 2FA
             </CardTitle>
             <CardDescription>
-                Les codes de recuperation permettent de retrouver l'acces au
+                Les codes de récupération permettent de retrouver l'accès au
                 compte si vous perdez votre appareil de double authentification.
             </CardDescription>
         </CardHeader>
@@ -77,7 +77,7 @@ onMounted(async () => {
                         type="submit"
                         :disabled="processing"
                     >
-                        <RefreshCw /> Regenerer les codes
+                        <RefreshCw /> Régénérer les codes
                     </Button>
                 </Form>
             </div>
@@ -89,7 +89,7 @@ onMounted(async () => {
                         : 'h-0 opacity-0',
                 ]"
             >
-                <div v-if="errors?.length" class="mt-6">
+                <div v-if="errors?.length" class="mt-4">
                     <AlertError :errors="errors" />
                 </div>
                 <div v-else class="mt-3 space-y-3">
@@ -113,10 +113,10 @@ onMounted(async () => {
                         </div>
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
-                        Chaque code de recuperation ne peut etre utilise qu'une
+                        Chaque code de récupération ne peut être utilisé qu'une
                         seule fois. Si vous avez besoin d'une nouvelle liste,
                         cliquez sur
-                        <span class="font-bold">Regenerer les codes</span>.
+                        <span class="font-bold">Régénérer les codes</span>.
                     </p>
                 </div>
             </div>

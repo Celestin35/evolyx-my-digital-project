@@ -343,33 +343,33 @@ const completeSelectedSession = () => {
 </script>
 
 <template>
-    <Head title="Seances" />
+    <Head title="Séances" />
 
     <AppLayout
-        title="Seances"
-        subtitle="Organisez vos seances types et votre calendrier."
+        title="Séances"
+        subtitle="Organisez vos séances types et votre calendrier."
     >
         <section
             v-if="!hasConfiguredSports"
-            class="mb-4 rounded-lg border border-dashed border-neutral-300 bg-white p-6"
+            class="mb-4 rounded-lg border border-dashed border-neutral-300 bg-white p-4"
         >
             <p class="text-sm font-medium text-evo-black">
-                Aucun sport configure.
+                Aucun sport configuré.
             </p>
             <p class="mt-2 text-sm text-neutral-600">
-                Ajoutez au moins un sport dans votre profil pour creer des
-                seances.
+                Ajoutez au moins un sport dans votre profil pour créer des
+                séances.
             </p>
         </section>
 
         <div class="space-y-4">
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-lg font-semibold">
-                        Calendrier des seances
+                        Calendrier des séances
                     </h2>
                     <p class="text-sm text-neutral-500">
-                        {{ performedSessions.length }} seance(s)
+                        {{ performedSessions.length }} séance(s)
                     </p>
                 </div>
 
@@ -390,15 +390,15 @@ const completeSelectedSession = () => {
                 </div>
             </section>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                 <h2 class="text-lg font-semibold">
-                    Ajouter une seance au calendrier
+                    Ajouter une séance au calendrier
                 </h2>
                 <p
                     v-if="selectedCalendarDateLabel"
                     class="mt-2 text-sm text-neutral-600"
                 >
-                    Jour selectionne depuis le calendrier:
+                    Jour sélectionné depuis le calendrier :
                     {{ selectedCalendarDateLabel }}
                 </p>
 
@@ -408,14 +408,14 @@ const completeSelectedSession = () => {
                             for="performed_workout_session"
                             class="block font-medium"
                         >
-                            Seance type
+                            Séance type
                         </label>
                         <select
                             id="performed_workout_session"
                             v-model="performedSessionForm.workout_session_id"
                             class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
                         >
-                            <option value="">Selectionner une seance</option>
+                            <option value="">Sélectionner une séance</option>
                             <option
                                 v-for="session in workoutSessions"
                                 :key="session.id"
@@ -489,14 +489,14 @@ const completeSelectedSession = () => {
                 </div>
             </section>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-semibold">
-                            Creation de contenu
+                            Création de contenu
                         </h2>
                         <p class="mt-1 text-sm text-neutral-600">
-                            Ajoutez une seance type ou un exercice personnalise.
+                            Ajoutez une séance type ou un exercice personnalisé.
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-3">
@@ -505,27 +505,27 @@ const completeSelectedSession = () => {
                             class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
                             @click="isWorkoutSessionModalOpen = true"
                         >
-                            Creer une seance type
+                            Créer une séance type
                         </button>
                         <button
                             type="button"
                             class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
                             @click="isCustomExerciseModalOpen = true"
                         >
-                            Creer un exercice
+                            Créer un exercice
                         </button>
                     </div>
                 </div>
             </section>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                 <h2 class="text-lg font-semibold">
-                    Dernieres seances effectuees
+                    Dernières séances effectuées
                 </h2>
 
                 <div
                     v-if="recentCompletedSessions.length > 0"
-                    class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+                    class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
                 >
                     <div
                         v-for="session in recentCompletedSessions"
@@ -534,9 +534,9 @@ const completeSelectedSession = () => {
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p class="font-semibold">
-                                {{ session.workout_session_name ?? 'Seance' }}
+                                {{ session.workout_session_name ?? 'Séance' }}
                             </p>
-                            <p class="text-xs text-emerald-700">Validee</p>
+                            <p class="text-xs text-emerald-700">Validée</p>
                         </div>
                         <p
                             v-if="session.notes"
@@ -550,7 +550,7 @@ const completeSelectedSession = () => {
                     </div>
                 </div>
                 <p v-else class="mt-4 text-sm text-neutral-600">
-                    Aucune seance effectuee pour le moment.
+                    Aucune séance effectuée pour le moment.
                 </p>
 
                 <p
@@ -564,13 +564,13 @@ const completeSelectedSession = () => {
 
         <div
             v-if="isWorkoutSessionModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
-                    <h2 class="text-lg font-semibold">Creer une seance type</h2>
+                    <h2 class="text-lg font-semibold">Créer une séance type</h2>
                     <button
                         type="button"
                         class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
@@ -677,8 +677,8 @@ const completeSelectedSession = () => {
                     >
                         {{
                             workoutSessionForm.processing
-                                ? 'Creation...'
-                                : 'Creer la seance type'
+                                ? 'Création...'
+                                : 'Créer la séance type'
                         }}
                     </button>
                 </div>
@@ -687,14 +687,14 @@ const completeSelectedSession = () => {
 
         <div
             v-if="isCustomExerciseModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">
-                        Creer un exercice personnalise
+                        Créer un exercice personnalisé
                     </h2>
                     <button
                         type="button"
@@ -733,7 +733,7 @@ const completeSelectedSession = () => {
                             v-model="customExerciseForm.sport_id"
                             class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
                         >
-                            <option value="">Selectionner un sport</option>
+                            <option value="">Sélectionner un sport</option>
                             <option
                                 v-for="sport in sports"
                                 :key="sport.id"
@@ -752,14 +752,14 @@ const completeSelectedSession = () => {
 
                     <div class="space-y-2">
                         <label for="exercise_category" class="block font-medium"
-                            >Categorie</label
+                            >Catégorie</label
                         >
                         <select
                             id="exercise_category"
                             v-model="customExerciseForm.exercise_category_id"
                             class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
                         >
-                            <option value="">Selectionner une categorie</option>
+                            <option value="">Sélectionner une catégorie</option>
                             <option
                                 v-for="category in exerciseCategories"
                                 :key="category.id"
@@ -803,8 +803,8 @@ const completeSelectedSession = () => {
                     >
                         {{
                             customExerciseForm.processing
-                                ? 'Creation...'
-                                : 'Creer l exercice'
+                                ? 'Création...'
+                                : "Créer l'exercice"
                         }}
                     </button>
                 </div>
@@ -813,18 +813,18 @@ const completeSelectedSession = () => {
 
         <div
             v-if="selectedPerformedSession"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <h2 class="text-lg font-semibold">Valider la seance</h2>
+                        <h2 class="text-lg font-semibold">Valider la séance</h2>
                         <p class="mt-1 text-sm text-neutral-600">
                             {{
                                 selectedPerformedSession.workout_session_name ??
-                                'Seance'
+                                'Séance'
                             }}
                             <span v-if="selectedPerformedSessionDateLabel">
                                 - {{ selectedPerformedSessionDateLabel }}
@@ -842,10 +842,10 @@ const completeSelectedSession = () => {
 
                 <div
                     v-if="wantsPerformanceEntry === null"
-                    class="mt-6 space-y-4"
+                    class="mt-4 space-y-4"
                 >
                     <p class="font-medium">
-                        Voulez-vous renseigner des performances sur cette seance
+                        Voulez-vous renseigner des performances sur cette séance
                         ?
                     </p>
                     <div class="flex flex-wrap gap-3">
@@ -861,12 +861,12 @@ const completeSelectedSession = () => {
                             class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
                             @click="completeSelectedSession"
                         >
-                            Non, valider la seance
+                            Non, valider la séance
                         </button>
                     </div>
                 </div>
 
-                <div v-else class="mt-6 space-y-5">
+                <div v-else class="mt-4 space-y-4">
                     <div class="space-y-2">
                         <label for="complete_notes" class="block font-medium">
                             Notes (optionnel)
@@ -915,7 +915,7 @@ const completeSelectedSession = () => {
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-sm font-medium"
-                                        >Repetitions</label
+                                        >Répétitions</label
                                     >
                                     <input
                                         v-model="performance.repetitions"
@@ -927,7 +927,7 @@ const completeSelectedSession = () => {
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-sm font-medium"
-                                        >Duree (min)</label
+                                        >Durée (min)</label
                                     >
                                     <input
                                         v-model="performance.duration_minutes"
@@ -970,7 +970,7 @@ const completeSelectedSession = () => {
                             {{
                                 completeSessionForm.processing
                                     ? 'Validation...'
-                                    : 'Valider la seance'
+                                    : 'Valider la séance'
                             }}
                         </button>
                         <button

@@ -10,7 +10,7 @@ defineProps<{
 
 <template>
     <header
-        class="hidden w-full rounded-lg bg-evo-white px-8 py-4 lg:block"
+        class="hidden w-full rounded-lg bg-evo-white p-4 lg:block"
     >
         <div class="flex items-center justify-between gap-4">
             <div>

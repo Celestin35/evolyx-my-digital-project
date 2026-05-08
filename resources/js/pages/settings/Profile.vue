@@ -34,7 +34,7 @@ const props = defineProps<Props>();
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Parametres du compte',
+        title: 'Paramètres du compte',
         href: edit(),
     },
 ];
@@ -59,25 +59,25 @@ const subscriptionPlanContent = {
     Free: {
         summary: 'Pour commencer simplement.',
         features: [
-            'Acces aux fonctions de base de l application',
+            "Accès aux fonctions de base de l'application",
             'Suivi du poids et consultation du profil',
-            'Publicites actives',
+            'Publicités actives',
         ],
     },
     Essential: {
-        summary: 'Une formule legere sans publicites.',
+        summary: 'Une formule légère sans publicités.',
         features: [
-            'Suppression des publicites',
-            'Confort de navigation ameliore',
-            'Base ideale pour une utilisation reguliere',
+            'Suppression des publicités',
+            'Confort de navigation amélioré',
+            'Base idéale pour une utilisation régulière',
         ],
     },
     Premium: {
         summary: 'Le plan le plus complet pour aller plus loin.',
         features: [
-            'Calcul des macronutriments selon l objectif',
-            'Modification plus poussee des objectifs',
-            'Fonctions communautaires a venir',
+            "Calcul des macronutriments selon l'objectif",
+            'Modification plus poussée des objectifs',
+            'Fonctions communautaires à venir',
         ],
     },
 } satisfies Record<string, { summary: string; features: string[] }>;
@@ -97,7 +97,7 @@ const formattedActiveSubscriptionEndDate = computed(() => {
 const formattedSubscriptionPlans = computed(() => {
     return props.subscriptionPlans.map((plan) => {
         const content = subscriptionPlanContent[plan.name] ?? {
-            summary: 'Details de l abonnement a definir.',
+            summary: "Détails de l'abonnement à définir.",
             features: [],
         };
 
@@ -126,7 +126,7 @@ const selectedSubscriptionPlan = computed(() => {
 
 const subscriptionActionLabel = computed(() => {
     if (!selectedSubscriptionPlan.value) {
-        return 'Passer a cet abonnement';
+        return 'Passer à cet abonnement';
     }
 
     if (Number(selectedSubscriptionPlan.value.price) === 0) {
@@ -181,16 +181,16 @@ const confirmSubscriptionChange = () => {
 <template>
     <AppLayout
         :breadcrumbs="breadcrumbItems"
-        title="Parametres du compte"
-        subtitle="Gerez les informations du compte, l abonnement et la securite."
+        title="Paramètres du compte"
+        subtitle="Gérez les informations du compte, l'abonnement et la sécurité."
     >
-        <Head title="Parametres du compte" />
+        <Head title="Paramètres du compte" />
 
-        <h1 class="sr-only">Parametres du compte</h1>
+        <h1 class="sr-only">Paramètres du compte</h1>
 
         <SettingsLayout>
-            <div class="rounded-lg bg-white p-6">
-                <div class="flex flex-col space-y-6">
+            <div class="rounded-lg bg-white p-4">
+                <div class="flex flex-col space-y-4">
                     <Heading
                         variant="small"
                         title="Informations du compte"
@@ -204,7 +204,7 @@ const confirmSubscriptionChange = () => {
                         {{ successMessage }}
                     </div>
 
-                    <div class="space-y-6">
+                    <div class="space-y-4">
                         <div class="grid gap-2">
                             <Label for="pseudo">Pseudo</Label>
                             <Input
@@ -243,13 +243,13 @@ const confirmSubscriptionChange = () => {
                             class="rounded-lg border border-dashed border-neutral-300 p-4"
                         >
                             <p class="text-sm text-neutral-600">
-                                Votre adresse email n'est pas verifiee.
+                                Votre adresse email n'est pas vérifiée.
                                 <Link
                                     :href="send()"
                                     as="button"
                                     class="font-medium text-evo-black underline underline-offset-4"
                                 >
-                                    Cliquez ici pour renvoyer l'email de verification.
+                                    Cliquez ici pour renvoyer l'email de vérification.
                                 </Link>
                             </p>
 
@@ -257,7 +257,7 @@ const confirmSubscriptionChange = () => {
                                 v-if="status === 'verification-link-sent'"
                                 class="mt-2 text-sm font-medium text-green-600"
                             >
-                                Un nouveau lien de verification a ete envoye.
+                                Un nouveau lien de vérification a été envoyé.
                             </div>
                         </div>
 
@@ -285,7 +285,7 @@ const confirmSubscriptionChange = () => {
                                     v-show="accountInfoForm.recentlySuccessful"
                                     class="text-sm text-neutral-600"
                                 >
-                                    Enregistre.
+                                    Enregistré.
                                 </p>
                             </Transition>
                         </div>
@@ -293,8 +293,8 @@ const confirmSubscriptionChange = () => {
                 </div>
             </div>
 
-            <div class="rounded-lg bg-white p-6">
-                <div class="space-y-6">
+            <div class="rounded-lg bg-white p-4">
+                <div class="space-y-4">
                     <Heading
                         variant="small"
                         title="Abonnement"
@@ -310,7 +310,7 @@ const confirmSubscriptionChange = () => {
                             <p>
                                 Plan :
                                 <span class="font-semibold text-evo-black">
-                                    {{ activeSubscription.plan_name ?? 'Non defini' }}
+                                    {{ activeSubscription.plan_name ?? 'Non défini' }}
                                 </span>
                             </p>
                             <p v-if="formattedActiveSubscriptionEndDate">
@@ -384,7 +384,7 @@ const confirmSubscriptionChange = () => {
                                             ? 'Abonnement actif'
                                             : selectedSubscriptionPlanName ===
                                                 plan.name
-                                              ? 'Plan selectionne'
+                                              ? 'Plan sélectionné'
                                               : 'Choisir'
                                     }}
                                 </button>
@@ -397,7 +397,7 @@ const confirmSubscriptionChange = () => {
                         class="rounded-lg border border-neutral-200 bg-neutral-50 p-4"
                     >
                         <p class="font-medium">
-                            Plan selectionne :
+                            Plan sélectionné :
                             {{ selectedSubscriptionPlan.name }}
                         </p>
                         <p class="mt-1 text-sm text-neutral-600">
@@ -408,7 +408,7 @@ const confirmSubscriptionChange = () => {
                             class="mt-4 rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
                             @click="openSubscriptionModal"
                         >
-                            Passer a cet abonnement
+                            Passer à cet abonnement
                         </button>
                     </div>
                 </div>
@@ -420,7 +420,7 @@ const confirmSubscriptionChange = () => {
                 v-if="isSubscriptionModalOpen && selectedSubscriptionPlan"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-evo-black/50 px-4"
             >
-                <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg">
+                <div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-lg">
                     <div class="space-y-3">
                         <h2 class="text-lg font-semibold">Changer d'abonnement</h2>
                         <p class="text-sm text-neutral-600">
@@ -439,7 +439,7 @@ const confirmSubscriptionChange = () => {
                         </p>
                     </div>
 
-                    <div class="mt-6 flex items-center justify-end gap-3">
+                    <div class="mt-4 flex items-center justify-end gap-4">
                         <button
                             type="button"
                             class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"

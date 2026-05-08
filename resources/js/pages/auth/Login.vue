@@ -39,9 +39,9 @@ defineProps<{
             v-bind="store.form()"
             :reset-on-success="['password']"
             v-slot="{ errors, processing }"
-            class="space-y-6"
+            class="space-y-4"
         >
-            <div class="space-y-5">
+            <div class="space-y-4">
                 <div class="grid gap-2">
                     <Label for="email">Email</Label>
                     <Input

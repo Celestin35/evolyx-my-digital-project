@@ -13,7 +13,7 @@ import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Parametres du mot de passe',
+        title: 'Paramètres du mot de passe',
         href: edit(),
     },
 ];
@@ -22,20 +22,20 @@ const breadcrumbItems: BreadcrumbItem[] = [
 <template>
     <AppLayout
         :breadcrumbs="breadcrumbItems"
-        title="Parametres du mot de passe"
-        subtitle="Mettez a jour le mot de passe de votre compte."
+        title="Paramètres du mot de passe"
+        subtitle="Mettez à jour le mot de passe de votre compte."
     >
-        <Head title="Parametres du mot de passe" />
+        <Head title="Paramètres du mot de passe" />
 
-        <h1 class="sr-only">Parametres du mot de passe</h1>
+        <h1 class="sr-only">Paramètres du mot de passe</h1>
 
         <SettingsLayout>
-            <div class="rounded-lg bg-white p-6">
-                <div class="space-y-6">
+            <div class="rounded-lg bg-white p-4">
+                <div class="space-y-4">
                     <Heading
                         variant="small"
                         title="Mot de passe"
-                        description="Mettez a jour le mot de passe avec un mot de passe long et securise."
+                        description="Mettez à jour le mot de passe avec un mot de passe long et sécurisé."
                     />
 
                     <Form
@@ -49,7 +49,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             'password_confirmation',
                             'current_password',
                         ]"
-                        class="space-y-6"
+                        class="space-y-4"
                         v-slot="{ errors, processing, recentlySuccessful }"
                     >
                         <div class="grid gap-2">
