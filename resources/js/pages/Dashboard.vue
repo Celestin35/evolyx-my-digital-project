@@ -163,7 +163,7 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
                     <div
                         class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700"
                     >
-                        {{ formattedRecentPerformances.length }} entree(s)
+                        {{ formattedRecentPerformances.length }} entrée(s)
                     </div>
                 </div>
 
@@ -203,7 +203,7 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
             <div class="rounded-lg bg-white p-4 lg:col-span-2">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-xl font-bold">Dernieres seances</h2>
+                        <h2 class="text-xl font-bold">Dernières séances</h2>
                         <p class="mt-1 text-sm text-neutral-600">
                             Vos dernieres validations.
                         </p>
@@ -217,7 +217,7 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
 
                 <div
                     v-if="formattedRecentSessions.length > 0"
-                    class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+                    class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
                 >
                     <div
                         v-for="session in formattedRecentSessions"
@@ -250,7 +250,7 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
                     </div>
                 </div>
 
-                <p v-else class="mt-6 text-sm text-neutral-600">
+                <p v-else class="mt-4 text-sm text-neutral-600">
                     Aucune seance recente.
                 </p>
             </div>

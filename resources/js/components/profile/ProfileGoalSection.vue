@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
 <template>
     <div
         data-default-open="true"
-        class="js-section self-start w-full rounded-lg bg-white p-6"
+        class="js-section self-start w-full rounded-lg bg-white p-4"
     >
         <button
             type="button"
@@ -264,7 +264,7 @@ onBeforeUnmount(() => {
         </button>
 
         <div class="js-section-content">
-            <div class="space-y-5 pt-4">
+            <div class="space-y-4 pt-4">
                 <div
                     v-if="successMessage"
                     class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
@@ -290,17 +290,17 @@ onBeforeUnmount(() => {
                         <p>
                             Type :
                             <span class="font-semibold text-evo-black">
-                                {{ activeGoal?.goal_type ?? 'Non defini' }}
+                                {{ activeGoal?.goal_type ?? 'Non défini' }}
                             </span>
                         </p>
                         <p>
                             Poids cible :
                             <span class="font-semibold text-evo-black">
-                                {{ formattedActiveTargetWeight ?? 'Non defini' }}
+                                {{ formattedActiveTargetWeight ?? 'Non défini' }}
                             </span>
                         </p>
                         <p>
-                            Date de fin estimee :
+                            Date de fin estimée :
                             <span class="font-semibold text-evo-black">
                                 {{
                                     formattedActiveGoalEndDate ??
@@ -317,7 +317,7 @@ onBeforeUnmount(() => {
                 >
                     <p class="font-medium">Pas d'objectif en cours.</p>
                     <p class="mt-1 text-sm text-neutral-600">
-                        Creez un objectif pour definir votre poids cible et votre
+                        Créez un objectif pour définir votre poids cible et votre
                         rythme.
                     </p>
                 </div>
@@ -333,7 +333,7 @@ onBeforeUnmount(() => {
                                 ? 'Fermer'
                                 : hasActiveGoal
                                   ? 'Modifier'
-                                  : 'Creer un objectif'
+                                  : 'Créer un objectif'
                         }}
                     </button>
                 </div>
@@ -342,7 +342,7 @@ onBeforeUnmount(() => {
                     ref="goalEditor"
                     class="js-goal-editor hidden invisible opacity-0"
                 >
-                    <div class="js-goal-editor-inner space-y-5 pt-5">
+                    <div class="js-goal-editor-inner space-y-4 pt-4">
                         <div
                             v-if="goalForm.target_weight !== null"
                             class="flex flex-col gap-4"
@@ -433,7 +433,7 @@ onBeforeUnmount(() => {
                                 v-else-if="formattedGoalEndDate"
                                 class="text-sm text-neutral-600"
                             >
-                                Date de fin estimee : {{ formattedGoalEndDate }}
+                                Date de fin estimée : {{ formattedGoalEndDate }}
                             </p>
                             <p
                                 v-else-if="!isWeeklyGoalDirectionValid"

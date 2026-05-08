@@ -10,12 +10,12 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex min-h-dvh w-full overflow-hidden bg-gray-200 p-4">
+  <div class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4">
     <DashboardSidebar />
 
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden lg:ml-[calc(20%+0.6rem)]">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pr-4 [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)]">
       <DashboardHeader :title="title" :subtitle="subtitle" />
-      <main class="min-h-0 flex-1 overflow-hidden">
+      <main class="min-h-0 flex-1">
         <slot />
       </main>
     </div>

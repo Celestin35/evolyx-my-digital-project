@@ -19,11 +19,11 @@ export const sexOptions = [
 ] as const;
 
 export const activityLevelOptions = [
-    { value: 'sedentary', label: 'Sedentaire (travail assis, peu ou pas de sport)' },
-    { value: 'light', label: 'Leger (1 a 2 seances de sport par semaine)' },
-    { value: 'moderate', label: 'Modere (3 a 4 seances de sport par semaine)' },
-    { value: 'active', label: 'Actif (5 a 6 seances de sport par semaine)' },
-    { value: 'very_active', label: 'Tres actif (sport quotidien ou travail physique)' },
+    { value: 'sedentary', label: 'Sédentaire (travail assis, peu ou pas de sport)' },
+    { value: 'light', label: 'Léger (1 à 2 séances de sport par semaine)' },
+    { value: 'moderate', label: 'Modéré (3 à 4 séances de sport par semaine)' },
+    { value: 'active', label: 'Actif (5 à 6 séances de sport par semaine)' },
+    { value: 'very_active', label: 'Très actif (sport quotidien ou travail physique)' },
 ] as const;
 
 export const parseWeight = (value: string | number | null): number | null => {
@@ -71,11 +71,11 @@ export const formatSexLabel = (value: string | null): string | null => {
 export const formatActivityLevelLabel = (value: string | null): string | null => {
     return (
         {
-            sedentary: 'Sedentaire (travail assis, peu ou pas de sport)',
-            light: 'Leger (1 a 2 seances de sport par semaine)',
-            moderate: 'Modere (3 a 4 seances de sport par semaine)',
-            active: 'Actif (5 a 6 seances de sport par semaine)',
-            very_active: 'Tres actif (sport quotidien ou travail physique)',
+            sedentary: 'Sédentaire (travail assis, peu ou pas de sport)',
+            light: 'Léger (1 à 2 séances de sport par semaine)',
+            moderate: 'Modéré (3 à 4 séances de sport par semaine)',
+            active: 'Actif (5 à 6 séances de sport par semaine)',
+            very_active: 'Très actif (sport quotidien ou travail physique)',
         }[value ?? ''] ?? value
     );
 };

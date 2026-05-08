@@ -69,11 +69,11 @@ async function loadCalories() {
             class="space-y-3"
         >
             <pre class="rounded-md bg-muted p-3 text-sm">Poids actuel: {{ result.user_data.weight }} kg</pre>
-            <pre class="rounded-md bg-muted p-3 text-sm">Age: {{ result.user_data.age }} ans</pre>
+            <pre class="rounded-md bg-muted p-3 text-sm">Âge: {{ result.user_data.age }} ans</pre>
             <pre class="rounded-md bg-muted p-3 text-sm">BMR: {{ result.calculation.bmr }}</pre>
             <pre class="rounded-md bg-muted p-3 text-sm">Maintenance: {{ result.calculation.maintenance_calories }}</pre>
             <pre class="rounded-md bg-muted p-3 text-sm">Cible: {{ result.calculation.target_calories }}</pre>
-            <pre class="rounded-md bg-muted p-3 text-sm">Proteines: {{ result.calculation.macros.protein }} g</pre>
+            <pre class="rounded-md bg-muted p-3 text-sm">Protéines: {{ result.calculation.macros.protein }} g</pre>
             <pre class="rounded-md bg-muted p-3 text-sm">Lipides: {{ result.calculation.macros.fats }} g</pre>
             <pre class="rounded-md bg-muted p-3 text-sm">Glucides: {{ result.calculation.macros.carbs }} g</pre>
         </div>

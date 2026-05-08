@@ -102,13 +102,13 @@ const savePersonalInfo = () => {
     }
 
     if (personalInfoForm.height === '' || !Number.isInteger(height) || height < 50 || height > 300) {
-        personalInfoForm.setError('height', 'La taille doit etre un nombre entier entre 50 et 300 cm.');
+        personalInfoForm.setError('height', 'La taille doit être un nombre entier entre 50 et 300 cm.');
 
         return;
     }
 
     if (!activityLevelOptions.some((option) => option.value === personalInfoForm.activity_level)) {
-        personalInfoForm.setError('activity_level', 'Selectionne un niveau d activite.');
+        personalInfoForm.setError('activity_level', "Sélectionne un niveau d'activité.");
 
         return;
     }
@@ -120,7 +120,7 @@ const savePersonalInfo = () => {
     }
 
     if (personalInfoForm.birth_date > todayDate.value) {
-        personalInfoForm.setError('birth_date', 'La date de naissance ne peut pas etre dans le futur.');
+        personalInfoForm.setError('birth_date', 'La date de naissance ne peut pas être dans le futur.');
 
         return;
     }
@@ -144,7 +144,7 @@ const savePersonalInfo = () => {
 <template>
     <div
         data-default-open="true"
-        class="js-section self-start w-full rounded-lg bg-white p-6"
+        class="js-section self-start w-full rounded-lg bg-white p-4"
     >
         <button
             type="button"
@@ -154,7 +154,7 @@ const savePersonalInfo = () => {
             <span>
                 <img
                     :src="arrowDown"
-                    alt="Fleche pour ouvrir"
+                    alt="Flèche pour ouvrir"
                     class="js-open-arrow h-auto w-6 rotate-0"
                 />
             </span>
@@ -175,7 +175,7 @@ const savePersonalInfo = () => {
 
                 <template v-if="!isEditing">
                     <div v-if="user.first_name" class="flex items-center gap-1">
-                        <p class="font-medium">Prenom :</p>
+                        <p class="font-medium">Prénom :</p>
                         <p>{{ user.first_name }}</p>
                     </div>
                     <div v-if="formattedSex" class="flex items-center gap-1">
@@ -194,7 +194,7 @@ const savePersonalInfo = () => {
                         v-if="formattedActivityLevel"
                         class="flex items-center gap-1"
                     >
-                        <p class="font-medium">Niveau d'activite :</p>
+                        <p class="font-medium">Niveau d'activité :</p>
                         <p>{{ formattedActivityLevel }}</p>
                     </div>
                     <div
@@ -205,7 +205,7 @@ const savePersonalInfo = () => {
                         <p>{{ user.sports.map((sport) => sport.name).join(', ') }}</p>
                     </div>
                     <div v-if="user.age" class="flex items-center gap-1">
-                        <p class="font-medium">Age :</p>
+                        <p class="font-medium">Âge :</p>
                         <p>{{ user.age }}</p>
                     </div>
                     <div
@@ -220,7 +220,7 @@ const savePersonalInfo = () => {
                 <div v-else class="space-y-4">
                     <div class="space-y-2">
                         <label for="personal_first_name" class="block font-medium">
-                            Prenom
+                            Prénom
                         </label>
                         <input
                             id="personal_first_name"
@@ -308,7 +308,7 @@ const savePersonalInfo = () => {
                             for="personal_activity_level"
                             class="block font-medium"
                         >
-                            Niveau d'activite
+                            Niveau d'activité
                         </label>
                         <select
                             id="personal_activity_level"
@@ -334,7 +334,7 @@ const savePersonalInfo = () => {
                     <div class="space-y-2">
                         <p class="block font-medium">Sports pratiques</p>
                         <p class="text-xs text-neutral-500">
-                            Si ton sport n'est pas dans la liste, tu pourras le creer ensuite depuis l'application.
+                            Si ton sport n'est pas dans la liste, tu pourras le créer ensuite depuis l'application.
                         </p>
                         <div class="grid gap-2 rounded-md border border-neutral-300 p-3">
                             <label
@@ -363,14 +363,14 @@ const savePersonalInfo = () => {
                         class="rounded-lg border border-dashed border-neutral-300 p-4"
                     >
                         <p class="text-sm text-neutral-600">
-                            Pour modifier ou ajouter une entree de poids,
-                            rendez-vous sur votre suivi d'evolution.
+                            Pour modifier ou ajouter une entrée de poids,
+                            rendez-vous sur votre suivi d'évolution.
                         </p>
                         <Link
                             :href="progress()"
                             class="mt-3 inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
                         >
-                            Gerer mes entrees de poids
+                            Gérer mes entrées de poids
                         </Link>
                     </div>
 

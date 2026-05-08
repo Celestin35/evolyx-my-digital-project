@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Futura PT';
-    src: url('../fonts/FuturaCyrillicLight.woff2') format('woff2');
+    src: url('../fonts/FuturaPT-Light.woff2') format('woff2');
     font-style: normal;
     font-weight: 300;
     font-display: swap;
@@ -8,7 +8,15 @@
 
 @font-face {
     font-family: 'Futura PT';
-    src: url('../fonts/FuturaCyrillicBook.woff2') format('woff2');
+    src: url('../fonts/FuturaPT-LightOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-Book.woff2') format('woff2');
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -16,7 +24,15 @@
 
 @font-face {
     font-family: 'Futura PT';
-    src: url('../fonts/FuturaCyrillicMedium.woff2') format('woff2');
+    src: url('../fonts/FuturaPT-BookOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-Medium.woff2') format('woff2');
     font-style: normal;
     font-weight: 500;
     font-display: swap;
@@ -24,7 +40,31 @@
 
 @font-face {
     font-family: 'Futura PT';
-    src: url('../fonts/FuturaCyrillicBold.woff2') format('woff2');
+    src: url('../fonts/FuturaPT-MediumOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-Demi.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-DemiOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-Bold.woff2') format('woff2');
     font-style: normal;
     font-weight: 700;
     font-display: swap;
@@ -32,7 +72,15 @@
 
 @font-face {
     font-family: 'Futura PT';
-    src: url('../fonts/FuturaCyrillicHeavy.woff2') format('woff2');
+    src: url('../fonts/FuturaPT-BoldOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-ExtraBold.woff2') format('woff2');
     font-style: normal;
     font-weight: 800;
     font-display: swap;
@@ -40,8 +88,104 @@
 
 @font-face {
     font-family: 'Futura PT';
-    src: url('../fonts/FuturaCyrillicExtraBold.woff2') format('woff2');
+    src: url('../fonts/FuturaPT-ExtraBold.woff2') format('woff2');
     font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-ExtraBoldOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT';
+    src: url('../fonts/FuturaPT-HeavyOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 900;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-Book.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-BookOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-Medium.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-MediumOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-Bold.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-BoldOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-ExtraBold.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-ExtraBold.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-ExtraBoldOblique.woff2') format('woff2');
+    font-style: oblique;
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Futura PT Condensed';
+    src: url('../fonts/FuturaPTCond-ExtraBoldOblique.woff2') format('woff2');
+    font-style: oblique;
     font-weight: 900;
     font-display: swap;
 }
@@ -55,6 +199,7 @@
 }
 
 @theme inline {
-    --font-futura: 'Futura PT', ui-sans-serif, system-ui, sans-serif;
+    --font-futura: 'Futura PT', 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif;
+    --font-futura-condensed: 'Futura PT Condensed', 'Futura PT', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
     --font-michroma: 'Michroma', ui-sans-serif, system-ui, sans-serif;
 }

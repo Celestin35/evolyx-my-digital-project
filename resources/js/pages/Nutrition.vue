@@ -2,6 +2,7 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
 import { profile } from '@/routes';
 
 type CaloriesOverview = {
@@ -115,13 +116,13 @@ const saveMacros = () => {
 
     <AppLayout
         title="Nutrition"
-        subtitle="Visualisez directement vos calories cibles a partir de votre objectif."
+        subtitle="Visualisez directement vos calories cibles à partir de votre objectif."
     >
         <div
             v-if="caloriesOverview.target_calories"
             class="space-y-4"
         >
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                     <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
                         Objectif du jour
                     </p>
@@ -131,7 +132,7 @@ const saveMacros = () => {
                                 {{ caloriesOverview.target_calories }}
                             </p>
                             <p class="text-sm text-neutral-600">
-                                kcal a consommer aujourd'hui
+                                kcal à consommer aujourd'hui
                             </p>
                         </div>
                         <Link
@@ -142,21 +143,21 @@ const saveMacros = () => {
                         </Link>
                     </div>
 
-                    <p class="mt-6 max-w-md text-sm text-neutral-600">
-                        Votre objectif calorique est automatiquement calcule a
-                        partir de votre objectif actif. Vous n'avez rien a
+                    <p class="mt-4 max-w-md text-sm text-neutral-600">
+                        Votre objectif calorique est automatiquement calculé à
+                        partir de votre objectif actif. Vous n'avez rien à
                         recalculer manuellement.
                     </p>
             </section>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
                                 Progression du jour
                             </p>
                             <p class="mt-2 text-sm text-neutral-600">
-                                Apercu visuel de la consommation du jour.
+                                Aperçu visuel de la consommation du jour.
                             </p>
                         </div>
                         <p class="text-sm font-medium text-evo-purple">
@@ -165,7 +166,7 @@ const saveMacros = () => {
                     </div>
 
                     <div
-                        class="mt-6 flex flex-col items-center gap-12 md:flex-row"
+                        class="mt-4 flex flex-col items-center gap-4 md:flex-row"
                     >
                         <div
                             class="relative flex h-55 w-55 items-center justify-center rounded-full shrink-0"
@@ -185,7 +186,7 @@ const saveMacros = () => {
 
                         <div class="w-full flex-1 space-y-3">
                             <div class="rounded-lg border border-neutral-200 p-4">
-                                <p class="text-sm text-neutral-500">Consommees</p>
+                                <p class="text-sm text-neutral-500">Consommées</p>
                                 <p class="mt-2 text-2xl font-semibold">
                                     {{ consumedCalories }} kcal
                                 </p>
@@ -200,16 +201,15 @@ const saveMacros = () => {
                     </div>
             </section>
 
-            <section class="relative rounded-lg bg-white p-6">
-                    <div
-                        class="transition"
-                        :class="{
-                            'pointer-events-none select-none blur-[2px]': !canEditMacros,
-                        }"
-                    >
+            <PremiumFeatureGate
+                :locked="!canEditMacros"
+                feature-name="Gestion des macros nutriment"
+                :current-plan="active_subscription_plan"
+            >
+                    <div class="transition">
                         <div class="flex items-center justify-between gap-4">
                             <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
-                                Repartition cible des macros
+                                Gestion des macros nutriment
                             </p>
                             <button
                                 v-if="canEditMacros && !isEditingMacros"
@@ -221,9 +221,9 @@ const saveMacros = () => {
                             </button>
                         </div>
 
-                        <div v-if="!isEditingMacros" class="mt-6 grid gap-3 sm:grid-cols-3">
+                        <div v-if="!isEditingMacros" class="mt-4 grid gap-4 sm:grid-cols-3">
                             <div class="rounded-lg border border-neutral-200 p-4">
-                                <p class="text-sm text-neutral-500">Proteines</p>
+                                <p class="text-sm text-neutral-500">Protéines</p>
                                 <p class="mt-2 text-2xl font-semibold">
                                     {{ caloriesOverview.macros?.protein ?? '-' }} g
                                 </p>
@@ -242,10 +242,10 @@ const saveMacros = () => {
                             </div>
                         </div>
 
-                        <div v-else class="mt-6 space-y-4">
-                            <div class="grid gap-3 sm:grid-cols-3">
+                        <div v-else class="mt-4 space-y-4">
+                            <div class="grid gap-4 sm:grid-cols-3">
                                 <div class="rounded-lg border border-neutral-200 p-4">
-                                    <p class="text-sm text-neutral-500">Proteines</p>
+                                    <p class="text-sm text-neutral-500">Protéines</p>
                                     <div class="mt-3 flex items-center justify-between">
                                         <button
                                             type="button"
@@ -309,7 +309,7 @@ const saveMacros = () => {
                             </div>
 
                             <div class="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-                                <p class="text-sm text-neutral-600">Calories estimees avec ces macros</p>
+                                <p class="text-sm text-neutral-600">Calories estimées avec ces macros</p>
                                 <p
                                     class="mt-2 text-3xl font-semibold"
                                     :class="isCaloriesOverBase ? 'text-red-600' : 'text-emerald-600'"
@@ -351,47 +351,60 @@ const saveMacros = () => {
                         </p>
                     </div>
 
-                    <div
-                        v-if="!canEditMacros"
-                        class="absolute inset-0 flex items-center justify-center rounded-lg bg-white/70 p-6 text-center"
-                    >
-                        <div class="rounded-lg border border-neutral-200 bg-white p-5">
-                            <p class="text-sm font-semibold uppercase tracking-wide text-neutral-500">
-                                Fonction Premium
-                            </p>
-                            <p class="mt-2 text-sm text-neutral-700">
-                                Accessible via l abonnement Premium.
-                            </p>
-                            <p class="mt-1 text-xs text-neutral-500">
-                                Offre actuelle: {{ active_subscription_plan ?? 'Aucune' }}
+                    <template #locked-preview>
+                        <div class="pointer-events-none select-none opacity-35 blur-[5px]">
+                            <div class="flex items-center justify-between gap-4">
+                                <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
+                                    Gestion des macros nutriment
+                                </p>
+                                <div class="h-9 w-32 rounded-full border border-neutral-300" />
+                            </div>
+
+                            <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                                <div class="rounded-lg border border-neutral-200 p-4">
+                                    <p class="text-sm text-neutral-500">Protéines</p>
+                                    <p class="mt-2 text-2xl font-semibold">-- g</p>
+                                </div>
+                                <div class="rounded-lg border border-neutral-200 p-4">
+                                    <p class="text-sm text-neutral-500">Glucides</p>
+                                    <p class="mt-2 text-2xl font-semibold">-- g</p>
+                                </div>
+                                <div class="rounded-lg border border-neutral-200 p-4">
+                                    <p class="text-sm text-neutral-500">Lipides</p>
+                                    <p class="mt-2 text-2xl font-semibold">-- g</p>
+                                </div>
+                            </div>
+
+                            <p class="mt-4 text-sm text-neutral-600">
+                                Ces valeurs viennent directement de votre objectif actif.
                             </p>
                         </div>
-                    </div>
-            </section>
+                    </template>
+            </PremiumFeatureGate>
 
-            <section class="rounded-lg bg-white p-6">
+            <section class="rounded-lg bg-white p-4">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-sm font-medium uppercase tracking-wide text-neutral-500">
                             Saisie des repas
                         </p>
                         <h2 class="mt-2 text-2xl font-semibold">
-                            Apercu V3 non fonctionnel
+                            Aperçu V3 non fonctionnel
                         </h2>
                         <p class="mt-2 max-w-md text-sm text-neutral-600">
-                            Cette colonne montre simplement a quoi pourrait
+                            Cette colonne montre simplement à quoi pourrait
                             ressembler l'ajout manuel de calories plus tard,
-                            sans logique metier pour le moment.
+                            sans logique métier pour le moment.
                         </p>
                     </div>
                     <span
                         class="rounded-full bg-evo-purple/10 px-3 py-1 text-xs font-medium text-evo-purple"
                     >
-                        Presentation
+                        Présentation
                     </span>
                 </div>
 
-                <div class="mt-6 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+                <div class="mt-4 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
                     <div class="rounded-lg border border-neutral-200 p-4">
                         <p class="text-sm font-medium text-neutral-500">
                             Ajouter un repas
@@ -404,13 +417,13 @@ const saveMacros = () => {
                                 </label>
                                 <div class="flex flex-wrap gap-2 text-sm text-evo-black">
                                     <span class="rounded-full border border-neutral-300 px-3 py-2">
-                                        Petit-dejeuner
+                                        Petit-déjeuner
                                     </span>
                                     <span class="rounded-full border border-neutral-300 px-3 py-2">
-                                        Dejeuner
+                                        Déjeuner
                                     </span>
                                     <span class="rounded-full bg-evo-black px-3 py-2 text-evo-white">
-                                        Diner
+                                        Dîner
                                     </span>
                                     <span class="rounded-full border border-neutral-300 px-3 py-2">
                                         Collation
@@ -430,7 +443,7 @@ const saveMacros = () => {
                             <div class="grid gap-3 sm:grid-cols-2">
                                 <div class="space-y-2">
                                     <label class="block text-sm font-medium">
-                                        Calories estimees
+                                        Calories estimées
                                     </label>
                                     <div class="rounded-lg border border-neutral-300 px-4 py-3 text-sm text-neutral-700">
                                         800 kcal
@@ -461,7 +474,7 @@ const saveMacros = () => {
                             <div class="flex items-center justify-between gap-3">
                                 <div>
                                     <p class="text-sm font-medium text-neutral-500">
-                                        Reste apres ajout
+                                        Reste après ajout
                                     </p>
                                     <p class="mt-2 text-3xl font-semibold text-evo-black">
                                         {{ Math.max(0, remainingCalories - 800) }}
@@ -483,9 +496,9 @@ const saveMacros = () => {
                                 <div class="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
                                     <div class="flex items-center justify-between gap-3">
                                         <div>
-                                            <p class="font-medium">Petit-dejeuner</p>
+                                            <p class="font-medium">Petit-déjeuner</p>
                                             <p class="text-sm text-neutral-600">
-                                                Porridge, banane, beurre de cacahuete
+                                                Porridge, banane, beurre de cacahuète
                                             </p>
                                         </div>
                                         <p class="font-semibold">520 kcal</p>
@@ -495,9 +508,9 @@ const saveMacros = () => {
                                 <div class="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
                                     <div class="flex items-center justify-between gap-3">
                                         <div>
-                                            <p class="font-medium">Dejeuner</p>
+                                            <p class="font-medium">Déjeuner</p>
                                             <p class="text-sm text-neutral-600">
-                                                Pates, legumes, steak hache
+                                                Pâtes, légumes, steak haché
                                             </p>
                                         </div>
                                         <p class="font-semibold">730 kcal</p>
@@ -507,7 +520,7 @@ const saveMacros = () => {
                                 <div class="rounded-lg border border-evo-purple bg-evo-purple/5 p-4">
                                     <div class="flex items-center justify-between gap-3">
                                         <div>
-                                            <p class="font-medium">Diner</p>
+                                            <p class="font-medium">Dîner</p>
                                             <p class="text-sm text-neutral-600">
                                                 500 g de riz et 2 morceaux de poulet
                                             </p>
@@ -530,16 +543,16 @@ const saveMacros = () => {
             </section>
         </div>
 
-        <section v-else class="rounded-lg bg-white p-6">
+        <section v-else class="rounded-lg bg-white p-4">
             <h2 class="text-lg font-semibold">Nutrition</h2>
             <p class="mt-3 text-sm text-neutral-600">
                 Aucun objectif actif n'est disponible pour calculer vos calories du jour.
             </p>
             <Link
                 :href="profile()"
-                class="mt-5 inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90"
+                class="mt-4 inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90"
             >
-                Creer ou modifier mon objectif
+                Créer ou modifier mon objectif
             </Link>
         </section>
     </AppLayout>

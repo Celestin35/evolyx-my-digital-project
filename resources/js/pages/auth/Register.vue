@@ -40,11 +40,11 @@ const form = useForm({
 });
 
 const activityLevelOptions = [
-    { value: 'sedentary', label: 'Sedentaire (travail assis, peu ou pas de sport)' },
-    { value: 'light', label: 'Leger (1 a 2 seances de sport par semaine)' },
-    { value: 'moderate', label: 'Modere (3 a 4 seances de sport par semaine)' },
-    { value: 'active', label: 'Actif (5 a 6 seances de sport par semaine)' },
-    { value: 'very_active', label: 'Tres actif (sport quotidien ou travail physique)' },
+    { value: 'sedentary', label: 'Sédentaire (travail assis, peu ou pas de sport)' },
+    { value: 'light', label: 'Léger (1 à 2 séances de sport par semaine)' },
+    { value: 'moderate', label: 'Modéré (3 à 4 séances de sport par semaine)' },
+    { value: 'active', label: 'Actif (5 à 6 séances de sport par semaine)' },
+    { value: 'very_active', label: 'Très actif (sport quotidien ou travail physique)' },
 ];
 
 const selectedSportsCount = computed(() => form.sport_ids.length);
@@ -75,13 +75,13 @@ function validateAccountFields() {
     if (!form.pseudo.trim()) {
         form.setError('pseudo', 'Le pseudo est requis.');
     } else if (form.pseudo.length < 3 || form.pseudo.length > 30 || !/^[A-Za-z0-9_]+$/.test(form.pseudo)) {
-        form.setError('pseudo', 'Le pseudo doit faire 3 a 30 caracteres et ne contenir que des lettres, chiffres et underscores.');
+        form.setError('pseudo', 'Le pseudo doit faire 3 à 30 caractères et ne contenir que des lettres, chiffres et underscores.');
     }
 
     if (!form.email.trim()) {
         form.setError('email', "L'email est requis.");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-        form.setError('email', "L'email doit etre une adresse valide.");
+        form.setError('email', "L'email doit être une adresse valide.");
     }
 
     if (
@@ -91,7 +91,7 @@ function validateAccountFields() {
         || !/\d/.test(form.password)
         || !/[^A-Za-z0-9]/.test(form.password)
     ) {
-        form.setError('password', 'Le mot de passe doit contenir au moins 12 caracteres, une majuscule, une minuscule, un chiffre et un symbole.');
+        form.setError('password', 'Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un symbole.');
     }
 
     if (form.password !== form.password_confirmation) {
@@ -182,21 +182,21 @@ function validateProfileFields() {
     }
 
     if (form.height === '' || !Number.isInteger(height) || height < 50 || height > 300) {
-        form.setError('height', 'La taille doit etre un nombre entier entre 50 et 300 cm.');
+        form.setError('height', 'La taille doit être un nombre entier entre 50 et 300 cm.');
     }
 
     if (form.weight === '' || Number.isNaN(weight) || weight < 20 || weight > 600) {
-        form.setError('weight', 'Le poids doit etre un nombre entre 20 et 600 kg.');
+        form.setError('weight', 'Le poids doit être un nombre entre 20 et 600 kg.');
     }
 
     if (!activityLevelOptions.some((option) => option.value === form.activity_level)) {
-        form.setError('activity_level', 'Selectionne un niveau d activite.');
+        form.setError('activity_level', "Sélectionne un niveau d'activité.");
     }
 
     if (!form.birth_date) {
         form.setError('birth_date', 'La date de naissance est requise.');
     } else if (form.birth_date > todayDate.value) {
-        form.setError('birth_date', 'La date de naissance ne peut pas etre dans le futur.');
+        form.setError('birth_date', 'La date de naissance ne peut pas être dans le futur.');
     } else if (form.birth_date > minimumBirthDate.value) {
         form.setError('birth_date', 'Tu dois avoir au moins 15 ans pour utiliser l\'application.');
     }
@@ -257,8 +257,8 @@ function submit() {
             </button>
         </div>
 
-        <form class="space-y-6" @submit.prevent="submit">
-            <section v-show="currentStep === 'account'" class="space-y-5">
+        <form class="space-y-4" @submit.prevent="submit">
+            <section v-show="currentStep === 'account'" class="space-y-4">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="grid gap-2">
                         <Label for="first_name">Nom</Label>
@@ -348,7 +348,7 @@ function submit() {
                 </Button>
             </section>
 
-            <section v-show="currentStep === 'profile'" class="space-y-5">
+            <section v-show="currentStep === 'profile'" class="space-y-4">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="grid gap-2">
                         <Label for="height">Taille</Label>
@@ -450,7 +450,7 @@ function submit() {
                         </span>
                     </div>
                     <p class="text-xs text-evo-black/50">
-                        Si ton sport n'est pas dans la liste, tu pourras le creer ensuite depuis l'application.
+                        Si ton sport n'est pas dans la liste, tu pourras le créer ensuite depuis l'application.
                     </p>
                     <div class="grid max-h-48 gap-2 overflow-y-auto rounded-lg border border-evo-black/10 bg-white/70 p-2 sm:grid-cols-2">
                         <label
