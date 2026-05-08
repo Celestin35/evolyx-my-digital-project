@@ -156,6 +156,8 @@ async function goToProfile() {
                 accountValidationError.value = 'La session a expiré. Recharge la page puis réessaie.';
             } else if (response.status === 403) {
                 accountValidationError.value = 'Tu es déjà connecté. Déconnecte-toi pour créer un autre compte.';
+            } else if (response.status === 404) {
+                accountValidationError.value = "La vérification du compte n'est pas disponible sur le serveur. Vérifie que la dernière version est bien déployée.";
             } else {
                 accountValidationError.value = 'Une erreur serveur empêche la vérification du compte. Réessaie dans un instant.';
             }
@@ -273,7 +275,7 @@ function submit() {
         </div>
 
         <form class="space-y-4" @submit.prevent="submit">
-            <section v-show="currentStep === 'account'" class="space-y-4">
+            <section v-if="currentStep === 'account'" class="space-y-4">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="grid gap-2">
                         <Label for="first_name">Nom</Label>
@@ -364,7 +366,7 @@ function submit() {
                 </Button>
             </section>
 
-            <section v-show="currentStep === 'profile'" class="space-y-4">
+            <section v-if="currentStep === 'profile'" class="space-y-4">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="grid gap-2">
                         <Label for="height">Taille</Label>
