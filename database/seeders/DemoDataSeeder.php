@@ -77,7 +77,7 @@ class DemoDataSeeder extends Seeder
 
         DB::table('sport_user')->updateOrInsert([
             'user_id' => $users['demo@evolyx.local'],
-            'sport_id' => $sports['Musculation'],
+            'sport_id' => $sports['Fitness / musculation'],
         ]);
 
         $workoutSessions = [
@@ -135,39 +135,34 @@ class DemoDataSeeder extends Seeder
 
         $sessionExercises = [
             'Push force' => [
-                ['Developpe couche halteres', 120],
-                ['Developpe incline halteres', 105],
-                ['Developpe militaire', 120],
-                ['Elevations laterales', 60],
-                ['Extension triceps poulie', 60],
+                ['Développé couché', 120],
+                ['Développé militaire', 120],
+                ['Tractions', 90],
+                ['Curl biceps', 60],
             ],
             'Pull dos biceps' => [
-                ['Tirage vertical', 120],
-                ['Rowing barre', 120],
-                ['Rowing poulie basse', 90],
-                ['Face pull', 60],
-                ['Curl biceps halteres', 60],
+                ['Tractions', 120],
+                ['Soulevé de terre', 150],
+                ['Curl biceps', 60],
+                ['Gainage', 60],
             ],
             'Legs hypertrophie' => [
-                ['Presse a cuisses', 150],
-                ['Squat goblet', 120],
-                ['Souleve de terre roumain', 150],
-                ['Hip thrust', 120],
-                ['Leg curl', 75],
+                ['Squat', 150],
+                ['Presse à cuisses', 120],
+                ['Soulevé de terre', 150],
+                ['Gainage', 60],
             ],
             'Upper volume' => [
-                ['Developpe couche halteres', 90],
-                ['Tirage vertical', 90],
-                ['Developpe incline halteres', 90],
-                ['Rowing poulie basse', 90],
-                ['Crunch cable', 60],
+                ['Développé couché', 90],
+                ['Tractions', 90],
+                ['Développé militaire', 90],
+                ['Curl biceps', 60],
             ],
             'Bras epaules' => [
-                ['Developpe militaire', 105],
-                ['Elevations laterales', 60],
-                ['Face pull', 60],
-                ['Curl biceps halteres', 60],
-                ['Extension triceps poulie', 60],
+                ['Développé militaire', 105],
+                ['Tractions', 90],
+                ['Curl biceps', 60],
+                ['Gainage', 60],
             ],
         ];
 
@@ -198,22 +193,14 @@ class DemoDataSeeder extends Seeder
         ];
 
         $performanceProfiles = [
-            'Developpe couche halteres' => ['weight' => 18.00, 'step' => 0.65, 'repetitions' => 8, 'rep_cycle' => 4],
-            'Developpe incline halteres' => ['weight' => 15.00, 'step' => 0.50, 'repetitions' => 9, 'rep_cycle' => 3],
-            'Developpe militaire' => ['weight' => 22.50, 'step' => 0.45, 'repetitions' => 6, 'rep_cycle' => 3],
-            'Elevations laterales' => ['weight' => 6.00, 'step' => 0.15, 'repetitions' => 14, 'rep_cycle' => 5],
-            'Extension triceps poulie' => ['weight' => 18.00, 'step' => 0.45, 'repetitions' => 12, 'rep_cycle' => 4],
-            'Tirage vertical' => ['weight' => 38.00, 'step' => 0.90, 'repetitions' => 10, 'rep_cycle' => 4],
-            'Rowing barre' => ['weight' => 35.00, 'step' => 0.80, 'repetitions' => 8, 'rep_cycle' => 4],
-            'Rowing poulie basse' => ['weight' => 32.00, 'step' => 0.75, 'repetitions' => 10, 'rep_cycle' => 4],
-            'Face pull' => ['weight' => 16.00, 'step' => 0.35, 'repetitions' => 15, 'rep_cycle' => 5],
-            'Curl biceps halteres' => ['weight' => 9.00, 'step' => 0.20, 'repetitions' => 11, 'rep_cycle' => 4],
-            'Presse a cuisses' => ['weight' => 85.00, 'step' => 2.00, 'repetitions' => 10, 'rep_cycle' => 5],
-            'Squat goblet' => ['weight' => 22.00, 'step' => 0.70, 'repetitions' => 12, 'rep_cycle' => 4],
-            'Souleve de terre roumain' => ['weight' => 42.50, 'step' => 1.10, 'repetitions' => 8, 'rep_cycle' => 4],
-            'Hip thrust' => ['weight' => 60.00, 'step' => 1.60, 'repetitions' => 10, 'rep_cycle' => 5],
-            'Leg curl' => ['weight' => 24.00, 'step' => 0.60, 'repetitions' => 12, 'rep_cycle' => 4],
-            'Crunch cable' => ['weight' => 20.00, 'step' => 0.50, 'repetitions' => 14, 'rep_cycle' => 4],
+            'Développé couché' => ['weight' => 42.50, 'step' => 0.80, 'repetitions' => 8, 'rep_cycle' => 4],
+            'Développé militaire' => ['weight' => 27.50, 'step' => 0.45, 'repetitions' => 6, 'rep_cycle' => 3],
+            'Tractions' => ['weight' => 0.00, 'step' => 0.00, 'repetitions' => 6, 'rep_cycle' => 5],
+            'Curl biceps' => ['weight' => 10.00, 'step' => 0.20, 'repetitions' => 11, 'rep_cycle' => 4],
+            'Soulevé de terre' => ['weight' => 70.00, 'step' => 1.50, 'repetitions' => 5, 'rep_cycle' => 3],
+            'Gainage' => ['weight' => 0.00, 'step' => 0.00, 'repetitions' => 1, 'rep_cycle' => 1],
+            'Squat' => ['weight' => 62.50, 'step' => 1.20, 'repetitions' => 8, 'rep_cycle' => 4],
+            'Presse à cuisses' => ['weight' => 95.00, 'step' => 2.00, 'repetitions' => 10, 'rep_cycle' => 5],
         ];
 
         for ($week = 15; $week >= 0; $week--) {

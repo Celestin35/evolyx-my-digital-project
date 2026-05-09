@@ -5,12 +5,7 @@ import { DateTime } from 'luxon';
 import 'chartjs-adapter-luxon';
 import { CHART_COLORS, transparentize } from '@/lib/utils';
 
-type PerformanceMetric =
-    | 'weight'
-    | 'repetitions'
-    | 'duration_minutes'
-    | 'distance_meters'
-    | 'volume';
+type PerformanceMetric = string;
 
 type PerformanceEntry = {
     id: number;
@@ -19,6 +14,7 @@ type PerformanceEntry = {
     repetitions: number | null;
     duration_minutes: number | null;
     distance_meters: number | null;
+    metric_values: Record<string, number>;
     exercise_id: number;
     exercise_name: string;
     sport_id: number | null;
@@ -52,7 +48,21 @@ const resolveMetricValue = (performance: PerformanceEntry) => {
         return performance.weight * performance.repetitions;
     }
 
-    return performance[props.metric];
+    const dynamicValue = performance.metric_values?.[props.metric];
+
+    if (dynamicValue !== undefined && dynamicValue !== null) {
+        return dynamicValue;
+    }
+
+    const legacyValues: Record<string, number | null> = {
+        weight: performance.weight,
+        weight_kg: performance.weight,
+        repetitions: performance.repetitions,
+        duration_minutes: performance.duration_minutes,
+        distance_meters: performance.distance_meters,
+    };
+
+    return legacyValues[props.metric] ?? null;
 };
 
 onMounted(() => {

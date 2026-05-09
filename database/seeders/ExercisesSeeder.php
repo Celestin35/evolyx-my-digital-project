@@ -10,276 +10,31 @@ class ExercisesSeeder extends Seeder
     public function run(): void
     {
         $now = now();
-
+        $catalog = require database_path('seeders/data/sports_catalog.php');
         $sports = DB::table('sports')->pluck('id', 'name');
         $categories = DB::table('exercise_categories')->pluck('id', 'name');
+        $catalogExerciseNames = collect($catalog)
+            ->flatMap(fn (array $sport) => collect($sport['activities'])->pluck('name'))
+            ->values();
 
-        $rows = [
-            [
-                'name' => 'Developpe couche halteres',
-                'description' => 'Exercice de poussee horizontal pour les pectoraux, epaules et triceps.',
-                'exercise_category_id' => $categories['Push'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Rowing barre',
-                'description' => 'Tirage horizontal pour renforcer le dos et l arriere des epaules.',
-                'exercise_category_id' => $categories['Pull'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Squat goblet',
-                'description' => 'Squat accessible pour travailler jambes, gainage et posture.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Developpe incline halteres',
-                'description' => 'Poussee inclinee pour cibler le haut des pectoraux et stabiliser les epaules.',
-                'exercise_category_id' => $categories['Push'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Developpe militaire',
-                'description' => 'Poussee verticale pour les epaules, les triceps et le gainage.',
-                'exercise_category_id' => $categories['Push'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Elevations laterales',
-                'description' => 'Isolation des deltoides lateraux avec charge controlee.',
-                'exercise_category_id' => $categories['Push'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Tirage vertical',
-                'description' => 'Tirage guide pour developper le grand dorsal et la force de traction.',
-                'exercise_category_id' => $categories['Pull'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Rowing poulie basse',
-                'description' => 'Tirage horizontal stable pour travailler le milieu du dos.',
-                'exercise_category_id' => $categories['Pull'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Face pull',
-                'description' => 'Tirage haut pour l arriere des epaules et la sante scapulaire.',
-                'exercise_category_id' => $categories['Pull'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Presse a cuisses',
-                'description' => 'Mouvement guide pour charger les quadriceps et les fessiers.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Souleve de terre roumain',
-                'description' => 'Charniere de hanche pour les ischios, les fessiers et le dos.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Fentes marchees',
-                'description' => 'Travail unilateral des jambes avec stabilisation dynamique.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Hip thrust',
-                'description' => 'Extension de hanche chargee pour renforcer les fessiers.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Leg curl',
-                'description' => 'Isolation des ischio-jambiers avec trajectoire controlee.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Curl biceps halteres',
-                'description' => 'Isolation des biceps avec amplitude complete.',
-                'exercise_category_id' => $categories['Pull'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Extension triceps poulie',
-                'description' => 'Isolation des triceps avec tension continue.',
-                'exercise_category_id' => $categories['Push'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Crunch cable',
-                'description' => 'Flexion du tronc chargee pour suivre la progression du gainage.',
-                'exercise_category_id' => $categories['Core'],
-                'sport_id' => $sports['Musculation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Pompes strictes',
-                'description' => 'Mouvement de base en calisthenie pour le haut du corps.',
-                'exercise_category_id' => $categories['Push'],
-                'sport_id' => $sports['Calisthenie'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Tractions pronation',
-                'description' => 'Exercice de tirage vertical au poids du corps.',
-                'exercise_category_id' => $categories['Pull'],
-                'sport_id' => $sports['Calisthenie'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Dips',
-                'description' => 'Poussee verticale pour triceps, epaules et pectoraux.',
-                'exercise_category_id' => $categories['Push'],
-                'sport_id' => $sports['Calisthenie'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Planche abdominale',
-                'description' => 'Gainage statique pour stabiliser la sangle abdominale.',
-                'exercise_category_id' => $categories['Core'],
-                'sport_id' => $sports['Calisthenie'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Salutation au soleil',
-                'description' => 'Enchainement yoga pour echauffer le corps et fluidifier la respiration.',
-                'exercise_category_id' => $categories['Mobilite'],
-                'sport_id' => $sports['Yoga'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Posture du guerrier',
-                'description' => 'Posture yoga pour renforcer les jambes et ouvrir les hanches.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Yoga'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Hundred',
-                'description' => 'Exercice pilates de gainage dynamique et de respiration controlee.',
-                'exercise_category_id' => $categories['Core'],
-                'sport_id' => $sports['Pilates'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Pont de hanches',
-                'description' => 'Exercice doux pour activer la chaine posterieure et le bassin.',
-                'exercise_category_id' => $categories['Legs'],
-                'sport_id' => $sports['Pilates'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Ouverture thoracique',
-                'description' => 'Mobilisation pour ameliorer l extension du haut du dos.',
-                'exercise_category_id' => $categories['Mobilite'],
-                'sport_id' => $sports['Mobilite'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Marche active',
-                'description' => 'Cardio modere pour augmenter la depense sans impact eleve.',
-                'exercise_category_id' => $categories['Cardio'],
-                'sport_id' => $sports['Cardio doux'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'Respiration diaphragmatique',
-                'description' => 'Travail de respiration pour recuperation, stress et posture.',
-                'exercise_category_id' => $categories['Respiration'],
-                'sport_id' => $sports['Meditation'],
-                'user_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-        ];
+        DB::table('exercises')
+            ->whereNull('user_id')
+            ->whereNotIn('name', $catalogExerciseNames)
+            ->delete();
 
-        foreach ($rows as $row) {
-            DB::table('exercises')->updateOrInsert(
-                ['name' => $row['name'], 'user_id' => $row['user_id']],
-                [
-                    'description' => $row['description'],
-                    'exercise_category_id' => $row['exercise_category_id'],
-                    'sport_id' => $row['sport_id'],
-                    'created_at' => $row['created_at'],
-                    'updated_at' => $row['updated_at'],
-                ]
-            );
+        foreach ($catalog as $sport) {
+            foreach ($sport['activities'] as $activity) {
+                DB::table('exercises')->updateOrInsert(
+                    ['name' => $activity['name'], 'user_id' => null],
+                    [
+                        'description' => $activity['description'],
+                        'exercise_category_id' => $categories[$activity['category']],
+                        'sport_id' => $sports[$sport['name']],
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ],
+                );
+            }
         }
     }
 }

@@ -189,7 +189,7 @@ const confirmSubscriptionChange = () => {
         <h1 class="sr-only">Paramètres du compte</h1>
 
         <SettingsLayout>
-            <div class="rounded-lg bg-white p-4">
+            <div class="rounded-lg bg-white p-4 dark:bg-neutral-900">
                 <div class="flex flex-col space-y-4">
                     <Heading
                         variant="small"
@@ -293,7 +293,7 @@ const confirmSubscriptionChange = () => {
                 </div>
             </div>
 
-            <div class="rounded-lg bg-white p-4">
+            <div class="rounded-lg bg-white p-4 dark:bg-neutral-900">
                 <div class="space-y-4">
                     <Heading
                         variant="small"

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class Performance extends Model
@@ -41,5 +42,10 @@ class Performance extends Model
     public function performedSession(): BelongsTo
     {
         return $this->belongsTo(PerformedSession::class);
+    }
+
+    public function metricValues(): HasMany
+    {
+        return $this->hasMany(PerformanceMetricValue::class);
     }
 }

@@ -13,12 +13,16 @@ type WeightEntry = {
 };
 
 type ProgressRange = '1m' | '3m' | '6m' | '1y' | 'all';
-type PerformanceMetric =
-    | 'weight'
-    | 'repetitions'
-    | 'duration_minutes'
-    | 'distance_meters'
-    | 'volume';
+type PerformanceMetric = string;
+
+type MetricOption = {
+    value: PerformanceMetric;
+    label: string;
+    unit: string;
+    value_type?: 'decimal' | 'integer';
+    is_primary?: boolean;
+    sort_order?: number;
+};
 
 type PerformanceEntry = {
     id: number;
@@ -27,10 +31,24 @@ type PerformanceEntry = {
     repetitions: number | null;
     duration_minutes: number | null;
     distance_meters: number | null;
+    available_metrics: Array<{
+        key: string;
+        label: string;
+        unit: string | null;
+        value_type: 'decimal' | 'integer';
+        is_primary: boolean;
+        sort_order: number;
+    }>;
+    metric_values: Record<string, number>;
     exercise_id: number;
     exercise_name: string;
     sport_id: number | null;
     sport_name: string | null;
+};
+
+type SportOption = {
+    id: number;
+    name: string;
 };
 
 type ProgressPageProps = {
@@ -41,6 +59,7 @@ type ProgressPageProps = {
 
 const props = defineProps<{
     weightEntries: WeightEntry[];
+    sports: SportOption[];
     performances: PerformanceEntry[];
 }>();
 
@@ -50,7 +69,7 @@ const selectedRange = ref<ProgressRange>('3m');
 const selectedPerformanceRange = ref<ProgressRange>('3m');
 const selectedSportId = ref<number | 'all'>('all');
 const selectedExerciseId = ref<number | null>(null);
-const selectedMetric = ref<PerformanceMetric>('weight');
+const selectedMetric = ref<PerformanceMetric>('');
 const rangeOptions: Array<{ value: ProgressRange; label: string }> = [
     { value: '1m', label: '1M' },
     { value: '3m', label: '3M' },
@@ -58,11 +77,7 @@ const rangeOptions: Array<{ value: ProgressRange; label: string }> = [
     { value: '1y', label: '1A' },
     { value: 'all', label: 'Tout' },
 ];
-const metricOptions: Array<{
-    value: PerformanceMetric;
-    label: string;
-    unit: string;
-}> = [
+const legacyMetricOptions: MetricOption[] = [
     { value: 'weight', label: 'Charge', unit: 'kg' },
     { value: 'repetitions', label: 'Répétitions', unit: 'rep' },
     { value: 'volume', label: 'Volume', unit: 'kg' },
@@ -73,6 +88,7 @@ const metricOptions: Array<{
 const weightEntryForm = useForm({
     weight: '',
     body_fat: '',
+    entry_date: formatDateInput(new Date()),
 });
 
 const flashSuccessMessage = computed(() => page.props.flash?.success);
@@ -114,8 +130,10 @@ const filteredWeightEntries = computed(() => {
     });
 });
 
-const sportsWithPerformances = computed(() => {
-    const sports = new Map<number, string>();
+const selectableSports = computed(() => {
+    const sports = new Map<number, string>(
+        props.sports.map((sport) => [sport.id, sport.name]),
+    );
 
     props.performances.forEach((performance) => {
         if (performance.sport_id === null || !performance.sport_name) {
@@ -169,20 +187,86 @@ const selectedExercisePerformances = computed(() => {
     );
 });
 
-const availableMetricOptions = computed(() =>
-    metricOptions.filter((metric) =>
-        selectedExercisePerformances.value.some((performance) => {
-            if (metric.value === 'volume') {
-                return (
-                    performance.weight !== null &&
-                    performance.repetitions !== null
-                );
-            }
+const resolveMetricValue = (
+    performance: PerformanceEntry,
+    metric: PerformanceMetric,
+) => {
+    if (metric === 'volume') {
+        const weight =
+            performance.metric_values?.weight_kg ?? performance.weight;
+        const repetitions =
+            performance.metric_values?.repetitions ?? performance.repetitions;
 
-            return performance[metric.value] !== null;
-        }),
-    ),
-);
+        if (weight === null || repetitions === null) {
+            return null;
+        }
+
+        return weight * repetitions;
+    }
+
+    const dynamicValue = performance.metric_values?.[metric];
+
+    if (dynamicValue !== undefined && dynamicValue !== null) {
+        return dynamicValue;
+    }
+
+    const legacyValues: Record<string, number | null> = {
+        weight: performance.weight,
+        weight_kg: performance.weight,
+        repetitions: performance.repetitions,
+        duration_minutes: performance.duration_minutes,
+        distance_meters: performance.distance_meters,
+    };
+
+    return legacyValues[metric] ?? null;
+};
+
+const availableMetricOptions = computed<MetricOption[]>(() => {
+    const options = new Map<string, MetricOption>();
+
+    selectedExercisePerformances.value.forEach((performance) => {
+        performance.available_metrics
+            .filter((metric) => resolveMetricValue(performance, metric.key) !== null)
+            .forEach((metric) => {
+                options.set(metric.key, {
+                    value: metric.key,
+                    label: metric.label,
+                    unit: metric.unit ?? '',
+                    value_type: metric.value_type,
+                    is_primary: metric.is_primary,
+                    sort_order: metric.sort_order,
+                });
+            });
+    });
+
+    legacyMetricOptions
+        .filter((metric) =>
+            selectedExercisePerformances.value.some(
+                (performance) => resolveMetricValue(performance, metric.value) !== null,
+            ),
+        )
+        .forEach((metric) => {
+            if (!options.has(metric.value)) {
+                options.set(metric.value, metric);
+            }
+        });
+
+    if (
+        selectedExercisePerformances.value.some(
+            (performance) => resolveMetricValue(performance, 'volume') !== null,
+        )
+    ) {
+        options.set('volume', { value: 'volume', label: 'Volume', unit: 'kg' });
+    }
+
+    return [...options.values()].sort((firstMetric, secondMetric) => {
+        if (firstMetric.is_primary !== secondMetric.is_primary) {
+            return firstMetric.is_primary ? -1 : 1;
+        }
+
+        return (firstMetric.sort_order ?? 999) - (secondMetric.sort_order ?? 999);
+    });
+});
 
 const activeMetric = computed(() => {
     return (
@@ -190,7 +274,7 @@ const activeMetric = computed(() => {
             (metric) => metric.value === selectedMetric.value,
         ) ??
         availableMetricOptions.value[0] ??
-        metricOptions[0]
+        legacyMetricOptions[0]
     );
 });
 
@@ -212,13 +296,7 @@ const filteredPerformanceEntries = computed(() => {
 
 const chartPerformanceEntries = computed(() =>
     filteredPerformanceEntries.value.filter((performance) => {
-        if (activeMetric.value.value === 'volume') {
-            return (
-                performance.weight !== null && performance.repetitions !== null
-            );
-        }
-
-        return performance[activeMetric.value.value] !== null;
+        return resolveMetricValue(performance, activeMetric.value.value) !== null;
     }),
 );
 
@@ -226,6 +304,16 @@ const chartKey = computed(() => {
     const lastEntryId = filteredWeightEntries.value.at(-1)?.id ?? 'none';
     return `${selectedRange.value}-${filteredWeightEntries.value.length}-${lastEntryId}`;
 });
+
+function formatDateInput(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
+
+const todayDate = computed(() => formatDateInput(new Date()));
 const performanceChartKey = computed(() => {
     const lastEntryId = chartPerformanceEntries.value.at(-1)?.id ?? 'none';
 
@@ -262,27 +350,50 @@ const formatPerformanceValue = (
     performance: PerformanceEntry,
     metric: PerformanceMetric,
 ) => {
-    if (metric === 'volume') {
-        if (performance.weight === null || performance.repetitions === null) {
-            return null;
-        }
-
-        return `${(performance.weight * performance.repetitions).toFixed(2)} kg`;
-    }
-
-    const value = performance[metric];
+    const value = resolveMetricValue(performance, metric);
 
     if (value === null) {
         return null;
     }
 
-    const metricOption = metricOptions.find(
+    const metricOption = availableMetricOptions.value.find(
         (option) => option.value === metric,
-    );
+    ) ?? legacyMetricOptions.find((option) => option.value === metric);
 
-    return `${Number(value).toFixed(metric === 'repetitions' ? 0 : 2)} ${
+    const decimals = metricOption?.value_type === 'integer' || metric === 'repetitions' ? 0 : 2;
+
+    return `${Number(value).toFixed(decimals)} ${
         metricOption?.unit ?? ''
     }`;
+};
+
+const visibleRecentMetricOptions = (performance: PerformanceEntry) => {
+    const dynamicMetricOptions = performance.available_metrics
+        .filter((metric) => resolveMetricValue(performance, metric.key) !== null)
+        .map((metric) => ({
+            value: metric.key,
+            label: metric.label,
+            unit: metric.unit ?? '',
+            value_type: metric.value_type,
+            is_primary: metric.is_primary,
+            sort_order: metric.sort_order,
+        }));
+
+    const fallbackOptions = legacyMetricOptions.filter(
+        (metric) =>
+            !dynamicMetricOptions.some((option) => option.value === metric.value) &&
+            resolveMetricValue(performance, metric.value) !== null,
+    );
+
+    return [...dynamicMetricOptions, ...fallbackOptions]
+        .sort((firstMetric, secondMetric) => {
+            if (firstMetric.is_primary !== secondMetric.is_primary) {
+                return firstMetric.is_primary ? -1 : 1;
+            }
+
+            return (firstMetric.sort_order ?? 999) - (secondMetric.sort_order ?? 999);
+        })
+        .slice(0, 4);
 };
 
 const onSportChange = () => {
@@ -313,7 +424,8 @@ const submitWeightEntry = () => {
     weightEntryForm.post('/progress/weight-entries', {
         preserveScroll: true,
         onSuccess: () => {
-            weightEntryForm.reset('body_fat');
+            weightEntryForm.reset('weight', 'body_fat');
+            weightEntryForm.entry_date = todayDate.value;
         },
     });
 };
@@ -381,7 +493,7 @@ const submitWeightEntry = () => {
                         La masse grasse est optionnelle.
                     </p>
 
-                    <div class="mt-4 grid gap-4 md:grid-cols-2">
+                    <div class="mt-4 grid gap-4 md:grid-cols-3">
                         <div class="space-y-2">
                             <label for="entry_weight" class="block font-medium">
                                 Poids (kg)
@@ -400,6 +512,25 @@ const submitWeightEntry = () => {
                                 class="text-sm text-red-600"
                             >
                                 {{ weightEntryForm.errors.weight }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="entry_date" class="block font-medium">
+                                Date de mesure
+                            </label>
+                            <input
+                                id="entry_date"
+                                v-model="weightEntryForm.entry_date"
+                                type="date"
+                                :max="todayDate"
+                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            />
+                            <p
+                                v-if="weightEntryForm.errors.entry_date"
+                                class="text-sm text-red-600"
+                            >
+                                {{ weightEntryForm.errors.entry_date }}
                             </p>
                         </div>
 
@@ -482,7 +613,7 @@ const submitWeightEntry = () => {
                             >
                                 <option value="all">Tous les sports</option>
                                 <option
-                                    v-for="sport in sportsWithPerformances"
+                                    v-for="sport in selectableSports"
                                     :key="sport.id"
                                     :value="sport.id"
                                 >
@@ -613,72 +744,12 @@ const submitWeightEntry = () => {
                                 class="mt-3 flex flex-wrap gap-2 text-xs text-neutral-600"
                             >
                                 <span
-                                    v-if="
-                                        formatPerformanceValue(
-                                            performance,
-                                            'weight',
-                                        )
-                                    "
+                                    v-for="metric in visibleRecentMetricOptions(performance)"
+                                    :key="metric.value"
                                     class="rounded-full bg-neutral-100 px-2 py-1"
                                 >
-                                    Charge:
-                                    {{
-                                        formatPerformanceValue(
-                                            performance,
-                                            'weight',
-                                        )
-                                    }}
-                                </span>
-                                <span
-                                    v-if="
-                                        formatPerformanceValue(
-                                            performance,
-                                            'repetitions',
-                                        )
-                                    "
-                                    class="rounded-full bg-neutral-100 px-2 py-1"
-                                >
-                                    Reps:
-                                    {{
-                                        formatPerformanceValue(
-                                            performance,
-                                            'repetitions',
-                                        )
-                                    }}
-                                </span>
-                                <span
-                                    v-if="
-                                        formatPerformanceValue(
-                                            performance,
-                                            'duration_minutes',
-                                        )
-                                    "
-                                    class="rounded-full bg-neutral-100 px-2 py-1"
-                                >
-                                    Durée:
-                                    {{
-                                        formatPerformanceValue(
-                                            performance,
-                                            'duration_minutes',
-                                        )
-                                    }}
-                                </span>
-                                <span
-                                    v-if="
-                                        formatPerformanceValue(
-                                            performance,
-                                            'distance_meters',
-                                        )
-                                    "
-                                    class="rounded-full bg-neutral-100 px-2 py-1"
-                                >
-                                    Distance:
-                                    {{
-                                        formatPerformanceValue(
-                                            performance,
-                                            'distance_meters',
-                                        )
-                                    }}
+                                    {{ metric.label }}:
+                                    {{ formatPerformanceValue(performance, metric.value) }}
                                 </span>
                             </div>
                         </div>

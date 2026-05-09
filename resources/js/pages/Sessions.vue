@@ -15,13 +15,25 @@ type ExerciseCategory = {
     name: string;
 };
 
+type ExerciseMetric = {
+    key: string;
+    label: string;
+    unit: string | null;
+    value_type: 'decimal' | 'integer';
+    is_required: boolean;
+    is_primary: boolean;
+    sort_order: number;
+};
+
 type AvailableExercise = {
     id: number;
     name: string;
+    description: string | null;
     sport_id: number;
     sport_name: string | null;
     category_name: string | null;
     is_custom: boolean;
+    metrics: ExerciseMetric[];
 };
 
 type WorkoutSession = {
@@ -29,11 +41,13 @@ type WorkoutSession = {
     name: string;
     description: string | null;
     created_at: string | null;
+    is_system: boolean;
     exercises: Array<{
         id: number;
         name: string;
         sport_id: number;
         sport_name: string | null;
+        metrics: ExerciseMetric[];
     }>;
 };
 
@@ -50,6 +64,7 @@ type PerformedSession = {
         repetitions: number | null;
         duration_minutes: number | null;
         distance_meters: number | null;
+        metric_values: Record<string, number>;
     }>;
 };
 
@@ -57,6 +72,7 @@ type SessionsPageProps = {
     flash?: {
         success?: string;
     };
+    errors?: Record<string, string>;
 };
 
 const props = defineProps<{
@@ -95,6 +111,9 @@ const selectedPerformedSession = ref<PerformedSession | null>(null);
 const wantsPerformanceEntry = ref<boolean | null>(null);
 const isWorkoutSessionModalOpen = ref(false);
 const isCustomExerciseModalOpen = ref(false);
+const activeLibraryTab = ref<'workout-sessions' | 'exercises'>('workout-sessions');
+const editingWorkoutSession = ref<WorkoutSession | null>(null);
+const editingExercise = ref<AvailableExercise | null>(null);
 
 const completeSessionForm = useForm({
     notes: '',
@@ -104,8 +123,25 @@ const completeSessionForm = useForm({
         repetitions: string;
         duration_minutes: string;
         distance_meters: string;
+        metrics: Record<string, string>;
     }>,
 });
+
+const workoutSessionEditForm = useForm({
+    name: '',
+    description: '',
+    exercise_ids: [] as number[],
+});
+
+const customExerciseEditForm = useForm({
+    name: '',
+    description: '',
+    sport_id: '',
+    exercise_category_id: '',
+});
+
+const deleteWorkoutSessionForm = useForm({});
+const deleteExerciseForm = useForm({});
 
 const exerciseGroups = computed(() =>
     props.sports
@@ -118,6 +154,17 @@ const exerciseGroups = computed(() =>
         .filter((group) => group.exercises.length > 0),
 );
 
+const customExercises = computed(() =>
+    props.availableExercises.filter((exercise) => exercise.is_custom),
+);
+
+const libraryErrorMessage = computed(
+    () =>
+        page.props.errors?.workout_session ??
+        page.props.errors?.exercise ??
+        null,
+);
+
 const calendarEvents = computed(() =>
     props.performedSessions
         .filter((session) => session.performed_at)
@@ -128,7 +175,7 @@ const calendarEvents = computed(() =>
             return {
                 start: startDate,
                 end: endDate,
-                title: session.workout_session_name ?? 'Seance',
+                title: session.workout_session_name ?? 'Séance',
                 content: session.notes ?? '',
                 class: session.completed_at
                     ? 'evolyx-session-event evolyx-session-event--completed'
@@ -162,6 +209,42 @@ const selectedWorkoutSession = computed(() => {
         ) ?? null
     );
 });
+const selectedWorkoutSessionHasExercises = computed(() => {
+    return (selectedWorkoutSession.value?.exercises.length ?? 0) > 0;
+});
+const metricInputStep = (metric: ExerciseMetric) => {
+    return metric.value_type === 'integer' ? '1' : '0.01';
+};
+const getExerciseMetrics = (exerciseId: number) => {
+    return (
+        selectedWorkoutSession.value?.exercises.find(
+            (exercise) => exercise.id === exerciseId,
+        )?.metrics ?? []
+    );
+};
+const getExistingMetricValue = (
+    performance: PerformedSession['performances'][number] | undefined,
+    metricKey: string,
+) => {
+    if (!performance) {
+        return '';
+    }
+
+    const metricValue = performance.metric_values?.[metricKey];
+
+    if (metricValue !== undefined && metricValue !== null) {
+        return metricValue.toString();
+    }
+
+    const legacyValues: Record<string, number | null> = {
+        weight_kg: performance.weight,
+        repetitions: performance.repetitions,
+        duration_minutes: performance.duration_minutes,
+        distance_meters: performance.distance_meters,
+    };
+
+    return legacyValues[metricKey]?.toString() ?? '';
+};
 const selectedCalendarDateLabel = computed(() => {
     if (!selectedCalendarDate.value) {
         return null;
@@ -261,6 +344,12 @@ const onCalendarEventClick = (payload: unknown) => {
                         existingPerformance?.duration_minutes?.toString() ?? '',
                     distance_meters:
                         existingPerformance?.distance_meters?.toString() ?? '',
+                    metrics: Object.fromEntries(
+                        exercise.metrics.map((metric) => [
+                            metric.key,
+                            getExistingMetricValue(existingPerformance, metric.key),
+                        ]),
+                    ),
                 };
             }) ?? [];
 };
@@ -277,10 +366,22 @@ const closeWorkoutSessionModal = () => {
     workoutSessionForm.clearErrors();
 };
 
+const openWorkoutSessionModal = () => {
+    workoutSessionForm.reset();
+    workoutSessionForm.clearErrors();
+    isWorkoutSessionModalOpen.value = true;
+};
+
 const closeCustomExerciseModal = () => {
     isCustomExerciseModalOpen.value = false;
     customExerciseForm.reset();
     customExerciseForm.clearErrors();
+};
+
+const openCustomExerciseModal = () => {
+    customExerciseForm.reset();
+    customExerciseForm.clearErrors();
+    isCustomExerciseModalOpen.value = true;
 };
 
 const toggleExercise = (exerciseId: number) => {
@@ -297,6 +398,135 @@ const toggleExercise = (exerciseId: number) => {
     }
 
     workoutSessionForm.exercise_ids.push(exerciseId);
+};
+
+const toggleEditExercise = (exerciseId: number) => {
+    const alreadySelected =
+        workoutSessionEditForm.exercise_ids.includes(exerciseId);
+
+    if (alreadySelected) {
+        workoutSessionEditForm.exercise_ids =
+            workoutSessionEditForm.exercise_ids.filter(
+                (selectedId) => selectedId !== exerciseId,
+            );
+
+        return;
+    }
+
+    workoutSessionEditForm.exercise_ids.push(exerciseId);
+};
+
+const workoutSessionSportNames = (session: WorkoutSession) => {
+    const sportNames = new Set(
+        session.exercises
+            .map((exercise) => exercise.sport_name)
+            .filter((sportName): sportName is string => Boolean(sportName)),
+    );
+
+    return [...sportNames].join(', ') || 'Aucun sport';
+};
+
+const openWorkoutSessionEditor = (session: WorkoutSession) => {
+    editingWorkoutSession.value = session;
+    workoutSessionEditForm.defaults({
+        name: session.name,
+        description: session.description ?? '',
+        exercise_ids: session.exercises.map((exercise) => exercise.id),
+    });
+    workoutSessionEditForm.reset();
+    workoutSessionEditForm.clearErrors();
+};
+
+const closeWorkoutSessionEditor = () => {
+    editingWorkoutSession.value = null;
+    workoutSessionEditForm.reset();
+    workoutSessionEditForm.clearErrors();
+};
+
+const updateWorkoutSession = () => {
+    if (!editingWorkoutSession.value) {
+        return;
+    }
+
+    workoutSessionEditForm.patch(
+        `/sessions/workout-sessions/${editingWorkoutSession.value.id}`,
+        {
+            preserveScroll: true,
+            onSuccess: closeWorkoutSessionEditor,
+        },
+    );
+};
+
+const duplicateWorkoutSession = (session: WorkoutSession) => {
+    workoutSessionForm.name = `${session.name} copie`;
+    workoutSessionForm.description = session.description ?? '';
+    workoutSessionForm.exercise_ids = session.exercises.map((exercise) => exercise.id);
+    workoutSessionForm.post('/sessions/workout-sessions', {
+        preserveScroll: true,
+        onSuccess: () => {
+            workoutSessionForm.reset();
+        },
+    });
+};
+
+const deleteWorkoutSession = (session: WorkoutSession) => {
+    if (!window.confirm(`Supprimer la séance type "${session.name}" ?`)) {
+        return;
+    }
+
+    deleteWorkoutSessionForm.delete(`/sessions/workout-sessions/${session.id}`, {
+        preserveScroll: true,
+    });
+};
+
+const openExerciseEditor = (exercise: AvailableExercise) => {
+    if (!exercise.is_custom) {
+        return;
+    }
+
+    editingExercise.value = exercise;
+    customExerciseEditForm.defaults({
+        name: exercise.name,
+        description: exercise.description ?? '',
+        sport_id: exercise.sport_id.toString(),
+        exercise_category_id:
+            props.exerciseCategories
+                .find((category) => category.name === exercise.category_name)
+                ?.id.toString() ?? '',
+    });
+    customExerciseEditForm.reset();
+    customExerciseEditForm.clearErrors();
+};
+
+const closeExerciseEditor = () => {
+    editingExercise.value = null;
+    customExerciseEditForm.reset();
+    customExerciseEditForm.clearErrors();
+};
+
+const updateExercise = () => {
+    if (!editingExercise.value) {
+        return;
+    }
+
+    customExerciseEditForm.patch(`/sessions/exercises/${editingExercise.value.id}`, {
+        preserveScroll: true,
+        onSuccess: closeExerciseEditor,
+    });
+};
+
+const deleteExercise = (exercise: AvailableExercise) => {
+    if (!exercise.is_custom) {
+        return;
+    }
+
+    if (!window.confirm(`Supprimer l'exercice "${exercise.name}" ?`)) {
+        return;
+    }
+
+    deleteExerciseForm.delete(`/sessions/exercises/${exercise.id}`, {
+        preserveScroll: true,
+    });
 };
 
 const createWorkoutSession = () => {
@@ -492,29 +722,215 @@ const completeSelectedSession = () => {
             <section class="rounded-lg bg-white p-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h2 class="text-lg font-semibold">
-                            Création de contenu
-                        </h2>
+                        <h2 class="text-lg font-semibold">Bibliothèque</h2>
                         <p class="mt-1 text-sm text-neutral-600">
-                            Ajoutez une séance type ou un exercice personnalisé.
+                            Gérez vos séances types et vos exercices.
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-3">
                         <button
+                            v-if="activeLibraryTab === 'workout-sessions'"
                             type="button"
                             class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
-                            @click="isWorkoutSessionModalOpen = true"
+                            @click="openWorkoutSessionModal"
                         >
                             Créer une séance type
                         </button>
                         <button
+                            v-else
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
-                            @click="isCustomExerciseModalOpen = true"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
+                            @click="openCustomExerciseModal"
                         >
                             Créer un exercice
                         </button>
                     </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2 border-b border-neutral-200">
+                    <button
+                        type="button"
+                        class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
+                        :class="
+                            activeLibraryTab === 'workout-sessions'
+                                ? 'border-evo-black text-evo-black'
+                                : 'border-transparent text-neutral-500 hover:text-evo-black'
+                        "
+                        @click="activeLibraryTab = 'workout-sessions'"
+                    >
+                        Séances types
+                    </button>
+                    <button
+                        type="button"
+                        class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
+                        :class="
+                            activeLibraryTab === 'exercises'
+                                ? 'border-evo-black text-evo-black'
+                                : 'border-transparent text-neutral-500 hover:text-evo-black'
+                        "
+                        @click="activeLibraryTab = 'exercises'"
+                    >
+                        Exercices
+                    </button>
+                </div>
+
+                <p v-if="libraryErrorMessage" class="mt-4 text-sm text-red-600">
+                    {{ libraryErrorMessage }}
+                </p>
+
+                <div v-if="activeLibraryTab === 'workout-sessions'" class="mt-4">
+                    <div
+                        v-if="workoutSessions.length > 0"
+                        class="overflow-hidden rounded-lg border border-neutral-200"
+                    >
+                        <div
+                            v-for="session in workoutSessions"
+                            :key="session.id"
+                            class="grid gap-3 border-b border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_auto]"
+                        >
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-semibold">{{ session.name }}</p>
+                                    <span
+                                        v-if="session.exercises.length === 0"
+                                        class="rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700"
+                                    >
+                                        Incomplète
+                                    </span>
+                                    <span
+                                        class="rounded-full px-2 py-1 text-xs font-medium"
+                                        :class="
+                                            session.is_system
+                                                ? 'bg-emerald-50 text-emerald-700'
+                                                : 'bg-neutral-100 text-evo-black'
+                                        "
+                                    >
+                                        {{ session.is_system ? 'Evolyx' : 'Personnel' }}
+                                    </span>
+                                </div>
+                                <p
+                                    v-if="session.description"
+                                    class="mt-1 text-sm text-neutral-600"
+                                >
+                                    {{ session.description }}
+                                </p>
+                                <p
+                                    v-if="session.exercises.length === 0"
+                                    class="mt-2 text-sm text-red-600"
+                                >
+                                    Aucun exercice. Ajoutez-en au moins un pour saisir des performances.
+                                </p>
+                            </div>
+
+                            <div class="text-sm text-neutral-600">
+                                <p>{{ session.exercises.length }} exercice(s)</p>
+                                <p class="mt-1">{{ workoutSessionSportNames(session) }}</p>
+                            </div>
+
+                            <div class="flex flex-wrap items-start gap-2 lg:justify-end">
+                                <button
+                                    v-if="!session.is_system"
+                                    type="button"
+                                    class="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                    @click="openWorkoutSessionEditor(session)"
+                                >
+                                    Modifier
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                    @click="duplicateWorkoutSession(session)"
+                                >
+                                    Dupliquer
+                                </button>
+                                <button
+                                    v-if="!session.is_system"
+                                    type="button"
+                                    class="rounded-full border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:cursor-pointer hover:bg-red-50"
+                                    :disabled="deleteWorkoutSessionForm.processing"
+                                    @click="deleteWorkoutSession(session)"
+                                >
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-neutral-600">
+                        Aucune séance type créée pour le moment.
+                    </p>
+                </div>
+
+                <div v-else class="mt-4">
+                    <div
+                        v-if="availableExercises.length > 0"
+                        class="overflow-hidden rounded-lg border border-neutral-200"
+                    >
+                        <div
+                            v-for="exercise in availableExercises"
+                            :key="exercise.id"
+                            class="grid gap-3 border-b border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
+                        >
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-semibold">{{ exercise.name }}</p>
+                                    <span
+                                        class="rounded-full px-2 py-1 text-xs font-medium"
+                                        :class="
+                                            exercise.is_custom
+                                                ? 'bg-neutral-100 text-evo-black'
+                                                : 'bg-emerald-50 text-emerald-700'
+                                        "
+                                    >
+                                        {{ exercise.is_custom ? 'Personnel' : 'Evolyx' }}
+                                    </span>
+                                </div>
+                                <p
+                                    v-if="exercise.description"
+                                    class="mt-1 text-sm text-neutral-600"
+                                >
+                                    {{ exercise.description }}
+                                </p>
+                            </div>
+
+                            <div class="text-sm text-neutral-600">
+                                <p>{{ exercise.sport_name ?? 'Sport' }}</p>
+                                <p class="mt-1">{{ exercise.category_name ?? 'Catégorie' }}</p>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2 text-xs text-neutral-600">
+                                <span
+                                    v-for="metric in exercise.metrics"
+                                    :key="metric.key"
+                                    class="rounded-full bg-neutral-100 px-2 py-1 h-fit"
+                                >
+                                    {{ metric.label }}
+                                </span>
+                            </div>
+
+                            <div class="flex flex-wrap items-start gap-2 lg:justify-end">
+                                <button
+                                    v-if="exercise.is_custom"
+                                    type="button"
+                                    class="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                    @click="openExerciseEditor(exercise)"
+                                >
+                                    Modifier
+                                </button>
+                                <button
+                                    v-if="exercise.is_custom"
+                                    type="button"
+                                    class="rounded-full border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:cursor-pointer hover:bg-red-50"
+                                    :disabled="deleteExerciseForm.processing"
+                                    @click="deleteExercise(exercise)"
+                                >
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-neutral-600">
+                        Aucun exercice disponible pour vos sports.
+                    </p>
                 </div>
             </section>
 
@@ -559,6 +975,230 @@ const completeSelectedSession = () => {
                 >
                     {{ flashSuccessMessage }}
                 </p>
+            </section>
+        </div>
+
+        <div
+            v-if="editingWorkoutSession"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+        >
+            <section
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+            >
+                <div class="flex items-start justify-between gap-4">
+                    <h2 class="text-lg font-semibold">Modifier la séance type</h2>
+                    <button
+                        type="button"
+                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        @click="closeWorkoutSessionEditor"
+                    >
+                        Fermer
+                    </button>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <div class="space-y-2">
+                        <label for="edit_session_name" class="block font-medium">
+                            Nom
+                        </label>
+                        <input
+                            id="edit_session_name"
+                            v-model="workoutSessionEditForm.name"
+                            type="text"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="workoutSessionEditForm.errors.name"
+                            class="text-sm text-red-600"
+                        >
+                            {{ workoutSessionEditForm.errors.name }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="edit_session_description"
+                            class="block font-medium"
+                        >
+                            Description
+                        </label>
+                        <textarea
+                            id="edit_session_description"
+                            v-model="workoutSessionEditForm.description"
+                            rows="3"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="font-medium">Exercices de la séance</p>
+                        <div
+                            class="max-h-64 space-y-3 overflow-y-auto rounded-lg border border-neutral-200 p-3"
+                        >
+                            <div
+                                v-for="group in exerciseGroups"
+                                :key="group.sport.id"
+                                class="space-y-2"
+                            >
+                                <p class="text-sm font-semibold text-neutral-600">
+                                    {{ group.sport.name }}
+                                </p>
+                                <label
+                                    v-for="exercise in group.exercises"
+                                    :key="exercise.id"
+                                    class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            :checked="
+                                                workoutSessionEditForm.exercise_ids.includes(
+                                                    exercise.id,
+                                                )
+                                            "
+                                            class="h-4 w-4 accent-evo-black"
+                                            @change="toggleEditExercise(exercise.id)"
+                                        />
+                                        <span>{{ exercise.name }}</span>
+                                    </span>
+                                    <span class="text-xs text-neutral-500">
+                                        {{ exercise.category_name }}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <p
+                            v-if="workoutSessionEditForm.errors.exercise_ids"
+                            class="text-sm text-red-600"
+                        >
+                            {{ workoutSessionEditForm.errors.exercise_ids }}
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="workoutSessionEditForm.processing"
+                        @click="updateWorkoutSession"
+                    >
+                        {{
+                            workoutSessionEditForm.processing
+                                ? 'Enregistrement...'
+                                : 'Enregistrer'
+                        }}
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div
+            v-if="editingExercise"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+        >
+            <section
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+            >
+                <div class="flex items-start justify-between gap-4">
+                    <h2 class="text-lg font-semibold">Modifier l'exercice</h2>
+                    <button
+                        type="button"
+                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        @click="closeExerciseEditor"
+                    >
+                        Fermer
+                    </button>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <div class="space-y-2">
+                        <label for="edit_exercise_name" class="block font-medium">
+                            Nom
+                        </label>
+                        <input
+                            id="edit_exercise_name"
+                            v-model="customExerciseEditForm.name"
+                            type="text"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="customExerciseEditForm.errors.name"
+                            class="text-sm text-red-600"
+                        >
+                            {{ customExerciseEditForm.errors.name }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="edit_exercise_sport" class="block font-medium">
+                            Sport
+                        </label>
+                        <select
+                            id="edit_exercise_sport"
+                            v-model="customExerciseEditForm.sport_id"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                        >
+                            <option value="">Sélectionner un sport</option>
+                            <option
+                                v-for="sport in sports"
+                                :key="sport.id"
+                                :value="sport.id"
+                            >
+                                {{ sport.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="edit_exercise_category"
+                            class="block font-medium"
+                        >
+                            Catégorie
+                        </label>
+                        <select
+                            id="edit_exercise_category"
+                            v-model="customExerciseEditForm.exercise_category_id"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                        >
+                            <option value="">Sélectionner une catégorie</option>
+                            <option
+                                v-for="category in exerciseCategories"
+                                :key="category.id"
+                                :value="category.id"
+                            >
+                                {{ category.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="edit_exercise_description"
+                            class="block font-medium"
+                        >
+                            Description
+                        </label>
+                        <textarea
+                            id="edit_exercise_description"
+                            v-model="customExerciseEditForm.description"
+                            rows="3"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                    </div>
+
+                    <button
+                        type="button"
+                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="customExerciseEditForm.processing"
+                        @click="updateExercise"
+                    >
+                        {{
+                            customExerciseEditForm.processing
+                                ? 'Enregistrement...'
+                                : 'Enregistrer'
+                        }}
+                    </button>
+                </div>
             </section>
         </div>
 
@@ -852,6 +1492,10 @@ const completeSelectedSession = () => {
                         <button
                             type="button"
                             class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white hover:cursor-pointer"
+                            :disabled="!selectedWorkoutSessionHasExercises"
+                            :class="{
+                                'cursor-not-allowed opacity-50': !selectedWorkoutSessionHasExercises,
+                            }"
                             @click="wantsPerformanceEntry = true"
                         >
                             Oui, ajouter des performances
@@ -864,6 +1508,12 @@ const completeSelectedSession = () => {
                             Non, valider la séance
                         </button>
                     </div>
+                    <p
+                        v-if="!selectedWorkoutSessionHasExercises"
+                        class="text-sm text-red-600"
+                    >
+                        Cette séance type ne contient aucun exercice. Ajoutez des exercices à la séance type pour pouvoir renseigner des performances.
+                    </p>
                 </div>
 
                 <div v-else class="mt-4 space-y-4">
@@ -901,51 +1551,21 @@ const completeSelectedSession = () => {
                                 }}
                             </p>
                             <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                                <div class="space-y-1">
-                                    <label class="text-sm font-medium"
-                                        >Poids (kg)</label
-                                    >
+                                <div
+                                    v-for="metric in getExerciseMetrics(performance.exercise_id)"
+                                    :key="metric.key"
+                                    class="space-y-1"
+                                >
+                                    <label class="text-sm font-medium">
+                                        {{ metric.label }}
+                                        <span v-if="metric.unit">({{ metric.unit }})</span>
+                                        <span v-if="metric.is_required" class="text-red-600">*</span>
+                                    </label>
                                     <input
-                                        v-model="performance.weight"
+                                        v-model="performance.metrics[metric.key]"
                                         type="number"
                                         min="0"
-                                        step="0.01"
-                                        class="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-evo-black focus:outline-none"
-                                    />
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-sm font-medium"
-                                        >Répétitions</label
-                                    >
-                                    <input
-                                        v-model="performance.repetitions"
-                                        type="number"
-                                        min="0"
-                                        step="1"
-                                        class="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-evo-black focus:outline-none"
-                                    />
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-sm font-medium"
-                                        >Durée (min)</label
-                                    >
-                                    <input
-                                        v-model="performance.duration_minutes"
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        class="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-evo-black focus:outline-none"
-                                    />
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-sm font-medium"
-                                        >Distance (m)</label
-                                    >
-                                    <input
-                                        v-model="performance.distance_meters"
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
+                                        :step="metricInputStep(metric)"
                                         class="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-evo-black focus:outline-none"
                                     />
                                 </div>

@@ -30,7 +30,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('sessions', [SessionsController::class, 'show'])->name('sessions');
     Route::post('sessions/workout-sessions', [SessionsController::class, 'storeWorkoutSession'])->name('sessions.workout-sessions.store');
+    Route::patch('sessions/workout-sessions/{workoutSession}', [SessionsController::class, 'updateWorkoutSession'])->name('sessions.workout-sessions.update');
+    Route::delete('sessions/workout-sessions/{workoutSession}', [SessionsController::class, 'destroyWorkoutSession'])->name('sessions.workout-sessions.destroy');
     Route::post('sessions/exercises', [SessionsController::class, 'storeExercise'])->name('sessions.exercises.store');
+    Route::patch('sessions/exercises/{exercise}', [SessionsController::class, 'updateExercise'])->name('sessions.exercises.update');
+    Route::delete('sessions/exercises/{exercise}', [SessionsController::class, 'destroyExercise'])->name('sessions.exercises.destroy');
     Route::post('sessions/performed-sessions', [SessionsController::class, 'storePerformedSession'])->name('sessions.performed-sessions.store');
     Route::patch('sessions/performed-sessions/{performedSession}/complete', [SessionsController::class, 'completePerformedSession'])->name('sessions.performed-sessions.complete');
     Route::get('nutrition', [CaloriesController::class, 'show'])->name('nutrition');
@@ -40,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('community', 'Community')->name('community');
     Route::get('profile', [UserController::class, 'show'])->name('profile');
     Route::patch('profile/personal-info', [UserController::class, 'updatePersonalInfo'])->name('profile.personal-info.update');
+    Route::patch('profile/sports', [UserController::class, 'updateSports'])->name('profile.sports.update');
     Route::patch('profile/account-info', [UserController::class, 'updateAccountInfo'])->name('profile.account-info.update');
     Route::post('goals', [GoalController::class, 'store'])->name('goals.store');
     Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');

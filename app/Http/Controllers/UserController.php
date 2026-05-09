@@ -103,13 +103,36 @@ class UserController extends Controller
             'birth_date' => $validatedData['birth_date'],
             'activity_level' => $validatedData['activity_level'],
         ]);
-        $user->sports()->sync(
+        if (array_key_exists('sport_ids', $validatedData)) {
+            $user->sports()->sync(
+                collect($validatedData['sport_ids'])->map(fn ($id) => (int) $id)->unique()->values()->all(),
+            );
+        }
+
+        return to_route('profile')->with(
+            'success',
+            'Informations personnelles mises à jour avec succès.',
+        );
+    }
+
+    public function updateSports(Request $request): RedirectResponse
+    {
+        $validatedData = $request->validate([
+            'sport_ids' => ['present', 'array'],
+            'sport_ids.*' => ['integer', Rule::exists('sports', 'id')],
+        ], [
+            'sport_ids.present' => 'La selection de sports est requise.',
+            'sport_ids.array' => 'La selection de sports est invalide.',
+            'sport_ids.*.exists' => 'Un sport selectionne est invalide.',
+        ]);
+
+        $request->user()->sports()->sync(
             collect($validatedData['sport_ids'])->map(fn ($id) => (int) $id)->unique()->values()->all(),
         );
 
         return to_route('profile')->with(
             'success',
-            'Informations personnelles mises a jour avec succes.',
+            'Sports pratiqués mis à jour avec succès.',
         );
     }
 
@@ -131,7 +154,7 @@ class UserController extends Controller
 
         return to_route('profile')->with(
             'success',
-            'Informations du compte mises a jour avec succes.',
+            'Informations du compte mises à jour avec succès.',
         );
     }
 }

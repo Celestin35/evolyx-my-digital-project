@@ -13,17 +13,18 @@ const tabs = [
 
 <template>
     <div
-        class="inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800"
+        class="inline-flex gap-1 rounded-full bg-neutral-100 p-1 dark:bg-neutral-800"
     >
         <button
             v-for="{ value, Icon, label } in tabs"
             :key="value"
+            type="button"
             @click="updateAppearance(value)"
             :class="[
-                'flex items-center rounded-md px-3.5 py-1.5 transition-colors hover:cursor-pointer',
+                'flex items-center rounded-full px-4 py-2 transition-colors hover:cursor-pointer',
                 appearance === value
-                    ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
-                    : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
+                    ? 'bg-evo-black text-evo-white shadow-xs dark:bg-evo-white dark:text-evo-black'
+                    : 'text-neutral-600 hover:bg-neutral-200/60 hover:text-evo-black dark:text-neutral-300 dark:hover:bg-neutral-700/60 dark:hover:text-evo-white',
             ]"
         >
             <component :is="Icon" class="-ml-1 h-4 w-4" />

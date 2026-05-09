@@ -3,6 +3,8 @@
 @import './fonts.css';
 @import './base-component.css';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -14,9 +16,8 @@
 }
 
 body {
-   @apply font-futura text-evo-black;
+   @apply font-futura text-evo-black dark:bg-evo-black dark:text-evo-white;
 }
 .container {
     @apply mx-auto max-w-7xl px-4;
 }
-

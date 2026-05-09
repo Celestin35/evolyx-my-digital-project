@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sport extends Model
 {
+    protected $fillable = [
+        'name',
+        'display_name',
+    ];
+
     public function exercises(): HasMany
     {
         return $this->hasMany(Exercise::class);

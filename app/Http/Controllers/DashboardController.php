@@ -44,7 +44,7 @@ class DashboardController extends Controller
             'weightEntries' => $weightEntriesService->getForUser($request->user()),
             'recentPerformedSessions' => $recentPerformedSessions->map(fn ($session) => [
                 'id' => $session->id,
-                'workout_session_name' => $session->workoutSession?->name ?? 'Seance',
+                'workout_session_name' => $session->workoutSession?->name ?? 'Séance',
                 'performed_at' => $session->performed_at?->toISOString(),
                 'completed_at' => $session->completed_at?->toISOString(),
                 'performances_count' => $session->performances_count,

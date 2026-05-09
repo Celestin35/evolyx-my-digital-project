@@ -125,7 +125,7 @@ class CaloriesController extends Controller
 
         return to_route('nutrition')->with(
             'success',
-            'Macros mises a jour avec succes.',
+            'Macros mises à jour avec succès.',
         );
     }
 

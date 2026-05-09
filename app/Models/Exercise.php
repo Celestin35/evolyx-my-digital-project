@@ -37,8 +37,20 @@ class Exercise extends Model
         return $this->belongsToMany(Equipment::class, 'exercise_equipment');
     }
 
+    public function metrics(): BelongsToMany
+    {
+        return $this->belongsToMany(Metric::class, 'exercise_metric')
+            ->withPivot(['is_required', 'is_primary', 'sort_order'])
+            ->orderBy('exercise_metric.sort_order');
+    }
+
     public function performances(): HasMany
     {
         return $this->hasMany(Performance::class);
+    }
+
+    public function workoutSessions(): BelongsToMany
+    {
+        return $this->belongsToMany(WorkoutSession::class, 'workout_session_exercise');
     }
 }

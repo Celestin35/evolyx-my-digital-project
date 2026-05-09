@@ -6,6 +6,7 @@ use App\Models\Performance;
 use App\Services\WeightEntriesService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,6 +19,8 @@ class ProgressController extends Controller
             ->with([
                 'exercise:id,name,sport_id',
                 'exercise.sport:id,name',
+                'exercise.metrics:id,key,label,unit,value_type',
+                'metricValues.metric:id,key,label,unit,value_type',
             ])
             ->latest('performed_at')
             ->get([
@@ -32,6 +35,14 @@ class ProgressController extends Controller
 
         return Inertia::render('Progress', [
             'weightEntries' => $weightEntriesService->getForUser($request->user()),
+            'sports' => $request->user()
+                ->sports()
+                ->orderBy('name')
+                ->get(['sports.id', 'sports.name'])
+                ->map(fn ($sport) => [
+                    'id' => $sport->id,
+                    'name' => $sport->name,
+                ]),
             'performances' => $performances->map(fn ($performance) => [
                 'id' => $performance->id,
                 'performed_at' => $performance->performed_at?->toISOString(),
@@ -47,6 +58,19 @@ class ProgressController extends Controller
                 'exercise_name' => $performance->exercise?->name ?? 'Exercice',
                 'sport_id' => $performance->exercise?->sport_id,
                 'sport_name' => $performance->exercise?->sport?->name,
+                'available_metrics' => $performance->exercise?->metrics
+                    ->map(fn ($metric) => [
+                        'key' => $metric->key,
+                        'label' => $metric->label,
+                        'unit' => $metric->unit,
+                        'value_type' => $metric->value_type,
+                        'is_primary' => (bool) $metric->pivot->is_primary,
+                        'sort_order' => $metric->pivot->sort_order,
+                    ])
+                    ->values() ?? [],
+                'metric_values' => $performance->metricValues->mapWithKeys(fn ($metricValue) => [
+                    $metricValue->metric?->key => (float) $metricValue->value,
+                ]),
             ]),
         ]);
     }
@@ -56,16 +80,23 @@ class ProgressController extends Controller
         $validatedData = $request->validate([
             'weight' => ['required', 'numeric', 'min:20', 'max:600'],
             'body_fat' => ['nullable', 'numeric', 'min:2', 'max:75'],
+            'entry_date' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
         ]);
 
-        $request->user()->weightEntries()->create([
+        $entryDate = Carbon::createFromFormat('Y-m-d', $validatedData['entry_date'])
+            ->startOfDay();
+
+        $weightEntry = $request->user()->weightEntries()->make([
             'weight' => $validatedData['weight'],
             'body_fat' => $validatedData['body_fat'] ?? null,
         ]);
+        $weightEntry->created_at = $entryDate;
+        $weightEntry->updated_at = now();
+        $weightEntry->save();
 
         return to_route('progress')->with(
             'success',
-            'Entree de poids ajoutee avec succes.',
+            'Entrée de poids ajoutée avec succès.',
         );
     }
 }

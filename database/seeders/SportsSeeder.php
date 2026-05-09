@@ -10,15 +10,17 @@ class SportsSeeder extends Seeder
     public function run(): void
     {
         $now = now();
+        $catalog = require database_path('seeders/data/sports_catalog.php');
 
-        DB::table('sports')->upsert([
-            ['name' => 'Musculation', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Calisthenie', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Yoga', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Pilates', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Mobilite', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Cardio doux', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Meditation', 'created_at' => $now, 'updated_at' => $now],
-        ], ['name'], ['updated_at']);
+        foreach ($catalog as $sport) {
+            DB::table('sports')->updateOrInsert(
+                ['name' => $sport['name']],
+                [
+                    'display_name' => $sport['display_name'],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ],
+            );
+        }
     }
 }

@@ -30,7 +30,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
         <h1 class="sr-only">Paramètres du mot de passe</h1>
 
         <SettingsLayout>
-            <div class="rounded-lg bg-white p-4">
+            <div class="rounded-lg bg-white p-4 dark:bg-neutral-900">
                 <div class="space-y-4">
                     <Heading
                         variant="small"

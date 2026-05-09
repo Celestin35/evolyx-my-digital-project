@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import gsap from 'gsap';
-import arrowDown from '../../../images/icons/arrow-down-purple.svg';
+import { computed, ref } from 'vue';
+import { ChevronDown } from 'lucide-vue-next';
 import {
     formatFrenchDate,
     parseWeight,
@@ -50,9 +49,8 @@ const goalForm = useForm({
     weekly_weight_goal: initialWeeklyWeightGoal,
 });
 
+const isOpen = ref(true);
 const isGoalEditorOpen = ref(false);
-const goalEditor = ref<HTMLElement | null>(null);
-let goalEditorTimeline: gsap.core.Timeline | null = null;
 
 const formattedTargetWeight = computed(() => {
     if (goalForm.target_weight === null) {
@@ -195,76 +193,40 @@ const confirmWeightGoal = () => {
 };
 
 const toggleGoalEditor = () => {
-    if (!goalEditorTimeline) {
-        return;
-    }
-
-    if (goalEditorTimeline.reversed() || goalEditorTimeline.progress() === 0) {
-        isGoalEditorOpen.value = true;
-        goalEditorTimeline.play();
-        return;
-    }
-
-    isGoalEditorOpen.value = false;
-    goalEditorTimeline.reverse();
+    isGoalEditorOpen.value = !isGoalEditorOpen.value;
 };
-
-onMounted(() => {
-    if (!goalEditor.value) {
-        return;
-    }
-
-    goalEditorTimeline = gsap.timeline({ paused: true });
-
-    goalEditorTimeline
-        .to(
-            goalEditor.value,
-            {
-                display: 'block',
-                duration: 0,
-            },
-            0,
-        )
-        .to(
-            goalEditor.value,
-            {
-                display: 'block',
-                autoAlpha: 1,
-                duration: 0.25,
-                ease: 'power2.out',
-            },
-            0,
-        )
-        .reverse(0);
-});
-
-onBeforeUnmount(() => {
-    goalEditorTimeline?.kill();
-    goalEditorTimeline = null;
-});
 </script>
 
 <template>
-    <div
-        data-default-open="true"
-        class="js-section self-start w-full rounded-lg bg-white p-4"
-    >
+    <div class="self-start w-full rounded-lg bg-white p-4">
         <button
             type="button"
-            class="js-section-trigger flex w-full items-center justify-between text-left hover:cursor-pointer"
+            class="flex w-full items-center justify-between text-left hover:cursor-pointer"
+            :aria-expanded="isOpen"
+            aria-controls="profile-goal-content"
+            @click="isOpen = !isOpen"
         >
             <h2 class="text-lg font-semibold">Objectif de poids</h2>
-            <span>
-                <img
-                    :src="arrowDown"
-                    alt="Fleche pour ouvrir"
-                    class="js-open-arrow h-auto w-6 rotate-0"
-                />
-            </span>
+            <ChevronDown
+                class="h-6 w-6 text-evo-black transition-transform duration-200"
+                :class="{ 'rotate-180': isOpen }"
+                aria-hidden="true"
+            />
         </button>
 
-        <div class="js-section-content">
-            <div class="space-y-4 pt-4">
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="-translate-y-1 opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="translate-y-0 opacity-100"
+            leave-to-class="-translate-y-1 opacity-0"
+        >
+            <div
+                v-show="isOpen"
+                id="profile-goal-content"
+                class="space-y-4 pt-4"
+            >
                 <div
                     v-if="successMessage"
                     class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
@@ -338,10 +300,15 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
 
-                <div
-                    ref="goalEditor"
-                    class="js-goal-editor hidden invisible opacity-0"
+                <Transition
+                    enter-active-class="transition duration-200 ease-out"
+                    enter-from-class="-translate-y-1 opacity-0"
+                    enter-to-class="translate-y-0 opacity-100"
+                    leave-active-class="transition duration-150 ease-in"
+                    leave-from-class="translate-y-0 opacity-100"
+                    leave-to-class="-translate-y-1 opacity-0"
                 >
+                    <div v-show="isGoalEditorOpen">
                     <div class="js-goal-editor-inner space-y-4 pt-4">
                         <div
                             v-if="goalForm.target_weight !== null"
@@ -470,8 +437,9 @@ onBeforeUnmount(() => {
                             </button>
                         </div>
                     </div>
-                </div>
+                    </div>
+                </Transition>
             </div>
-        </div>
+        </Transition>
     </div>
 </template>

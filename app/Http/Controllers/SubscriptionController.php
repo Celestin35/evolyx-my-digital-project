@@ -58,7 +58,7 @@ class SubscriptionController extends Controller
 
         return to_route('profile.edit')->with(
             'success',
-            'Abonnement mis a jour avec succes.',
+            'Abonnement mis à jour avec succès.',
         );
     }
 }

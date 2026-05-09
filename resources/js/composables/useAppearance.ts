@@ -53,7 +53,26 @@ const getStoredAppearance = () => {
         return null;
     }
 
-    return localStorage.getItem('appearance') as Appearance | null;
+    const value = localStorage.getItem('appearance');
+
+    return isAppearance(value) ? value : null;
+};
+
+const getCookieAppearance = () => {
+    if (typeof document === 'undefined') {
+        return null;
+    }
+
+    const value = document.cookie
+        .split('; ')
+        .find((cookie) => cookie.startsWith('appearance='))
+        ?.split('=')[1];
+
+    return isAppearance(value) ? value : null;
+};
+
+const isAppearance = (value: unknown): value is Appearance => {
+    return value === 'light' || value === 'dark' || value === 'system';
 };
 
 const prefersDark = (): boolean => {
@@ -76,7 +95,7 @@ export function initializeTheme(): void {
     }
 
     // Initialize theme from saved preference or default to system...
-    const savedAppearance = getStoredAppearance();
+    const savedAppearance = getStoredAppearance() ?? getCookieAppearance();
     updateTheme(savedAppearance || 'system');
 
     // Set up system theme change listener...
@@ -87,9 +106,7 @@ const appearance = ref<Appearance>('system');
 
 export function useAppearance(): UseAppearanceReturn {
     onMounted(() => {
-        const savedAppearance = localStorage.getItem(
-            'appearance',
-        ) as Appearance | null;
+        const savedAppearance = getStoredAppearance() ?? getCookieAppearance();
 
         if (savedAppearance) {
             appearance.value = savedAppearance;

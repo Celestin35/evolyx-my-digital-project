@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4">
+  <div class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4 text-evo-black transition-colors dark:bg-neutral-950 dark:text-evo-white">
     <DashboardSidebar />
 
     <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pr-4 [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)]">

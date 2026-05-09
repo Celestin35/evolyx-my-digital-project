@@ -89,7 +89,7 @@ class GoalController extends Controller
             ]);
         });
 
-        return to_route('profile')->with('success', 'Objectif enregistre avec succes.');
+        return to_route('profile')->with('success', 'Objectif enregistré avec succès.');
     }
 
     private function defineGoalType(float $currentWeight, float $targetWeight): string
