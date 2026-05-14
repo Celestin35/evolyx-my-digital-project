@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import WeightChart from '@/components/WeightChart.vue';
+import { useAds } from '@/composables/useAds';
 
 type WeightEntry = {
     id: number;
@@ -36,6 +38,8 @@ const props = defineProps<{
     recentPerformedSessions: RecentPerformedSession[];
     recentPerformances: RecentPerformance[];
 }>();
+
+const ads = useAds();
 
 const formatRelativeDayLabel = (date: Date | null) => {
     if (!date) {
@@ -150,14 +154,14 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
         subtitle="Bienvenue sur votre tableau de bord personnel !"
     >
         <section class="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-2">
-            <div class="flex min-h-90 flex-col rounded-lg bg-white p-4">
+            <div class="order-3 flex min-h-90 flex-col rounded-lg bg-white p-4">
                 <h2 class="mb-4 text-xl font-bold">Suivi du poids</h2>
                 <div class="min-h-0 flex-1">
                     <WeightChart :weight-entries="weightEntries" />
                 </div>
             </div>
 
-            <div class="min-h-90 rounded-lg bg-white p-4">
+            <div class="order-3 min-h-90 rounded-lg bg-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Dernieres performances</h2>
                     <div
@@ -200,7 +204,12 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
                 </p>
             </div>
 
-            <div class="rounded-lg bg-white p-4 lg:col-span-2">
+            <AdInlineSlot
+                :enabled="ads.enabled"
+                class="order-2 lg:col-span-2"
+            />
+
+            <div class="order-1 rounded-lg bg-white p-4 lg:col-span-2">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold">Dernières séances</h2>

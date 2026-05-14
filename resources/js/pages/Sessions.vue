@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { useAds } from '@/composables/useAds';
 import VueCal from 'vue-cal';
 import 'vue-cal/dist/vuecal.css';
 
@@ -83,6 +85,8 @@ const props = defineProps<{
     performedSessions: PerformedSession[];
 }>();
 
+const ads = useAds();
+
 const page = usePage<SessionsPageProps>();
 
 const flashSuccessMessage = computed(() => page.props.flash?.success);
@@ -111,7 +115,9 @@ const selectedPerformedSession = ref<PerformedSession | null>(null);
 const wantsPerformanceEntry = ref<boolean | null>(null);
 const isWorkoutSessionModalOpen = ref(false);
 const isCustomExerciseModalOpen = ref(false);
-const activeLibraryTab = ref<'workout-sessions' | 'exercises'>('workout-sessions');
+const activeLibraryTab = ref<'workout-sessions' | 'exercises'>(
+    'workout-sessions',
+);
 const editingWorkoutSession = ref<WorkoutSession | null>(null);
 const editingExercise = ref<AvailableExercise | null>(null);
 
@@ -347,7 +353,10 @@ const onCalendarEventClick = (payload: unknown) => {
                     metrics: Object.fromEntries(
                         exercise.metrics.map((metric) => [
                             metric.key,
-                            getExistingMetricValue(existingPerformance, metric.key),
+                            getExistingMetricValue(
+                                existingPerformance,
+                                metric.key,
+                            ),
                         ]),
                     ),
                 };
@@ -460,7 +469,9 @@ const updateWorkoutSession = () => {
 const duplicateWorkoutSession = (session: WorkoutSession) => {
     workoutSessionForm.name = `${session.name} copie`;
     workoutSessionForm.description = session.description ?? '';
-    workoutSessionForm.exercise_ids = session.exercises.map((exercise) => exercise.id);
+    workoutSessionForm.exercise_ids = session.exercises.map(
+        (exercise) => exercise.id,
+    );
     workoutSessionForm.post('/sessions/workout-sessions', {
         preserveScroll: true,
         onSuccess: () => {
@@ -474,9 +485,12 @@ const deleteWorkoutSession = (session: WorkoutSession) => {
         return;
     }
 
-    deleteWorkoutSessionForm.delete(`/sessions/workout-sessions/${session.id}`, {
-        preserveScroll: true,
-    });
+    deleteWorkoutSessionForm.delete(
+        `/sessions/workout-sessions/${session.id}`,
+        {
+            preserveScroll: true,
+        },
+    );
 };
 
 const openExerciseEditor = (exercise: AvailableExercise) => {
@@ -509,10 +523,13 @@ const updateExercise = () => {
         return;
     }
 
-    customExerciseEditForm.patch(`/sessions/exercises/${editingExercise.value.id}`, {
-        preserveScroll: true,
-        onSuccess: closeExerciseEditor,
-    });
+    customExerciseEditForm.patch(
+        `/sessions/exercises/${editingExercise.value.id}`,
+        {
+            preserveScroll: true,
+            onSuccess: closeExerciseEditor,
+        },
+    );
 };
 
 const deleteExercise = (exercise: AvailableExercise) => {
@@ -660,9 +677,7 @@ const completeSelectedSession = () => {
                             "
                             class="text-sm text-red-600"
                         >
-                            {{
-                                performedSessionForm.errors.workout_session_id
-                            }}
+                            {{ performedSessionForm.errors.workout_session_id }}
                         </p>
                     </div>
 
@@ -719,6 +734,8 @@ const completeSelectedSession = () => {
                 </div>
             </section>
 
+            <AdInlineSlot :enabled="ads.enabled" />
+
             <section class="rounded-lg bg-white p-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -747,7 +764,9 @@ const completeSelectedSession = () => {
                     </div>
                 </div>
 
-                <div class="mt-4 flex flex-wrap gap-2 border-b border-neutral-200">
+                <div
+                    class="mt-4 flex flex-wrap gap-2 border-b border-neutral-200"
+                >
                     <button
                         type="button"
                         class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
@@ -778,7 +797,10 @@ const completeSelectedSession = () => {
                     {{ libraryErrorMessage }}
                 </p>
 
-                <div v-if="activeLibraryTab === 'workout-sessions'" class="mt-4">
+                <div
+                    v-if="activeLibraryTab === 'workout-sessions'"
+                    class="mt-4"
+                >
                     <div
                         v-if="workoutSessions.length > 0"
                         class="overflow-hidden rounded-lg border border-neutral-200"
@@ -790,7 +812,9 @@ const completeSelectedSession = () => {
                         >
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <p class="font-semibold">{{ session.name }}</p>
+                                    <p class="font-semibold">
+                                        {{ session.name }}
+                                    </p>
                                     <span
                                         v-if="session.exercises.length === 0"
                                         class="rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700"
@@ -805,7 +829,11 @@ const completeSelectedSession = () => {
                                                 : 'bg-neutral-100 text-evo-black'
                                         "
                                     >
-                                        {{ session.is_system ? 'Evolyx' : 'Personnel' }}
+                                        {{
+                                            session.is_system
+                                                ? 'Evolyx'
+                                                : 'Personnel'
+                                        }}
                                     </span>
                                 </div>
                                 <p
@@ -818,16 +846,23 @@ const completeSelectedSession = () => {
                                     v-if="session.exercises.length === 0"
                                     class="mt-2 text-sm text-red-600"
                                 >
-                                    Aucun exercice. Ajoutez-en au moins un pour saisir des performances.
+                                    Aucun exercice. Ajoutez-en au moins un pour
+                                    saisir des performances.
                                 </p>
                             </div>
 
                             <div class="text-sm text-neutral-600">
-                                <p>{{ session.exercises.length }} exercice(s)</p>
-                                <p class="mt-1">{{ workoutSessionSportNames(session) }}</p>
+                                <p>
+                                    {{ session.exercises.length }} exercice(s)
+                                </p>
+                                <p class="mt-1">
+                                    {{ workoutSessionSportNames(session) }}
+                                </p>
                             </div>
 
-                            <div class="flex flex-wrap items-start gap-2 lg:justify-end">
+                            <div
+                                class="flex flex-wrap items-start gap-2 lg:justify-end"
+                            >
                                 <button
                                     v-if="!session.is_system"
                                     type="button"
@@ -847,7 +882,9 @@ const completeSelectedSession = () => {
                                     v-if="!session.is_system"
                                     type="button"
                                     class="rounded-full border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:cursor-pointer hover:bg-red-50"
-                                    :disabled="deleteWorkoutSessionForm.processing"
+                                    :disabled="
+                                        deleteWorkoutSessionForm.processing
+                                    "
                                     @click="deleteWorkoutSession(session)"
                                 >
                                     Supprimer
@@ -872,7 +909,9 @@ const completeSelectedSession = () => {
                         >
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <p class="font-semibold">{{ exercise.name }}</p>
+                                    <p class="font-semibold">
+                                        {{ exercise.name }}
+                                    </p>
                                     <span
                                         class="rounded-full px-2 py-1 text-xs font-medium"
                                         :class="
@@ -881,7 +920,11 @@ const completeSelectedSession = () => {
                                                 : 'bg-emerald-50 text-emerald-700'
                                         "
                                     >
-                                        {{ exercise.is_custom ? 'Personnel' : 'Evolyx' }}
+                                        {{
+                                            exercise.is_custom
+                                                ? 'Personnel'
+                                                : 'Evolyx'
+                                        }}
                                     </span>
                                 </div>
                                 <p
@@ -894,20 +937,26 @@ const completeSelectedSession = () => {
 
                             <div class="text-sm text-neutral-600">
                                 <p>{{ exercise.sport_name ?? 'Sport' }}</p>
-                                <p class="mt-1">{{ exercise.category_name ?? 'Catégorie' }}</p>
+                                <p class="mt-1">
+                                    {{ exercise.category_name ?? 'Catégorie' }}
+                                </p>
                             </div>
 
-                            <div class="flex flex-wrap gap-2 text-xs text-neutral-600">
+                            <div
+                                class="flex flex-wrap gap-2 text-xs text-neutral-600"
+                            >
                                 <span
                                     v-for="metric in exercise.metrics"
                                     :key="metric.key"
-                                    class="rounded-full bg-neutral-100 px-2 py-1 h-fit"
+                                    class="h-fit rounded-full bg-neutral-100 px-2 py-1"
                                 >
                                     {{ metric.label }}
                                 </span>
                             </div>
 
-                            <div class="flex flex-wrap items-start gap-2 lg:justify-end">
+                            <div
+                                class="flex flex-wrap items-start gap-2 lg:justify-end"
+                            >
                                 <button
                                     v-if="exercise.is_custom"
                                     type="button"
@@ -986,7 +1035,9 @@ const completeSelectedSession = () => {
                 class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
-                    <h2 class="text-lg font-semibold">Modifier la séance type</h2>
+                    <h2 class="text-lg font-semibold">
+                        Modifier la séance type
+                    </h2>
                     <button
                         type="button"
                         class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
@@ -998,7 +1049,10 @@ const completeSelectedSession = () => {
 
                 <div class="mt-4 space-y-4">
                     <div class="space-y-2">
-                        <label for="edit_session_name" class="block font-medium">
+                        <label
+                            for="edit_session_name"
+                            class="block font-medium"
+                        >
                             Nom
                         </label>
                         <input
@@ -1040,7 +1094,9 @@ const completeSelectedSession = () => {
                                 :key="group.sport.id"
                                 class="space-y-2"
                             >
-                                <p class="text-sm font-semibold text-neutral-600">
+                                <p
+                                    class="text-sm font-semibold text-neutral-600"
+                                >
                                     {{ group.sport.name }}
                                 </p>
                                 <label
@@ -1057,7 +1113,9 @@ const completeSelectedSession = () => {
                                                 )
                                             "
                                             class="h-4 w-4 accent-evo-black"
-                                            @change="toggleEditExercise(exercise.id)"
+                                            @change="
+                                                toggleEditExercise(exercise.id)
+                                            "
                                         />
                                         <span>{{ exercise.name }}</span>
                                     </span>
@@ -1111,7 +1169,10 @@ const completeSelectedSession = () => {
 
                 <div class="mt-4 space-y-4">
                     <div class="space-y-2">
-                        <label for="edit_exercise_name" class="block font-medium">
+                        <label
+                            for="edit_exercise_name"
+                            class="block font-medium"
+                        >
                             Nom
                         </label>
                         <input
@@ -1129,7 +1190,10 @@ const completeSelectedSession = () => {
                     </div>
 
                     <div class="space-y-2">
-                        <label for="edit_exercise_sport" class="block font-medium">
+                        <label
+                            for="edit_exercise_sport"
+                            class="block font-medium"
+                        >
                             Sport
                         </label>
                         <select
@@ -1157,7 +1221,9 @@ const completeSelectedSession = () => {
                         </label>
                         <select
                             id="edit_exercise_category"
-                            v-model="customExerciseEditForm.exercise_category_id"
+                            v-model="
+                                customExerciseEditForm.exercise_category_id
+                            "
                             class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
                         >
                             <option value="">Sélectionner une catégorie</option>
@@ -1270,7 +1336,9 @@ const completeSelectedSession = () => {
                                 :key="group.sport.id"
                                 class="space-y-2"
                             >
-                                <p class="text-sm font-semibold text-neutral-600">
+                                <p
+                                    class="text-sm font-semibold text-neutral-600"
+                                >
                                     {{ group.sport.name }}
                                 </p>
                                 <div class="space-y-2">
@@ -1414,9 +1482,7 @@ const completeSelectedSession = () => {
                             "
                             class="text-sm text-red-600"
                         >
-                            {{
-                                customExerciseForm.errors.exercise_category_id
-                            }}
+                            {{ customExerciseForm.errors.exercise_category_id }}
                         </p>
                     </div>
 
@@ -1494,7 +1560,8 @@ const completeSelectedSession = () => {
                             class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white hover:cursor-pointer"
                             :disabled="!selectedWorkoutSessionHasExercises"
                             :class="{
-                                'cursor-not-allowed opacity-50': !selectedWorkoutSessionHasExercises,
+                                'cursor-not-allowed opacity-50':
+                                    !selectedWorkoutSessionHasExercises,
                             }"
                             @click="wantsPerformanceEntry = true"
                         >
@@ -1512,7 +1579,9 @@ const completeSelectedSession = () => {
                         v-if="!selectedWorkoutSessionHasExercises"
                         class="text-sm text-red-600"
                     >
-                        Cette séance type ne contient aucun exercice. Ajoutez des exercices à la séance type pour pouvoir renseigner des performances.
+                        Cette séance type ne contient aucun exercice. Ajoutez
+                        des exercices à la séance type pour pouvoir renseigner
+                        des performances.
                     </p>
                 </div>
 
@@ -1552,17 +1621,27 @@ const completeSelectedSession = () => {
                             </p>
                             <div class="mt-3 grid gap-3 sm:grid-cols-2">
                                 <div
-                                    v-for="metric in getExerciseMetrics(performance.exercise_id)"
+                                    v-for="metric in getExerciseMetrics(
+                                        performance.exercise_id,
+                                    )"
                                     :key="metric.key"
                                     class="space-y-1"
                                 >
                                     <label class="text-sm font-medium">
                                         {{ metric.label }}
-                                        <span v-if="metric.unit">({{ metric.unit }})</span>
-                                        <span v-if="metric.is_required" class="text-red-600">*</span>
+                                        <span v-if="metric.unit"
+                                            >({{ metric.unit }})</span
+                                        >
+                                        <span
+                                            v-if="metric.is_required"
+                                            class="text-red-600"
+                                            >*</span
+                                        >
                                     </label>
                                     <input
-                                        v-model="performance.metrics[metric.key]"
+                                        v-model="
+                                            performance.metrics[metric.key]
+                                        "
                                         type="number"
                                         min="0"
                                         :step="metricInputStep(metric)"

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PerformanceChart from '@/components/PerformanceChart.vue';
 import WeightChart from '@/components/WeightChart.vue';
+import { useAds } from '@/composables/useAds';
 
 type WeightEntry = {
     id: number;
@@ -64,6 +66,7 @@ const props = defineProps<{
 }>();
 
 const page = usePage<ProgressPageProps>();
+const ads = useAds();
 
 const selectedRange = ref<ProgressRange>('3m');
 const selectedPerformanceRange = ref<ProgressRange>('3m');
@@ -226,7 +229,10 @@ const availableMetricOptions = computed<MetricOption[]>(() => {
 
     selectedExercisePerformances.value.forEach((performance) => {
         performance.available_metrics
-            .filter((metric) => resolveMetricValue(performance, metric.key) !== null)
+            .filter(
+                (metric) =>
+                    resolveMetricValue(performance, metric.key) !== null,
+            )
             .forEach((metric) => {
                 options.set(metric.key, {
                     value: metric.key,
@@ -242,7 +248,8 @@ const availableMetricOptions = computed<MetricOption[]>(() => {
     legacyMetricOptions
         .filter((metric) =>
             selectedExercisePerformances.value.some(
-                (performance) => resolveMetricValue(performance, metric.value) !== null,
+                (performance) =>
+                    resolveMetricValue(performance, metric.value) !== null,
             ),
         )
         .forEach((metric) => {
@@ -264,7 +271,9 @@ const availableMetricOptions = computed<MetricOption[]>(() => {
             return firstMetric.is_primary ? -1 : 1;
         }
 
-        return (firstMetric.sort_order ?? 999) - (secondMetric.sort_order ?? 999);
+        return (
+            (firstMetric.sort_order ?? 999) - (secondMetric.sort_order ?? 999)
+        );
     });
 });
 
@@ -296,7 +305,9 @@ const filteredPerformanceEntries = computed(() => {
 
 const chartPerformanceEntries = computed(() =>
     filteredPerformanceEntries.value.filter((performance) => {
-        return resolveMetricValue(performance, activeMetric.value.value) !== null;
+        return (
+            resolveMetricValue(performance, activeMetric.value.value) !== null
+        );
     }),
 );
 
@@ -356,20 +367,24 @@ const formatPerformanceValue = (
         return null;
     }
 
-    const metricOption = availableMetricOptions.value.find(
-        (option) => option.value === metric,
-    ) ?? legacyMetricOptions.find((option) => option.value === metric);
+    const metricOption =
+        availableMetricOptions.value.find(
+            (option) => option.value === metric,
+        ) ?? legacyMetricOptions.find((option) => option.value === metric);
 
-    const decimals = metricOption?.value_type === 'integer' || metric === 'repetitions' ? 0 : 2;
+    const decimals =
+        metricOption?.value_type === 'integer' || metric === 'repetitions'
+            ? 0
+            : 2;
 
-    return `${Number(value).toFixed(decimals)} ${
-        metricOption?.unit ?? ''
-    }`;
+    return `${Number(value).toFixed(decimals)} ${metricOption?.unit ?? ''}`;
 };
 
 const visibleRecentMetricOptions = (performance: PerformanceEntry) => {
     const dynamicMetricOptions = performance.available_metrics
-        .filter((metric) => resolveMetricValue(performance, metric.key) !== null)
+        .filter(
+            (metric) => resolveMetricValue(performance, metric.key) !== null,
+        )
         .map((metric) => ({
             value: metric.key,
             label: metric.label,
@@ -381,8 +396,9 @@ const visibleRecentMetricOptions = (performance: PerformanceEntry) => {
 
     const fallbackOptions = legacyMetricOptions.filter(
         (metric) =>
-            !dynamicMetricOptions.some((option) => option.value === metric.value) &&
-            resolveMetricValue(performance, metric.value) !== null,
+            !dynamicMetricOptions.some(
+                (option) => option.value === metric.value,
+            ) && resolveMetricValue(performance, metric.value) !== null,
     );
 
     return [...dynamicMetricOptions, ...fallbackOptions]
@@ -391,7 +407,10 @@ const visibleRecentMetricOptions = (performance: PerformanceEntry) => {
                 return firstMetric.is_primary ? -1 : 1;
             }
 
-            return (firstMetric.sort_order ?? 999) - (secondMetric.sort_order ?? 999);
+            return (
+                (firstMetric.sort_order ?? 999) -
+                (secondMetric.sort_order ?? 999)
+            );
         })
         .slice(0, 4);
 };
@@ -438,18 +457,234 @@ const submitWeightEntry = () => {
         title="Progression"
         subtitle="Suivez votre poids et ajoutez vos nouvelles mesures."
     >
-        <div class="space-y-4">
-            <section class="rounded-lg bg-white p-4">
+        <div class="flex flex-col gap-4">
+            <section class="order-1 rounded-lg bg-white p-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-lg font-semibold">
-                                Courbe de poids
-                            </h2>
-                            <p class="mt-1 text-sm text-neutral-600">
-                                Suivi dédié aux mesures corporelles.
-                            </p>
-                        </div>
+                    <div>
+                        <h2 class="text-lg font-semibold">Courbe de poids</h2>
+                        <p class="mt-1 text-sm text-neutral-600">
+                            Suivi dédié aux mesures corporelles.
+                        </p>
+                    </div>
 
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            v-for="option in rangeOptions"
+                            :key="option.value"
+                            type="button"
+                            class="rounded-full border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
+                            :class="
+                                selectedRange === option.value
+                                    ? 'border-evo-black bg-evo-black text-evo-white'
+                                    : 'border-neutral-300 text-evo-black hover:bg-neutral-100'
+                            "
+                            @click="selectedRange = option.value"
+                        >
+                            {{ option.label }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 h-[320px]">
+                    <WeightChart
+                        v-if="filteredWeightEntries.length > 0"
+                        :key="chartKey"
+                        :weight-entries="filteredWeightEntries"
+                    />
+
+                    <div
+                        v-else
+                        class="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-500"
+                    >
+                        Aucune entrée disponible sur cette période.
+                    </div>
+                </div>
+            </section>
+
+            <section class="order-4 rounded-lg bg-white p-4">
+                <h2 class="text-lg font-semibold">
+                    Ajouter une entrée de poids
+                </h2>
+
+                <p class="mt-2 text-sm text-neutral-600">
+                    La masse grasse est optionnelle.
+                </p>
+
+                <div class="mt-4 grid gap-4 md:grid-cols-3">
+                    <div class="space-y-2">
+                        <label for="entry_weight" class="block font-medium">
+                            Poids (kg)
+                        </label>
+                        <input
+                            id="entry_weight"
+                            v-model="weightEntryForm.weight"
+                            type="number"
+                            min="20"
+                            max="500"
+                            step="0.01"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="weightEntryForm.errors.weight"
+                            class="text-sm text-red-600"
+                        >
+                            {{ weightEntryForm.errors.weight }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="entry_date" class="block font-medium">
+                            Date de mesure
+                        </label>
+                        <input
+                            id="entry_date"
+                            v-model="weightEntryForm.entry_date"
+                            type="date"
+                            :max="todayDate"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="weightEntryForm.errors.entry_date"
+                            class="text-sm text-red-600"
+                        >
+                            {{ weightEntryForm.errors.entry_date }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="entry_body_fat" class="block font-medium">
+                            Masse grasse (%)
+                        </label>
+                        <input
+                            id="entry_body_fat"
+                            v-model="weightEntryForm.body_fat"
+                            type="number"
+                            min="2"
+                            max="75"
+                            step="0.01"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="weightEntryForm.errors.body_fat"
+                            class="text-sm text-red-600"
+                        >
+                            {{ weightEntryForm.errors.body_fat }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center gap-4">
+                    <button
+                        type="button"
+                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="weightEntryForm.processing"
+                        @click="submitWeightEntry"
+                    >
+                        {{
+                            weightEntryForm.processing
+                                ? 'Enregistrement...'
+                                : "Ajouter l'entrée"
+                        }}
+                    </button>
+                    <p
+                        v-if="
+                            weightEntryForm.recentlySuccessful ||
+                            flashSuccessMessage
+                        "
+                        class="text-sm text-emerald-700"
+                    >
+                        {{ flashSuccessMessage ?? 'Entrée enregistrée.' }}
+                    </p>
+                </div>
+            </section>
+
+            <section class="order-2 rounded-lg bg-white p-4">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-semibold">
+                            Graphique de performance
+                        </h2>
+                        <p class="mt-1 text-sm text-neutral-600">
+                            Les métriques disponibles dépendent de l'exercice.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                    <div class="space-y-2">
+                        <label
+                            for="performance_sport"
+                            class="block font-medium"
+                        >
+                            Sport
+                        </label>
+                        <select
+                            id="performance_sport"
+                            v-model="selectedSportId"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            @change="onSportChange"
+                        >
+                            <option value="all">Tous les sports</option>
+                            <option
+                                v-for="sport in selectableSports"
+                                :key="sport.id"
+                                :value="sport.id"
+                            >
+                                {{ sport.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="performance_exercise"
+                            class="block font-medium"
+                        >
+                            Exercice
+                        </label>
+                        <select
+                            id="performance_exercise"
+                            v-model="selectedExerciseId"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            @change="onExerciseChange"
+                        >
+                            <option :value="null">
+                                Premier exercice disponible
+                            </option>
+                            <option
+                                v-for="exercise in exercisesWithPerformances"
+                                :key="exercise.id"
+                                :value="exercise.id"
+                            >
+                                {{ exercise.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="performance_metric"
+                            class="block font-medium"
+                        >
+                            Performance
+                        </label>
+                        <select
+                            id="performance_metric"
+                            v-model="selectedMetric"
+                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                        >
+                            <option
+                                v-for="metric in availableMetricOptions"
+                                :key="metric.value"
+                                :value="metric.value"
+                            >
+                                {{ metric.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="font-medium">Période</p>
                         <div class="flex flex-wrap gap-2">
                             <button
                                 v-for="option in rangeOptions"
@@ -457,306 +692,88 @@ const submitWeightEntry = () => {
                                 type="button"
                                 class="rounded-full border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
                                 :class="
-                                    selectedRange === option.value
+                                    selectedPerformanceRange === option.value
                                         ? 'border-evo-black bg-evo-black text-evo-white'
                                         : 'border-neutral-300 text-evo-black hover:bg-neutral-100'
                                 "
-                                @click="selectedRange = option.value"
+                                @click="selectedPerformanceRange = option.value"
                             >
                                 {{ option.label }}
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="mt-4 h-[320px]">
-                        <WeightChart
-                            v-if="filteredWeightEntries.length > 0"
-                            :key="chartKey"
-                            :weight-entries="filteredWeightEntries"
-                        />
-
-                        <div
-                            v-else
-                            class="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-500"
-                        >
-                            Aucune entrée disponible sur cette période.
-                        </div>
-                    </div>
-            </section>
-
-            <section class="rounded-lg bg-white p-4">
-                    <h2 class="text-lg font-semibold">
-                        Ajouter une entrée de poids
-                    </h2>
-
-                    <p class="mt-2 text-sm text-neutral-600">
-                        La masse grasse est optionnelle.
-                    </p>
-
-                    <div class="mt-4 grid gap-4 md:grid-cols-3">
-                        <div class="space-y-2">
-                            <label for="entry_weight" class="block font-medium">
-                                Poids (kg)
-                            </label>
-                            <input
-                                id="entry_weight"
-                                v-model="weightEntryForm.weight"
-                                type="number"
-                                min="20"
-                                max="500"
-                                step="0.01"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="weightEntryForm.errors.weight"
-                                class="text-sm text-red-600"
-                            >
-                                {{ weightEntryForm.errors.weight }}
-                            </p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label for="entry_date" class="block font-medium">
-                                Date de mesure
-                            </label>
-                            <input
-                                id="entry_date"
-                                v-model="weightEntryForm.entry_date"
-                                type="date"
-                                :max="todayDate"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="weightEntryForm.errors.entry_date"
-                                class="text-sm text-red-600"
-                            >
-                                {{ weightEntryForm.errors.entry_date }}
-                            </p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="entry_body_fat"
-                                class="block font-medium"
-                            >
-                                Masse grasse (%)
-                            </label>
-                            <input
-                                id="entry_body_fat"
-                                v-model="weightEntryForm.body_fat"
-                                type="number"
-                                min="2"
-                                max="75"
-                                step="0.01"
-                                class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
-                            />
-                            <p
-                                v-if="weightEntryForm.errors.body_fat"
-                                class="text-sm text-red-600"
-                            >
-                                {{ weightEntryForm.errors.body_fat }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 flex flex-wrap items-center gap-4">
-                        <button
-                            type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                            :disabled="weightEntryForm.processing"
-                            @click="submitWeightEntry"
-                        >
-                            {{
-                                weightEntryForm.processing
-                                    ? 'Enregistrement...'
-                                    : "Ajouter l'entrée"
-                            }}
-                        </button>
-                        <p
-                            v-if="
-                                weightEntryForm.recentlySuccessful ||
-                                flashSuccessMessage
-                            "
-                            class="text-sm text-emerald-700"
-                        >
-                            {{ flashSuccessMessage ?? 'Entrée enregistrée.' }}
-                        </p>
-                    </div>
-            </section>
-
-            <section class="rounded-lg bg-white p-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                            <h2 class="text-lg font-semibold">
-                                Graphique de performance
-                            </h2>
-                            <p class="mt-1 text-sm text-neutral-600">
-                                Les métriques disponibles dépendent de
-                                l'exercice.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 grid gap-4 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <label
-                                for="performance_sport"
-                                class="block font-medium"
-                            >
-                                Sport
-                            </label>
-                            <select
-                                id="performance_sport"
-                                v-model="selectedSportId"
-                                class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
-                                @change="onSportChange"
-                            >
-                                <option value="all">Tous les sports</option>
-                                <option
-                                    v-for="sport in selectableSports"
-                                    :key="sport.id"
-                                    :value="sport.id"
-                                >
-                                    {{ sport.name }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="performance_exercise"
-                                class="block font-medium"
-                            >
-                                Exercice
-                            </label>
-                            <select
-                                id="performance_exercise"
-                                v-model="selectedExerciseId"
-                                class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
-                                @change="onExerciseChange"
-                            >
-                                <option :value="null">
-                                    Premier exercice disponible
-                                </option>
-                                <option
-                                    v-for="exercise in exercisesWithPerformances"
-                                    :key="exercise.id"
-                                    :value="exercise.id"
-                                >
-                                    {{ exercise.name }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="performance_metric"
-                                class="block font-medium"
-                            >
-                                Performance
-                            </label>
-                            <select
-                                id="performance_metric"
-                                v-model="selectedMetric"
-                                class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
-                            >
-                                <option
-                                    v-for="metric in availableMetricOptions"
-                                    :key="metric.value"
-                                    :value="metric.value"
-                                >
-                                    {{ metric.label }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <p class="font-medium">Période</p>
-                            <div class="flex flex-wrap gap-2">
-                                <button
-                                    v-for="option in rangeOptions"
-                                    :key="option.value"
-                                    type="button"
-                                    class="rounded-full border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
-                                    :class="
-                                        selectedPerformanceRange ===
-                                        option.value
-                                            ? 'border-evo-black bg-evo-black text-evo-white'
-                                            : 'border-neutral-300 text-evo-black hover:bg-neutral-100'
-                                    "
-                                    @click="
-                                        selectedPerformanceRange = option.value
-                                    "
-                                >
-                                    {{ option.label }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 h-[320px]">
-                        <PerformanceChart
-                            v-if="chartPerformanceEntries.length > 0"
-                            :key="performanceChartKey"
-                            :performances="chartPerformanceEntries"
-                            :metric="activeMetric.value"
-                            :metric-label="activeMetric.label"
-                            :metric-unit="activeMetric.unit"
-                        />
-
-                        <div
-                            v-else
-                            class="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-300 px-4 text-center text-sm text-neutral-500"
-                        >
-                            Aucune performance disponible avec ces filtres.
-                        </div>
-                    </div>
-            </section>
-
-            <section class="rounded-lg bg-white p-4">
-                    <h2 class="text-lg font-semibold">
-                        Dernières performances
-                    </h2>
+                <div class="mt-4 h-[320px]">
+                    <PerformanceChart
+                        v-if="chartPerformanceEntries.length > 0"
+                        :key="performanceChartKey"
+                        :performances="chartPerformanceEntries"
+                        :metric="activeMetric.value"
+                        :metric-label="activeMetric.label"
+                        :metric-unit="activeMetric.unit"
+                    />
 
                     <div
-                        v-if="recentPerformances.length > 0"
-                        class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+                        v-else
+                        class="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-300 px-4 text-center text-sm text-neutral-500"
                     >
-                        <div
-                            v-for="performance in recentPerformances"
-                            :key="performance.id"
-                            class="rounded-lg border border-neutral-200 p-4"
-                        >
-                            <div class="flex items-start justify-between gap-3">
-                                <div>
-                                    <p class="font-semibold">
-                                        {{ performance.exercise_name }}
-                                    </p>
-                                    <p class="mt-1 text-sm text-neutral-600">
-                                        {{ performance.sport_name ?? 'Sport' }}
-                                    </p>
-                                </div>
-                                <p class="text-sm text-neutral-500">
-                                    {{ performance.dateLabel }}
+                        Aucune performance disponible avec ces filtres.
+                    </div>
+                </div>
+            </section>
+
+            <AdInlineSlot :enabled="ads.enabled" class="order-3" />
+
+            <section class="order-5 rounded-lg bg-white p-4">
+                <h2 class="text-lg font-semibold">Dernières performances</h2>
+
+                <div
+                    v-if="recentPerformances.length > 0"
+                    class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+                >
+                    <div
+                        v-for="performance in recentPerformances"
+                        :key="performance.id"
+                        class="rounded-lg border border-neutral-200 p-4"
+                    >
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="font-semibold">
+                                    {{ performance.exercise_name }}
+                                </p>
+                                <p class="mt-1 text-sm text-neutral-600">
+                                    {{ performance.sport_name ?? 'Sport' }}
                                 </p>
                             </div>
-                            <div
-                                class="mt-3 flex flex-wrap gap-2 text-xs text-neutral-600"
+                            <p class="text-sm text-neutral-500">
+                                {{ performance.dateLabel }}
+                            </p>
+                        </div>
+                        <div
+                            class="mt-3 flex flex-wrap gap-2 text-xs text-neutral-600"
+                        >
+                            <span
+                                v-for="metric in visibleRecentMetricOptions(
+                                    performance,
+                                )"
+                                :key="metric.value"
+                                class="rounded-full bg-neutral-100 px-2 py-1"
                             >
-                                <span
-                                    v-for="metric in visibleRecentMetricOptions(performance)"
-                                    :key="metric.value"
-                                    class="rounded-full bg-neutral-100 px-2 py-1"
-                                >
-                                    {{ metric.label }}:
-                                    {{ formatPerformanceValue(performance, metric.value) }}
-                                </span>
-                            </div>
+                                {{ metric.label }}:
+                                {{
+                                    formatPerformanceValue(
+                                        performance,
+                                        metric.value,
+                                    )
+                                }}
+                            </span>
                         </div>
                     </div>
-                    <p v-else class="mt-4 text-sm text-neutral-600">
-                        Aucune performance enregistree pour le moment.
-                    </p>
+                </div>
+                <p v-else class="mt-4 text-sm text-neutral-600">
+                    Aucune performance enregistree pour le moment.
+                </p>
             </section>
         </div>
     </AppLayout>

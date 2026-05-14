@@ -1,23 +1,36 @@
 <script setup lang="ts">
-import DashboardHeader from '@/components/layout/DashboardHeader.vue'
-import DashboardSidebar from '@/components/layout/DashboardSidebar.vue'
+import AdPopup from '@/components/ads/AdPopup.vue';
+import DashboardHeader from '@/components/layout/DashboardHeader.vue';
+import DashboardSidebar from '@/components/layout/DashboardSidebar.vue';
+import { useAds } from '@/composables/useAds';
 
 defineProps<{
-  title: string,
-  subtitle?: string
-}>()
+    title: string;
+    subtitle?: string;
+}>();
 
+const ads = useAds();
 </script>
 
 <template>
-  <div class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4 text-evo-black transition-colors dark:bg-neutral-950 dark:text-evo-white">
-    <DashboardSidebar />
+    <div
+        class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4 text-evo-black transition-colors dark:bg-neutral-950 dark:text-evo-white"
+    >
+        <DashboardSidebar />
 
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pr-4 [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)]">
-      <DashboardHeader :title="title" :subtitle="subtitle" />
-      <main class="min-h-0 flex-1">
-        <slot />
-      </main>
+        <div
+            class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pr-4 [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)]"
+        >
+            <DashboardHeader :title="title" :subtitle="subtitle" />
+            <main class="min-h-0 flex-1">
+                <slot />
+            </main>
+        </div>
+
+        <AdPopup
+            :enabled="ads.enabled"
+            :interval-minutes="ads.popup_interval_minutes"
+            :close-delay-seconds="ads.close_delay_seconds"
+        />
     </div>
-  </div>
 </template>

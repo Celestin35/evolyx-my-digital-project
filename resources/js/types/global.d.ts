@@ -18,6 +18,11 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            ads: {
+                enabled: boolean;
+                popup_interval_minutes: number;
+                close_delay_seconds: number;
+            };
             sidebarOpen: boolean;
             [key: string]: unknown;
         };

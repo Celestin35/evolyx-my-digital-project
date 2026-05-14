@@ -44,6 +44,24 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'ads' => function () use ($request) {
+                $activeSubscription = $request->user()
+                    ?->subscriptions()
+                    ->where('is_active', true)
+                    ->where(function ($query) {
+                        $query->whereNull('end_date')
+                            ->orWhere('end_date', '>', now());
+                    })
+                    ->with('subscriptionPlan:id,name,ads_enabled')
+                    ->latest('start_date')
+                    ->first();
+
+                return [
+                    'enabled' => (bool) $activeSubscription?->subscriptionPlan?->ads_enabled,
+                    'popup_interval_minutes' => 5,
+                    'close_delay_seconds' => 3,
+                ];
+            },
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
