@@ -157,12 +157,6 @@ const saveMacros = () => {
                         Modifier mon objectif
                     </Link>
                 </div>
-
-                <p class="mt-4 max-w-md text-sm text-neutral-600">
-                    Votre objectif calorique est automatiquement calculé à
-                    partir de votre objectif actif. Vous n'avez rien à
-                    recalculer manuellement.
-                </p>
             </section>
 
             <div :class="ads.enabled ? 'grid gap-4 lg:grid-cols-2' : ''">

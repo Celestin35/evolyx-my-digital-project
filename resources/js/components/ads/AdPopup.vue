@@ -167,14 +167,14 @@ onBeforeUnmount(() => {
                                 <p
                                     class="text-sm text-neutral-600 dark:text-neutral-400"
                                 >
-                                    Contenu sponsorise
+                                    Contenu sponsorisé
                                 </p>
                             </div>
                         </div>
 
                         <button
                             type="button"
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition hover:border-evo-orange hover:text-evo-orange disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700"
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg hover:cursor-pointer border border-neutral-200 text-neutral-500 transition hover:border-evo-orange hover:text-evo-orange disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700"
                             :disabled="!canClose"
                             :aria-label="
                                 canClose

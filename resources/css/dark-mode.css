@@ -1,0 +1,198 @@
+@layer utilities {
+    /*
+      The app was designed light-first with many explicit Tailwind colors
+      such as bg-white/text-evo-black. When system dark mode enables .dark,
+      these mappings keep the existing markup readable without changing the
+      light theme or patching every component one by one.
+    */
+    .dark body {
+        color-scheme: dark;
+        background-color: #1f232b;
+    }
+
+    .dark .bg-gray-200,
+    .dark .dark\:bg-neutral-950 {
+        background-color: #1f232b;
+    }
+
+    .dark .bg-white,
+    .dark .bg-evo-white,
+    .dark .dark\:bg-neutral-900 {
+        background-color: #2b3038;
+    }
+
+    .dark .bg-neutral-50,
+    .dark .bg-neutral-100 {
+        background-color: #353b45;
+    }
+
+    .dark .bg-white\/70,
+    .dark .bg-white\/78,
+    .dark .bg-white\/80 {
+        background-color: rgb(43 48 56 / 0.88);
+    }
+
+    .dark .bg-white\/80 {
+        background-color: rgb(43 48 56 / 0.82);
+    }
+
+    .dark .bg-emerald-50 {
+        background-color: #c9f8e6;
+    }
+
+    .dark .bg-evo-purple,
+    .dark .bg-evo-purple\/10,
+    .dark .bg-evo-purple\/20 {
+        background-color: #eadcff;
+    }
+
+    .dark .bg-evo-purple\/10,
+    .dark .bg-evo-purple\/20 {
+        color: #3a185d;
+    }
+
+    .dark .text-emerald-700,
+    .dark .text-emerald-800 {
+        color: #5ff0b4;
+    }
+
+    .dark .text-evo-purple {
+        color: #d8b4fe;
+    }
+
+    .dark aside .text-evo-purple {
+        color: #7a4896;
+    }
+
+    .dark .bg-neutral-100.text-evo-purple,
+    .dark .bg-neutral-50.text-evo-purple,
+    .dark .bg-white.text-evo-purple,
+    .dark .bg-evo-white.text-evo-purple {
+        background-color: #eadcff;
+        color: #3a185d;
+    }
+
+    .dark .bg-neutral-100 .text-evo-purple,
+    .dark .bg-neutral-50 .text-evo-purple {
+        color: #d8b4fe;
+    }
+
+    .dark .border-emerald-200 {
+        border-color: #70e8b3;
+    }
+
+    .dark .bg-white.text-emerald-800,
+    .dark .bg-evo-white.text-emerald-800 {
+        background-color: #183f35;
+        color: #5ff0b4;
+    }
+
+    .dark .text-evo-black,
+    .dark .text-black,
+    .dark .text-neutral-950,
+    .dark .text-neutral-900,
+    .dark .text-neutral-800,
+    .dark .text-neutral-700 {
+        color: #fbfaf7;
+    }
+
+    .dark .text-gray-600,
+    .dark .text-neutral-600,
+    .dark .text-neutral-500,
+    .dark .text-evo-black\/70,
+    .dark .text-evo-black\/60,
+    .dark .text-evo-black\/58,
+    .dark .text-evo-black\/50 {
+        color: #cbd3df;
+    }
+
+    .dark .text-neutral-400 {
+        color: #dfe5ee;
+    }
+
+    .dark .border-neutral-100,
+    .dark .border-neutral-200,
+    .dark .border-neutral-300,
+    .dark .border-evo-black\/10,
+    .dark .border-evo-black\/15 {
+        border-color: #596271;
+    }
+
+    .dark input,
+    .dark select,
+    .dark textarea {
+        background-color: #222731;
+        border-color: #697386;
+        color: #fbfaf7;
+    }
+
+    .dark input::placeholder,
+    .dark textarea::placeholder {
+        color: #aeb8c7;
+    }
+
+    .dark input:disabled,
+    .dark select:disabled,
+    .dark textarea:disabled {
+        color: #aeb8c7;
+        background-color: #252b34;
+    }
+
+    .dark .hover\:bg-neutral-100:hover,
+    .dark .hover\:bg-neutral-200\/60:hover {
+        background-color: #3a424f;
+    }
+
+    .dark .vuecal {
+        background-color: #2b3038;
+        color: #fbfaf7;
+    }
+
+    .dark .vuecal__menu,
+    .dark .vuecal__title-bar {
+        background-color: #353b45;
+        color: #fbfaf7;
+    }
+
+    .dark .vuecal__weekdays-headings,
+    .dark .vuecal__cell {
+        background-color: #2b3038;
+        color: #dce3ee;
+    }
+
+    .dark .vuecal__heading,
+    .dark .vuecal__cell-content,
+    .dark .vuecal__cell-date,
+    .dark .vuecal__no-event,
+    .dark .vuecal__cell-events-count {
+        color: #dce3ee;
+    }
+
+    .dark .vuecal__cell,
+    .dark .vuecal__weekdays-headings {
+        border-color: #596271;
+    }
+
+    .dark .vuecal__cell--out-of-scope,
+    .dark .vuecal__cell--out-of-scope .vuecal__cell-content,
+    .dark .vuecal__cell--out-of-scope .vuecal__cell-date {
+        color: #94a0b3;
+    }
+
+    .dark .vuecal__cell--today,
+    .dark .vuecal__cell--selected {
+        background-color: #465061;
+    }
+
+    .dark .vuecal__event.evolyx-session-event--planned {
+        background-color: #efe7ff;
+        border-color: #a78bfa;
+        color: #24123f;
+    }
+
+    .dark .vuecal__event.evolyx-session-event--completed {
+        background-color: #d9fbe6;
+        border-color: #22c55e;
+        color: #063d22;
+    }
+}
