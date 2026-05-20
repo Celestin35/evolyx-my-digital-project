@@ -92,6 +92,10 @@ class DemoDataSeeder extends Seeder
             }
         }
 
+        $exerciseId = function (string $name) use ($exercises): ?int {
+            return isset($exercises[$name]) ? (int) $exercises[$name] : null;
+        };
+
         $sports = DB::table('sports')->pluck('id', 'name');
 
         $macros = [
@@ -278,9 +282,15 @@ class DemoDataSeeder extends Seeder
         $pivotRows = [];
         foreach ($sessionExercises as $sessionName => $exerciseRows) {
             foreach ($exerciseRows as $index => [$exerciseName, $restTime]) {
+                $resolvedExerciseId = $exerciseId($exerciseName);
+
+                if ($resolvedExerciseId === null) {
+                    continue;
+                }
+
                 $pivotRows[] = [
                     'workout_session_id' => $sessions[$sessionName],
-                    'exercise_id' => $exercises[$exerciseName],
+                    'exercise_id' => $resolvedExerciseId,
                     'rest_time' => $restTime,
                     'position' => $index + 1,
                 ];
@@ -344,6 +354,12 @@ class DemoDataSeeder extends Seeder
                 $progressIndex = 15 - $week;
 
                 foreach ($sessionExercises[$sessionName] as [$exerciseName]) {
+                    $resolvedExerciseId = $exerciseId($exerciseName);
+
+                    if ($resolvedExerciseId === null) {
+                        continue;
+                    }
+
                     $profile = $performanceProfiles[$exerciseName];
                     $weight = round($profile['weight'] + ($progressIndex * $profile['step']) + ($dayOffsetIndex * 0.15), 2);
                     $repetitions = $profile['repetitions'] + (($progressIndex + $dayOffsetIndex) % $profile['rep_cycle']);
@@ -351,7 +367,7 @@ class DemoDataSeeder extends Seeder
                     DB::table('performances')->updateOrInsert(
                         [
                             'performed_session_id' => $performedSessionId,
-                            'exercise_id' => $exercises[$exerciseName],
+                            'exercise_id' => $resolvedExerciseId,
                         ],
                         [
                             'performed_at' => $performedAt,
@@ -434,10 +450,16 @@ class DemoDataSeeder extends Seeder
                 ->value('id');
 
             foreach ($communitySession['exercises'] as $exerciseIndex => [$exerciseName, $weight, $repetitions]) {
+                $resolvedExerciseId = $exerciseId($exerciseName);
+
+                if ($resolvedExerciseId === null) {
+                    continue;
+                }
+
                 DB::table('workout_session_exercise')->updateOrInsert(
                     [
                         'workout_session_id' => $friendWorkoutSessionId,
-                        'exercise_id' => $exercises[$exerciseName],
+                        'exercise_id' => $resolvedExerciseId,
                     ],
                     [
                         'rest_time' => 90,
@@ -448,7 +470,7 @@ class DemoDataSeeder extends Seeder
                 DB::table('performances')->updateOrInsert(
                     [
                         'performed_session_id' => $friendPerformedSessionId,
-                        'exercise_id' => $exercises[$exerciseName],
+                        'exercise_id' => $resolvedExerciseId,
                     ],
                     [
                         'performed_at' => $communitySession['performed_at'],
