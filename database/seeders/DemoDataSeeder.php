@@ -77,6 +77,21 @@ class DemoDataSeeder extends Seeder
         $plans = DB::table('subscription_plans')->pluck('id', 'name');
         $goalTypes = DB::table('goal_types')->pluck('id', 'name');
         $exercises = DB::table('exercises')->pluck('id', 'name');
+        $exerciseAliases = [
+            'Développé couché' => ['DÃ©veloppÃ© couchÃ©'],
+            'Développé militaire' => ['DÃ©veloppÃ© militaire'],
+            'Soulevé de terre' => ['SoulevÃ© de terre'],
+            'Presse à cuisses' => ['Presse Ã  cuisses'],
+        ];
+
+        foreach ($exerciseAliases as $canonicalName => $aliases) {
+            foreach ($aliases as $alias) {
+                if (! isset($exercises[$canonicalName]) && isset($exercises[$alias])) {
+                    $exercises[$canonicalName] = $exercises[$alias];
+                }
+            }
+        }
+
         $sports = DB::table('sports')->pluck('id', 'name');
 
         $macros = [
