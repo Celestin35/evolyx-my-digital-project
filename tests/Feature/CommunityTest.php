@@ -174,6 +174,45 @@ test('the author can delete their community post', function () {
     ]);
 });
 
+test('the author can update their community post', function () {
+    $user = makeCommunityUser(premium: true);
+    $post = makeCommunityPostFor($user, 'Ancien titre');
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(route('community.posts.update', $post), [
+            'title' => 'Nouveau titre',
+            'content' => 'Nouvelle note.',
+        ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHasNoErrors();
+    $this->assertDatabaseHas('community_posts', [
+        'id' => $post->id,
+        'title' => 'Nouveau titre',
+        'content' => 'Nouvelle note.',
+    ]);
+});
+
+test('another user cannot update a community post', function () {
+    $author = makeCommunityUser(premium: true);
+    $otherUser = makeCommunityUser(premium: true);
+    $post = makeCommunityPostFor($author, 'Titre original');
+
+    $response = $this
+        ->actingAs($otherUser)
+        ->patch(route('community.posts.update', $post), [
+            'title' => 'Titre pirate',
+            'content' => null,
+        ]);
+
+    $response->assertForbidden();
+    $this->assertDatabaseHas('community_posts', [
+        'id' => $post->id,
+        'title' => 'Titre original',
+    ]);
+});
+
 test('another user cannot delete a community post', function () {
     $author = makeCommunityUser(premium: true);
     $otherUser = makeCommunityUser(premium: true);

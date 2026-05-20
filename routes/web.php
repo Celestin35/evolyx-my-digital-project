@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('progress/weight-entries', [ProgressController::class, 'storeWeightEntry'])->name('progress.weight-entries.store');
     Route::get('community', [CommunityController::class, 'index'])->name('community');
     Route::post('community/posts', [CommunityController::class, 'store'])->name('community.posts.store');
+    Route::patch('community/posts/{communityPost}', [CommunityController::class, 'update'])->name('community.posts.update');
     Route::delete('community/posts/{communityPost}', [CommunityController::class, 'destroy'])->name('community.posts.destroy');
     Route::get('community/users/search', [CommunityController::class, 'searchUsers'])->name('community.users.search');
     Route::get('community/users/{user}', [CommunityController::class, 'showUser'])->name('community.users.show');

@@ -138,7 +138,26 @@ class CommunityController extends Controller
             'published_at' => now(),
         ]);
 
-        return back()->with('success', 'Seance partagee dans le feed communautaire.');
+        return back()->with('success', 'Séance partagée dans le feed communautaire.');
+    }
+
+    public function update(Request $request, CommunityPost $communityPost): RedirectResponse
+    {
+        if ($communityPost->user_id !== $request->user()->id) {
+            throw new AuthorizationException();
+        }
+
+        $validatedData = $request->validate([
+            'title' => ['nullable', 'string', 'max:120'],
+            'content' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $communityPost->update([
+            'title' => $request->filled('title') ? $validatedData['title'] : null,
+            'content' => $request->filled('content') ? $validatedData['content'] : null,
+        ]);
+
+        return back()->with('success', 'Publication modifiée.');
     }
 
     public function destroy(Request $request, CommunityPost $communityPost): RedirectResponse
@@ -149,7 +168,7 @@ class CommunityController extends Controller
 
         $communityPost->delete();
 
-        return back()->with('success', 'Publication supprimee du feed communautaire.');
+        return back()->with('success', 'Publication supprimée du feed communautaire.');
     }
 
     public function searchUsers(Request $request): JsonResponse

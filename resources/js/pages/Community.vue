@@ -72,12 +72,17 @@ const props = defineProps<{
 
 const page = usePage<CommunityPageProps>();
 const deletePostForm = useForm({});
+const editPostForm = useForm({
+    title: '',
+    content: '',
+});
 
 const activeTab = ref<'feed' | 'relations' | 'mine'>('feed');
 const searchQuery = ref('');
 const searchResults = ref<CommunityUser[]>([]);
 const isSearching = ref(false);
 const selectedProfile = ref<CommunityProfile | null>(null);
+const editingPost = ref<CommunityPost | null>(null);
 const isProfileLoading = ref(false);
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -226,6 +231,37 @@ const openProfile = async (user: CommunityUser) => {
 const closeProfile = () => {
     selectedProfile.value = null;
     isProfileLoading.value = false;
+};
+
+const openPostEditor = (post: CommunityPost) => {
+    if (!post.is_own_post) {
+        return;
+    }
+
+    editingPost.value = post;
+    editPostForm.defaults({
+        title: post.title ?? '',
+        content: post.content ?? '',
+    });
+    editPostForm.reset();
+    editPostForm.clearErrors();
+};
+
+const closePostEditor = () => {
+    editingPost.value = null;
+    editPostForm.reset();
+    editPostForm.clearErrors();
+};
+
+const updateCommunityPost = () => {
+    if (!editingPost.value) {
+        return;
+    }
+
+    editPostForm.patch(`/community/posts/${editingPost.value.id}`, {
+        preserveScroll: true,
+        onSuccess: closePostEditor,
+    });
 };
 
 const deleteCommunityPost = (post: CommunityPost) => {
@@ -563,15 +599,26 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     </div>
                                 </div>
 
-                                <button
+                                <div
                                     v-if="post.is_own_post"
-                                    type="button"
-                                    class="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:cursor-pointer hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                    :disabled="deletePostForm.processing"
-                                    @click="deleteCommunityPost(post)"
+                                    class="flex flex-wrap gap-2"
                                 >
-                                    Supprimer
-                                </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:cursor-pointer hover:bg-neutral-100"
+                                        @click="openPostEditor(post)"
+                                    >
+                                        Modifier
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:cursor-pointer hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                        :disabled="deletePostForm.processing"
+                                        @click="deleteCommunityPost(post)"
+                                    >
+                                        Supprimer
+                                    </button>
+                                </div>
                             </div>
 
                             <p
@@ -719,6 +766,101 @@ const deleteCommunityPost = (post: CommunityPost) => {
                 </div>
             </template>
         </PremiumFeatureGate>
+
+        <div
+            v-if="editingPost"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+        >
+            <section class="w-full max-w-xl rounded-lg bg-white p-4 shadow-xl">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold">
+                            Modifier la publication
+                        </h2>
+                        <p class="mt-1 text-sm text-neutral-600">
+                            {{
+                                editingPost.performed_session
+                                    .workout_session_name ?? 'Séance'
+                            }}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        @click="closePostEditor"
+                    >
+                        Fermer
+                    </button>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <div class="space-y-2">
+                        <label for="edit_post_title" class="block font-medium">
+                            Nom du post (optionnel)
+                        </label>
+                        <input
+                            id="edit_post_title"
+                            v-model="editPostForm.title"
+                            type="text"
+                            :placeholder="
+                                editingPost.performed_session
+                                    .workout_session_name ?? 'Séance partagée'
+                            "
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="editPostForm.errors.title"
+                            class="text-sm text-red-600"
+                        >
+                            {{ editPostForm.errors.title }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="edit_post_content"
+                            class="block font-medium"
+                        >
+                            Note (optionnel)
+                        </label>
+                        <textarea
+                            id="edit_post_content"
+                            v-model="editPostForm.content"
+                            rows="3"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="editPostForm.errors.content"
+                            class="text-sm text-red-600"
+                        >
+                            {{ editPostForm.errors.content }}
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button
+                            type="button"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="editPostForm.processing"
+                            @click="updateCommunityPost"
+                        >
+                            {{
+                                editPostForm.processing
+                                    ? 'Enregistrement...'
+                                    : 'Enregistrer'
+                            }}
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
+                            @click="closePostEditor"
+                        >
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
 
         <div
             v-if="selectedProfile || isProfileLoading"

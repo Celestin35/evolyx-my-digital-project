@@ -1116,7 +1116,7 @@ const sharePerformedSession = () => {
                             >
                                 {{
                                     session.community_post_id
-                                        ? 'DÃ©jÃ  partagÃ©e'
+                                        ? 'Déjà partagée'
                                         : props.canShareToCommunity
                                           ? 'Partager'
                                           : 'Premium requis'
@@ -1656,7 +1656,7 @@ const sharePerformedSession = () => {
                             v-if="selectedShareSessionDateLabel"
                             class="mt-1 text-sm text-neutral-600"
                         >
-                            Validee le {{ selectedShareSessionDateLabel }}
+                            Validée le {{ selectedShareSessionDateLabel }}
                         </p>
                     </div>
                     <button
@@ -1672,7 +1672,7 @@ const sharePerformedSession = () => {
                     v-if="selectedShareSession.performances.length > 0"
                     class="mt-4 space-y-2 rounded-lg border border-neutral-200 p-3"
                 >
-                    <p class="text-sm font-medium">Performances partagees</p>
+                    <p class="text-sm font-medium">Performances partagées</p>
                     <div
                         v-for="performance in selectedShareSession.performances.slice(
                             0,
@@ -1703,7 +1703,7 @@ const sharePerformedSession = () => {
                             type="text"
                             :placeholder="
                                 selectedShareSession.workout_session_name ??
-                                'Seance partagee'
+                                'Séance partagée'
                             "
                             class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
                         />
@@ -1750,7 +1750,7 @@ const sharePerformedSession = () => {
                             {{
                                 shareSessionForm.processing
                                     ? 'Partage...'
-                                    : 'Partager la seance'
+                                    : 'Partager la séance'
                             }}
                         </button>
                         <button
