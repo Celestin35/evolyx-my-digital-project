@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PerformedSession extends Model
 {
@@ -37,5 +38,10 @@ class PerformedSession extends Model
     public function performances(): HasMany
     {
         return $this->hasMany(Performance::class);
+    }
+
+    public function communityPost(): HasOne
+    {
+        return $this->hasOne(CommunityPost::class);
     }
 }

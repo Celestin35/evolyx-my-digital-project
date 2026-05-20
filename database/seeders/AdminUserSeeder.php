@@ -16,6 +16,7 @@ class AdminUserSeeder extends Seeder
         DB::table('users')->upsert([
             [
                 'email' => 'admin@evolyx.local',
+                'email_verified_at' => $now,
                 'pseudo' => 'admin',
                 'password' => Hash::make('password'),
                 'first_name' => 'Admin',
@@ -30,6 +31,7 @@ class AdminUserSeeder extends Seeder
             ],
             [
                 'email' => 'demo@evolyx.local',
+                'email_verified_at' => $now,
                 'pseudo' => 'lina',
                 'password' => Hash::make('password'),
                 'first_name' => 'Lina',
@@ -44,6 +46,7 @@ class AdminUserSeeder extends Seeder
             ],
         ], ['email'], [
             'pseudo',
+            'email_verified_at',
             'password',
             'first_name',
             'sex',

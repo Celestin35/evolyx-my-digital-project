@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\RegistrationAccountValidationController;
 use App\Http\Controllers\CaloriesController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\SessionsController;
@@ -41,7 +42,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('nutrition/macros', [CaloriesController::class, 'updateMacros'])->name('nutrition.macros.update');
     Route::get('progress', [ProgressController::class, 'show'])->name('progress');
     Route::post('progress/weight-entries', [ProgressController::class, 'storeWeightEntry'])->name('progress.weight-entries.store');
-    Route::inertia('community', 'Community')->name('community');
+    Route::get('community', [CommunityController::class, 'index'])->name('community');
+    Route::post('community/posts', [CommunityController::class, 'store'])->name('community.posts.store');
+    Route::delete('community/posts/{communityPost}', [CommunityController::class, 'destroy'])->name('community.posts.destroy');
+    Route::get('community/users/search', [CommunityController::class, 'searchUsers'])->name('community.users.search');
+    Route::get('community/users/{user}', [CommunityController::class, 'showUser'])->name('community.users.show');
+    Route::post('community/users/{user}/follow', [CommunityController::class, 'followUser'])->name('community.users.follow');
+    Route::delete('community/users/{user}/follow', [CommunityController::class, 'unfollowUser'])->name('community.users.unfollow');
     Route::get('profile', [UserController::class, 'show'])->name('profile');
     Route::patch('profile/personal-info', [UserController::class, 'updatePersonalInfo'])->name('profile.personal-info.update');
     Route::patch('profile/sports', [UserController::class, 'updateSports'])->name('profile.sports.update');

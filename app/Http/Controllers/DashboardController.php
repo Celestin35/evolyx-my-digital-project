@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CommunityPost;
 use App\Models\PerformedSession;
 use App\Models\Performance;
 use App\Services\WeightEntriesService;
@@ -13,8 +14,11 @@ class DashboardController extends Controller
 {
     public function index(Request $request, WeightEntriesService $weightEntriesService): Response
     {
+        $user = $request->user();
+        $canAccessCommunity = $user->hasPremiumFeatures();
+
         $recentPerformedSessions = PerformedSession::query()
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $user->id)
             ->whereNotNull('completed_at')
             ->with('workoutSession:id,name')
             ->withCount('performances')
@@ -23,7 +27,7 @@ class DashboardController extends Controller
             ->get(['id', 'workout_session_id', 'performed_at', 'completed_at', 'notes']);
 
         $recentPerformances = Performance::query()
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $user->id)
             ->with([
                 'exercise:id,name,sport_id',
                 'exercise.sport:id,name',
@@ -40,8 +44,25 @@ class DashboardController extends Controller
                 'exercise_id',
             ]);
 
+        $followingIds = $canAccessCommunity
+            ? $user->following()->pluck('users.id')
+            : collect();
+
+        $communityFeed = $canAccessCommunity
+            ? CommunityPost::query()
+                ->whereIn('user_id', $followingIds)
+                ->with([
+                    'user:id,pseudo,first_name',
+                    'performedSession.workoutSession:id,name',
+                ])
+                ->latest('published_at')
+                ->latest()
+                ->limit(3)
+                ->get()
+            : collect();
+
         return Inertia::render('Dashboard', [
-            'weightEntries' => $weightEntriesService->getForUser($request->user()),
+            'weightEntries' => $weightEntriesService->getForUser($user),
             'recentPerformedSessions' => $recentPerformedSessions->map(fn ($session) => [
                 'id' => $session->id,
                 'workout_session_name' => $session->workoutSession?->name ?? 'Séance',
@@ -63,6 +84,14 @@ class DashboardController extends Controller
                     : null,
                 'exercise_name' => $performance->exercise?->name ?? 'Exercice',
                 'sport_name' => $performance->exercise?->sport?->name,
+            ]),
+            'canAccessCommunity' => $canAccessCommunity,
+            'communityFeed' => $communityFeed->map(fn (CommunityPost $post) => [
+                'id' => $post->id,
+                'author_name' => $post->user?->pseudo ?? $post->user?->first_name ?? 'Membre Evolyx',
+                'title' => $post->title ?? $post->performedSession?->workoutSession?->name ?? 'Séance partagée',
+                'workout_session_name' => $post->performedSession?->workoutSession?->name ?? 'Séance',
+                'published_at' => $post->published_at?->toISOString(),
             ]),
         ]);
     }

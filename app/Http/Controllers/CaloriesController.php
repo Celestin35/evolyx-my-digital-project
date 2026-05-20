@@ -31,7 +31,7 @@ class CaloriesController extends Controller
 
         $activeGoal = $user->goals->first();
         $activeSubscription = $user->subscriptions->first();
-        $hasPremiumFeatures = (bool) $activeSubscription?->subscriptionPlan?->premium_features;
+        $hasPremiumFeatures = $user->hasPremiumFeatures();
 
         $goalPlan = $activeGoal
             ? $caloriesCalculationService->calculateGoalPlan([
@@ -90,10 +90,7 @@ class CaloriesController extends Controller
                 ->limit(1),
         ]);
 
-        $activeSubscription = $user->subscriptions->first();
-        $hasPremiumFeatures = (bool) $activeSubscription?->subscriptionPlan?->premium_features;
-
-        if (! $hasPremiumFeatures) {
+        if (! $user->hasPremiumFeatures()) {
             return to_route('nutrition')->withErrors([
                 'macros' => 'Cette fonctionnalite est reservee a l abonnement Premium.',
             ]);
