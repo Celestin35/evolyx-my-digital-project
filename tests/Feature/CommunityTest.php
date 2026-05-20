@@ -127,7 +127,8 @@ test('a premium user cannot share another user performed session', function () {
             'performed_session_id' => $performedSession->id,
         ]);
 
-    $response->assertForbidden();
+    $response->assertRedirect();
+    $response->assertSessionHasErrors('community');
     $this->assertDatabaseMissing('community_posts', [
         'performed_session_id' => $performedSession->id,
     ]);

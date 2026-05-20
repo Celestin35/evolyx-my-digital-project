@@ -109,10 +109,13 @@ class CommunityController extends Controller
 
         $performedSession = PerformedSession::query()
             ->with('communityPost')
-            ->findOrFail($validatedData['performed_session_id']);
+            ->where('user_id', $user->id)
+            ->find($validatedData['performed_session_id']);
 
-        if ($performedSession->user_id !== $user->id) {
-            throw new AuthorizationException();
+        if (! $performedSession) {
+            return back()->withErrors([
+                'community' => 'Cette séance ne peut pas être partagée depuis votre compte.',
+            ]);
         }
 
         if ($performedSession->completed_at === null) {
