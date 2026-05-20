@@ -4,12 +4,74 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DemoDataSeeder extends Seeder
 {
     public function run(): void
     {
         $now = now();
+
+        $roles = DB::table('roles')->pluck('id', 'name');
+        DB::table('users')->upsert([
+            [
+                'email' => 'maya@evolyx.local',
+                'email_verified_at' => $now,
+                'pseudo' => 'maya_fit',
+                'password' => Hash::make('password'),
+                'first_name' => 'Maya',
+                'sex' => 'female',
+                'height' => 164,
+                'activity_level' => 'active',
+                'birth_date' => '1998-03-12',
+                'role_id' => $roles['user'],
+                'created_at' => $now,
+                'updated_at' => $now,
+                'deleted_at' => null,
+            ],
+            [
+                'email' => 'noah@evolyx.local',
+                'email_verified_at' => $now,
+                'pseudo' => 'noah_run',
+                'password' => Hash::make('password'),
+                'first_name' => 'Noah',
+                'sex' => 'male',
+                'height' => 181,
+                'activity_level' => 'active',
+                'birth_date' => '1994-09-04',
+                'role_id' => $roles['user'],
+                'created_at' => $now,
+                'updated_at' => $now,
+                'deleted_at' => null,
+            ],
+            [
+                'email' => 'zoe@evolyx.local',
+                'email_verified_at' => $now,
+                'pseudo' => 'zoe_lift',
+                'password' => Hash::make('password'),
+                'first_name' => 'Zoe',
+                'sex' => 'female',
+                'height' => 170,
+                'activity_level' => 'moderate',
+                'birth_date' => '1997-11-18',
+                'role_id' => $roles['user'],
+                'created_at' => $now,
+                'updated_at' => $now,
+                'deleted_at' => null,
+            ],
+        ], ['email'], [
+            'pseudo',
+            'email_verified_at',
+            'password',
+            'first_name',
+            'sex',
+            'height',
+            'activity_level',
+            'birth_date',
+            'role_id',
+            'updated_at',
+            'deleted_at',
+        ]);
 
         $users = DB::table('users')->pluck('id', 'email');
         $plans = DB::table('subscription_plans')->pluck('id', 'name');
@@ -61,6 +123,31 @@ class DemoDataSeeder extends Seeder
             ]
         );
 
+        foreach (['maya@evolyx.local', 'noah@evolyx.local', 'zoe@evolyx.local'] as $friendEmail) {
+            DB::table('subscriptions')->updateOrInsert(
+                ['user_id' => $users[$friendEmail], 'subscription_plan_id' => $plans['Premium']],
+                [
+                    'start_date' => now()->subDays(20),
+                    'end_date' => null,
+                    'is_active' => true,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]
+            );
+        }
+
+        foreach ([
+            ['follower_id' => $users['demo@evolyx.local'], 'followed_id' => $users['maya@evolyx.local']],
+            ['follower_id' => $users['demo@evolyx.local'], 'followed_id' => $users['noah@evolyx.local']],
+            ['follower_id' => $users['maya@evolyx.local'], 'followed_id' => $users['demo@evolyx.local']],
+            ['follower_id' => $users['zoe@evolyx.local'], 'followed_id' => $users['demo@evolyx.local']],
+        ] as $follow) {
+            DB::table('user_follows')->updateOrInsert($follow, [
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
         DB::table('goals')->updateOrInsert(
             ['user_id' => $users['demo@evolyx.local'], 'is_active' => true],
             [
@@ -79,6 +166,13 @@ class DemoDataSeeder extends Seeder
             'user_id' => $users['demo@evolyx.local'],
             'sport_id' => $sports['Fitness / musculation'],
         ]);
+
+        foreach (['maya@evolyx.local', 'noah@evolyx.local', 'zoe@evolyx.local'] as $friendEmail) {
+            DB::table('sport_user')->updateOrInsert([
+                'user_id' => $users[$friendEmail],
+                'sport_id' => $sports['Fitness / musculation'],
+            ]);
+        }
 
         $workoutSessions = [
             [
@@ -257,6 +351,116 @@ class DemoDataSeeder extends Seeder
                     );
                 }
             }
+        }
+
+        $communityDemoSessions = [
+            [
+                'email' => 'maya@evolyx.local',
+                'session' => 'Full body controle',
+                'description' => 'Travail propre sur les mouvements de base.',
+                'performed_at' => now()->subDays(2)->setTime(18, 15),
+                'post_title' => 'Full body solide',
+                'post_content' => 'Bonnes sensations, surtout sur le squat.',
+                'exercises' => [
+                    ['Squat', 68.50, 8],
+                    ['Tractions', 0.00, 7],
+                    ['Curl biceps', 12.00, 10],
+                ],
+            ],
+            [
+                'email' => 'noah@evolyx.local',
+                'session' => 'Renfo haut du corps',
+                'description' => 'Seance courte avant la reprise cardio.',
+                'performed_at' => now()->subDays(5)->setTime(12, 30),
+                'post_title' => 'Retour propre sur le haut du corps',
+                'post_content' => null,
+                'exercises' => [
+                    ['Tractions', 0.00, 9],
+                    ['Gainage', 0.00, 1],
+                ],
+            ],
+        ];
+
+        foreach ($communityDemoSessions as $communitySession) {
+            $friendUserId = $users[$communitySession['email']];
+
+            DB::table('workout_sessions')->updateOrInsert(
+                ['user_id' => $friendUserId, 'name' => $communitySession['session']],
+                [
+                    'description' => $communitySession['description'],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]
+            );
+
+            $friendWorkoutSessionId = DB::table('workout_sessions')
+                ->where('user_id', $friendUserId)
+                ->where('name', $communitySession['session'])
+                ->value('id');
+
+            DB::table('performed_sessions')->updateOrInsert(
+                [
+                    'user_id' => $friendUserId,
+                    'workout_session_id' => $friendWorkoutSessionId,
+                    'performed_at' => $communitySession['performed_at'],
+                ],
+                [
+                    'completed_at' => $communitySession['performed_at']->copy()->addMinutes(55),
+                    'notes' => null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]
+            );
+
+            $friendPerformedSessionId = DB::table('performed_sessions')
+                ->where('user_id', $friendUserId)
+                ->where('workout_session_id', $friendWorkoutSessionId)
+                ->where('performed_at', $communitySession['performed_at'])
+                ->value('id');
+
+            foreach ($communitySession['exercises'] as $exerciseIndex => [$exerciseName, $weight, $repetitions]) {
+                DB::table('workout_session_exercise')->updateOrInsert(
+                    [
+                        'workout_session_id' => $friendWorkoutSessionId,
+                        'exercise_id' => $exercises[$exerciseName],
+                    ],
+                    [
+                        'rest_time' => 90,
+                        'position' => $exerciseIndex + 1,
+                    ]
+                );
+
+                DB::table('performances')->updateOrInsert(
+                    [
+                        'performed_session_id' => $friendPerformedSessionId,
+                        'exercise_id' => $exercises[$exerciseName],
+                    ],
+                    [
+                        'performed_at' => $communitySession['performed_at'],
+                        'weight' => $weight,
+                        'repetitions' => $repetitions,
+                        'duration_minutes' => null,
+                        'distance_meters' => null,
+                        'user_id' => $friendUserId,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]
+                );
+            }
+
+            DB::table('community_posts')->updateOrInsert(
+                [
+                    'user_id' => $friendUserId,
+                    'performed_session_id' => $friendPerformedSessionId,
+                ],
+                [
+                    'title' => $communitySession['post_title'],
+                    'content' => $communitySession['post_content'],
+                    'published_at' => $communitySession['performed_at']->copy()->addMinutes(70),
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]
+            );
         }
 
         foreach ([

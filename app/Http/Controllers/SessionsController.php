@@ -68,6 +68,7 @@ class SessionsController extends Controller
                 'workoutSession:id,name',
                 'performances:id,performed_session_id,exercise_id,weight,repetitions,duration_minutes,distance_meters',
                 'performances.metricValues.metric:id,key,label,unit,value_type',
+                'communityPost:id,performed_session_id',
             ])
             ->orderBy('performed_at')
             ->get(['id', 'user_id', 'workout_session_id', 'performed_at', 'completed_at', 'notes']);
@@ -111,6 +112,7 @@ class SessionsController extends Controller
                 'workout_session_name' => $performedSession->workoutSession?->name,
                 'performed_at' => $performedSession->performed_at?->toISOString(),
                 'completed_at' => $performedSession->completed_at?->toISOString(),
+                'community_post_id' => $performedSession->communityPost?->id,
                 'notes' => $performedSession->notes,
                 'performances' => $performedSession->performances->map(fn ($performance) => [
                     'exercise_id' => $performance->exercise_id,
@@ -127,6 +129,7 @@ class SessionsController extends Controller
                     ]),
                 ])->values(),
             ]),
+            'canShareToCommunity' => $user->hasPremiumFeatures(),
         ]);
     }
 

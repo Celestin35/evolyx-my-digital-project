@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -33,10 +33,20 @@ type RecentPerformance = {
     sport_name: string | null;
 };
 
+type CommunityFeedPost = {
+    id: number;
+    author_name: string;
+    title: string;
+    workout_session_name: string;
+    published_at: string | null;
+};
+
 const props = defineProps<{
     weightEntries: WeightEntry[];
     recentPerformedSessions: RecentPerformedSession[];
     recentPerformances: RecentPerformance[];
+    canAccessCommunity: boolean;
+    communityFeed: CommunityFeedPost[];
 }>();
 
 const ads = useAds();
@@ -144,6 +154,19 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
 
     return details.length > 0 ? details.join(' - ') : 'Performance renseignee';
 };
+
+const formatCommunityPostDate = (date: string | null) => {
+    if (!date) {
+        return '';
+    }
+
+    return new Intl.DateTimeFormat('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(date));
+};
 </script>
 
 <template>
@@ -153,7 +176,7 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
         title="Tableau de bord"
         subtitle="Bienvenue sur votre tableau de bord personnel !"
     >
-        <section class="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-2">
+        <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div class="order-3 flex min-h-90 flex-col rounded-lg bg-white p-4">
                 <h2 class="mb-4 text-xl font-bold">Suivi du poids</h2>
                 <div class="min-h-0 flex-1">
@@ -208,6 +231,69 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
                 :enabled="ads.enabled"
                 class="order-2 lg:col-span-2"
             />
+
+            <div class="order-2 rounded-lg bg-white p-4 lg:col-span-2">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold">Feed communautaire</h2>
+                        <p class="mt-1 text-sm text-neutral-600">
+                            Les dernières publications des membres que vous
+                            suivez.
+                        </p>
+                    </div>
+                    <Link
+                        href="/community"
+                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90"
+                    >
+                        Ouvrir
+                    </Link>
+                </div>
+
+                <div
+                    v-if="canAccessCommunity && communityFeed.length > 0"
+                    class="mt-4 grid gap-3 md:grid-cols-3"
+                >
+                    <Link
+                        v-for="post in communityFeed"
+                        :key="post.id"
+                        href="/community"
+                        class="rounded-lg border border-neutral-200 bg-neutral-50 p-4 transition hover:border-evo-purple"
+                    >
+                        <p class="text-sm text-neutral-500">
+                            {{ post.author_name }}
+                            <span v-if="post.published_at">
+                                · {{ formatCommunityPostDate(post.published_at) }}
+                            </span>
+                        </p>
+                        <h3 class="mt-2 font-semibold">
+                            {{ post.title }}
+                        </h3>
+                        <p class="mt-2 text-sm text-neutral-600">
+                            {{ post.workout_session_name }}
+                        </p>
+                    </Link>
+                </div>
+
+                <div
+                    v-else
+                    class="mt-4 rounded-lg border border-dashed border-neutral-300 p-4"
+                >
+                    <p class="font-semibold">
+                        {{
+                            canAccessCommunity
+                                ? 'Votre feed est vide'
+                                : 'Feed réservé au Premium'
+                        }}
+                    </p>
+                    <p class="mt-1 text-sm text-neutral-600">
+                        {{
+                            canAccessCommunity
+                                ? 'Suivez des membres depuis la page Communauté pour remplir ce bloc.'
+                                : 'Passez Premium pour suivre des membres et voir leurs séances partagées.'
+                        }}
+                    </p>
+                </div>
+            </div>
 
             <div class="order-1 rounded-lg bg-white p-4 lg:col-span-2">
                 <div class="flex items-center justify-between gap-3">

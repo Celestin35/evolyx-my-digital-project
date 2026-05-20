@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
@@ -45,6 +46,7 @@ class User extends Authenticatable
     {
         return [
             'birth_date' => 'date',
+            'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'deleted_at' => 'datetime',
@@ -76,6 +78,11 @@ class User extends Authenticatable
         return $this->hasMany(Subscription::class);
     }
 
+    public function communityPosts(): HasMany
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
+
     public function workoutSessions(): HasMany
     {
         return $this->hasMany(WorkoutSession::class);
@@ -104,6 +111,40 @@ class User extends Authenticatable
     public function sports(): BelongsToMany
     {
         return $this->belongsToMany(Sport::class);
+    }
+
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_follows',
+            'follower_id',
+            'followed_id',
+        )->withTimestamps();
+    }
+
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_follows',
+            'followed_id',
+            'follower_id',
+        )->withTimestamps();
+    }
+
+    public function hasPremiumFeatures(): bool
+    {
+        return $this->subscriptions()
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>', now());
+            })
+            ->whereHas('subscriptionPlan', function ($query) {
+                $query->where('premium_features', true);
+            })
+            ->exists();
     }
 
     protected function age(): Attribute

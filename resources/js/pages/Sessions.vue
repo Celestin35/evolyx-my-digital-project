@@ -59,6 +59,7 @@ type PerformedSession = {
     workout_session_name: string | null;
     performed_at: string | null;
     completed_at: string | null;
+    community_post_id: number | null;
     notes: string | null;
     performances: Array<{
         exercise_id: number;
@@ -83,6 +84,7 @@ const props = defineProps<{
     availableExercises: AvailableExercise[];
     workoutSessions: WorkoutSession[];
     performedSessions: PerformedSession[];
+    canShareToCommunity: boolean;
 }>();
 
 const ads = useAds();
@@ -120,6 +122,7 @@ const activeLibraryTab = ref<'workout-sessions' | 'exercises'>(
 );
 const editingWorkoutSession = ref<WorkoutSession | null>(null);
 const editingExercise = ref<AvailableExercise | null>(null);
+const selectedShareSession = ref<PerformedSession | null>(null);
 
 const completeSessionForm = useForm({
     notes: '',
@@ -148,6 +151,11 @@ const customExerciseEditForm = useForm({
 
 const deleteWorkoutSessionForm = useForm({});
 const deleteExerciseForm = useForm({});
+const shareSessionForm = useForm({
+    performed_session_id: null as number | null,
+    title: '',
+    content: '',
+});
 
 const exerciseGroups = computed(() =>
     props.sports
@@ -169,6 +177,9 @@ const libraryErrorMessage = computed(
         page.props.errors?.workout_session ??
         page.props.errors?.exercise ??
         null,
+);
+const communityErrorMessage = computed(
+    () => page.props.errors?.community ?? null,
 );
 
 const calendarEvents = computed(() =>
@@ -273,6 +284,49 @@ const selectedPerformedSessionDateLabel = computed(() => {
         year: 'numeric',
     }).format(new Date(selectedPerformedSession.value.performed_at));
 });
+
+const selectedShareSessionDateLabel = computed(() => {
+    if (!selectedShareSession.value?.completed_at) {
+        return null;
+    }
+
+    return new Intl.DateTimeFormat('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    }).format(new Date(selectedShareSession.value.completed_at));
+});
+
+const formatPerformanceSummary = (
+    performance: PerformedSession['performances'][number],
+) => {
+    const details: string[] = [];
+    const metricValues = Object.entries(performance.metric_values ?? {});
+
+    if (metricValues.length > 0) {
+        metricValues.slice(0, 3).forEach(([metricKey, value]) => {
+            details.push(`${metricKey}: ${value}`);
+        });
+    } else {
+        if (performance.weight !== null) {
+            details.push(`${performance.weight.toFixed(2)} kg`);
+        }
+
+        if (performance.repetitions !== null) {
+            details.push(`${performance.repetitions} rep`);
+        }
+
+        if (performance.duration_minutes !== null) {
+            details.push(`${performance.duration_minutes.toFixed(2)} min`);
+        }
+
+        if (performance.distance_meters !== null) {
+            details.push(`${performance.distance_meters.toFixed(0)} m`);
+        }
+    }
+
+    return details.length > 0 ? details.join(' - ') : 'Performance renseignee';
+};
 
 const formatDateTimeLocal = (date: Date) => {
     const year = date.getFullYear();
@@ -586,6 +640,43 @@ const completeSelectedSession = () => {
                 onSuccess: closeCompleteSessionModal,
             },
         );
+};
+
+const openShareSessionModal = (session: PerformedSession) => {
+    if (
+        session.community_post_id ||
+        !session.completed_at ||
+        !props.canShareToCommunity
+    ) {
+        return;
+    }
+
+    selectedShareSession.value = session;
+    shareSessionForm.defaults({
+        performed_session_id: session.id,
+        title: '',
+        content: '',
+    });
+    shareSessionForm.reset();
+    shareSessionForm.clearErrors();
+};
+
+const closeShareSessionModal = () => {
+    selectedShareSession.value = null;
+    shareSessionForm.reset();
+    shareSessionForm.clearErrors();
+};
+
+const sharePerformedSession = () => {
+    if (!selectedShareSession.value) {
+        return;
+    }
+
+    shareSessionForm.performed_session_id = selectedShareSession.value.id;
+    shareSessionForm.post('/community/posts', {
+        preserveScroll: true,
+        onSuccess: closeShareSessionModal,
+    });
 };
 </script>
 
@@ -983,7 +1074,7 @@ const completeSelectedSession = () => {
                 </div>
             </section>
 
-            <section class="rounded-lg bg-white p-4">
+            <section id="dernieres-seances" class="rounded-lg bg-white p-4">
                 <h2 class="text-lg font-semibold">
                     Dernières séances effectuées
                 </h2>
@@ -1012,6 +1103,26 @@ const completeSelectedSession = () => {
                         <p class="mt-2 text-xs text-neutral-500">
                             {{ session.performances.length }} performance(s)
                         </p>
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                class="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:cursor-pointer hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="
+                                    shareSessionForm.processing ||
+                                    Boolean(session.community_post_id) ||
+                                    !props.canShareToCommunity
+                                "
+                                @click="openShareSessionModal(session)"
+                            >
+                                {{
+                                    session.community_post_id
+                                        ? 'DÃ©jÃ  partagÃ©e'
+                                        : props.canShareToCommunity
+                                          ? 'Partager'
+                                          : 'Premium requis'
+                                }}
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <p v-else class="mt-4 text-sm text-neutral-600">
@@ -1023,6 +1134,12 @@ const completeSelectedSession = () => {
                     class="mt-4 text-sm text-emerald-700"
                 >
                     {{ flashSuccessMessage }}
+                </p>
+                <p
+                    v-if="communityErrorMessage"
+                    class="mt-4 text-sm text-red-600"
+                >
+                    {{ communityErrorMessage }}
                 </p>
             </section>
         </div>
@@ -1513,6 +1630,137 @@ const completeSelectedSession = () => {
                                 : "Créer l'exercice"
                         }}
                     </button>
+                </div>
+            </section>
+        </div>
+
+        <div
+            v-if="selectedShareSession"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+        >
+            <section
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+            >
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-neutral-500">
+                            Publication communautaire
+                        </p>
+                        <h2 class="mt-1 text-lg font-semibold">
+                            {{
+                                selectedShareSession.workout_session_name ??
+                                'Seance'
+                            }}
+                        </h2>
+                        <p
+                            v-if="selectedShareSessionDateLabel"
+                            class="mt-1 text-sm text-neutral-600"
+                        >
+                            Validee le {{ selectedShareSessionDateLabel }}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        @click="closeShareSessionModal"
+                    >
+                        Fermer
+                    </button>
+                </div>
+
+                <div
+                    v-if="selectedShareSession.performances.length > 0"
+                    class="mt-4 space-y-2 rounded-lg border border-neutral-200 p-3"
+                >
+                    <p class="text-sm font-medium">Performances partagees</p>
+                    <div
+                        v-for="performance in selectedShareSession.performances.slice(
+                            0,
+                            4,
+                        )"
+                        :key="performance.exercise_id"
+                        class="text-sm text-neutral-700"
+                    >
+                        {{ formatPerformanceSummary(performance) }}
+                    </div>
+                    <p
+                        v-if="selectedShareSession.performances.length > 4"
+                        class="text-xs text-neutral-500"
+                    >
+                        +{{ selectedShareSession.performances.length - 4 }}
+                        autre(s) performance(s)
+                    </p>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <div class="space-y-2">
+                        <label for="share_title" class="block font-medium">
+                            Nom du post (optionnel)
+                        </label>
+                        <input
+                            id="share_title"
+                            v-model="shareSessionForm.title"
+                            type="text"
+                            :placeholder="
+                                selectedShareSession.workout_session_name ??
+                                'Seance partagee'
+                            "
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="shareSessionForm.errors.title"
+                            class="text-sm text-red-600"
+                        >
+                            {{ shareSessionForm.errors.title }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="share_content" class="block font-medium">
+                            Note (optionnel)
+                        </label>
+                        <textarea
+                            id="share_content"
+                            v-model="shareSessionForm.content"
+                            rows="3"
+                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                        />
+                        <p
+                            v-if="shareSessionForm.errors.content"
+                            class="text-sm text-red-600"
+                        >
+                            {{ shareSessionForm.errors.content }}
+                        </p>
+                    </div>
+
+                    <p
+                        v-if="communityErrorMessage"
+                        class="text-sm text-red-600"
+                    >
+                        {{ communityErrorMessage }}
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button
+                            type="button"
+                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="shareSessionForm.processing"
+                            @click="sharePerformedSession"
+                        >
+                            {{
+                                shareSessionForm.processing
+                                    ? 'Partage...'
+                                    : 'Partager la seance'
+                            }}
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
+                            @click="closeShareSessionModal"
+                        >
+                            Annuler
+                        </button>
+                    </div>
                 </div>
             </section>
         </div>
