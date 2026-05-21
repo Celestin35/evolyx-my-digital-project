@@ -2,6 +2,8 @@
 import AdPopup from '@/components/ads/AdPopup.vue';
 import DashboardHeader from '@/components/layout/DashboardHeader.vue';
 import DashboardSidebar from '@/components/layout/DashboardSidebar.vue';
+import MobileHeader from '@/components/layout/MobileHeader.vue';
+import MobileNavigation from '@/components/layout/MobileNavigation.vue';
 import { useAds } from '@/composables/useAds';
 
 defineProps<{
@@ -14,13 +16,15 @@ const ads = useAds();
 
 <template>
     <div
-        class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4 text-evo-black transition-colors dark:bg-neutral-950 dark:text-evo-white"
+        class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4 text-evo-black transition-colors dark:bg-neutral-950 dark:text-evo-white pb-24 lg:p-4"
     >
         <DashboardSidebar />
+        <MobileNavigation />
 
         <div
-            class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pr-4 [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)]"
+            class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)] lg:pr-4"
         >
+            <MobileHeader />
             <DashboardHeader :title="title" :subtitle="subtitle" />
             <main class="min-h-0 flex-1">
                 <slot />
