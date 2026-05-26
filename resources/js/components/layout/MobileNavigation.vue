@@ -9,11 +9,11 @@ import {
     progress,
     sessions,
 } from '@/routes';
-import appleSvg from '../../../images/icons/apple-purple.svg';
-import dashboardSvg from '../../../images/icons/dashboard-purple.svg';
-import graphicSvg from '../../../images/icons/graphic2-purple.svg';
-import sessionsSvg from '../../../images/icons/sessions-purple.svg';
-import usersSvg from '../../../images/icons/users-purple.svg';
+import communitySvg from '../../../images/icons/community.svg?raw';
+import evolutionSvg from '../../../images/icons/evolution.svg?raw';
+import homeSvg from '../../../images/icons/home.svg?raw';
+import nutritionSvg from '../../../images/icons/nutrition.svg?raw';
+import sessionsSvg from '../../../images/icons/sessions.svg?raw';
 
 const { isCurrentOrParentUrl } = useCurrentUrl();
 
@@ -21,32 +21,32 @@ const navItems = computed(() => [
     {
         label: 'Accueil',
         href: dashboard(),
-        icon: dashboardSvg,
+        icon: homeSvg,
         active: isCurrentOrParentUrl(dashboard()),
-    },
-    {
-        label: 'Communaute',
-        href: community(),
-        icon: usersSvg,
-        active: isCurrentOrParentUrl(community()),
-    },
-    {
-        label: 'Nutrition',
-        href: nutrition(),
-        icon: appleSvg,
-        active: isCurrentOrParentUrl(nutrition()),
-    },
-    {
-        label: 'Evolution',
-        href: progress(),
-        icon: graphicSvg,
-        active: isCurrentOrParentUrl(progress()),
     },
     {
         label: 'Seances',
         href: sessions(),
         icon: sessionsSvg,
         active: isCurrentOrParentUrl(sessions()),
+    },
+    {
+        label: 'Nutrition',
+        href: nutrition(),
+        icon: nutritionSvg,
+        active: isCurrentOrParentUrl(nutrition()),
+    },
+    {
+        label: 'Evolution',
+        href: progress(),
+        icon: evolutionSvg,
+        active: isCurrentOrParentUrl(progress()),
+    },
+    {
+        label: 'Communaute',
+        href: community(),
+        icon: communitySvg,
+        active: isCurrentOrParentUrl(community()),
     },
 ]);
 </script>
@@ -62,18 +62,20 @@ const navItems = computed(() => [
                     v-for="item in navItems"
                     :key="item.label"
                     :href="item.href"
-                    class="flex min-w-0 flex-col items-center justify-end gap-1 text-center text-[9px] leading-none font-bold text-evo-black"
+                    class="flex min-w-0 flex-col items-center justify-end gap-1 text-center text-[9px] leading-none font-bold text-black"
                     :aria-current="item.active ? 'page' : undefined"
                 >
                     <span
                         class="flex h-8 w-8 items-center justify-center rounded-md"
-                        :class="item.active ? 'bg-evo-purple' : ''"
                     >
-                        <img
-                            :src="item.icon"
-                            alt=""
-                            class="max-h-7 max-w-7 object-contain"
-                            :class="item.active ? 'brightness-0 invert' : ''"
+                        <span
+                            :class="[
+                                item.active
+                                    ? 'text-evo-orange'
+                                    : 'text-evo-purple',
+                                '[&_svg]:h-7 [&_svg]:w-7',
+                            ]"
+                            v-html="item.icon"
                         />
                     </span>
                     <span class="max-w-full truncate">{{ item.label }}</span>

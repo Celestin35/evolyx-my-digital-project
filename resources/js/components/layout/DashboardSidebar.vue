@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Settings } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import {
     community,
     dashboard,
@@ -10,14 +11,62 @@ import {
     progress,
     sessions,
 } from '@/routes';
+import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editProfile } from '@/routes/profile';
-import appleSvg from '../../../images/icons/apple-purple.svg';
-import dashboardSvg from '../../../images/icons/dashboard-purple.svg';
-import exitSvg from '../../../images/icons/exit-purple.svg';
-import graphicSvg from '../../../images/icons/graphic2-purple.svg';
-import sessionsSvg from '../../../images/icons/sessions-purple.svg';
-import usersSvg from '../../../images/icons/users-purple.svg';
+import { show as showTwoFactor } from '@/routes/two-factor';
+import { edit as editPassword } from '@/routes/user-password';
+import communitySvg from '../../../images/icons/community.svg?raw';
+import evolutionSvg from '../../../images/icons/evolution.svg?raw';
+import homeSvg from '../../../images/icons/home.svg?raw';
+import logoutSvg from '../../../images/icons/logout.svg?raw';
+import nutritionSvg from '../../../images/icons/nutrition.svg?raw';
+import sessionsSvg from '../../../images/icons/sessions.svg?raw';
+import settingsSvg from '../../../images/icons/settings.svg?raw';
 import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
+
+const { isCurrentOrParentUrl } = useCurrentUrl();
+
+const isSettingsActive = computed(() =>
+    [
+        editProfile(),
+        editPassword(),
+        showTwoFactor(),
+        editAppearance(),
+    ].some((href) => isCurrentOrParentUrl(href)),
+);
+
+const navItems = computed(() => [
+    {
+        label: 'Accueil',
+        href: dashboard(),
+        icon: homeSvg,
+        active: isCurrentOrParentUrl(dashboard()),
+    },
+    {
+        label: 'Seances',
+        href: sessions(),
+        icon: sessionsSvg,
+        active: isCurrentOrParentUrl(sessions()),
+    },
+    {
+        label: 'Nutrition',
+        href: nutrition(),
+        icon: nutritionSvg,
+        active: isCurrentOrParentUrl(nutrition()),
+    },
+    {
+        label: 'Evolution',
+        href: progress(),
+        icon: evolutionSvg,
+        active: isCurrentOrParentUrl(progress()),
+    },
+    {
+        label: 'Communaute',
+        href: community(),
+        icon: communitySvg,
+        active: isCurrentOrParentUrl(community()),
+    },
+]);
 </script>
 
 <template>
@@ -35,50 +84,52 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
 
             <nav class="flex flex-col justify-center gap-4 text-lg font-medium">
                 <Link
-                    :href="dashboard()"
-                    class="hover:color-evo-orange flex items-center gap-4"
+                    v-for="item in navItems"
+                    :key="item.label"
+                    :href="item.href"
+                    class="group flex items-center gap-4 text-black"
+                    :aria-current="item.active ? 'page' : undefined"
                 >
-                    <img
-                        :src="dashboardSvg"
-                        alt="Dashboard"
-                        class="h-auto w-7"
+                    <span
+                        :class="[
+                            item.active
+                                ? 'text-evo-orange'
+                                : 'text-evo-purple lg:group-hover:text-evo-orange',
+                            '[&_svg]:h-auto [&_svg]:w-7',
+                        ]"
+                        v-html="item.icon"
                     />
-                    <p>Accueil</p>
-                </Link>
-                <Link :href="sessions()" class="flex items-center gap-4">
-                    <img :src="sessionsSvg" alt="Séances" class="h-auto w-7" />
-                    <p>Séances</p>
-                </Link>
-                <Link :href="nutrition()" class="flex items-center gap-4">
-                    <img :src="appleSvg" alt="Nutrition" class="h-auto w-7" />
-                    <p>Nutrition</p>
-                </Link>
-                <Link :href="progress()" class="flex items-center gap-4">
-                    <img :src="graphicSvg" alt="Évolution" class="h-auto w-7" />
-                    <p>Évolution</p>
-                </Link>
-                <Link :href="community()" class="flex items-center gap-4">
-                    <img :src="usersSvg" alt="Communauté" class="h-auto w-7" />
-                    <p>Communauté</p>
+                    <p>{{ item.label }}</p>
                 </Link>
             </nav>
         </div>
         <div class="w-full">
             <Link
                 :href="editProfile()"
-                class="mb-4 flex items-center gap-4 text-left text-sm font-medium"
+                class="group mb-4 flex items-center gap-4 text-left text-sm font-medium text-black"
             >
-                <Settings class="h-auto w-7 text-evo-purple" />
-                <span>Paramètres</span>
+                <span
+                    :class="[
+                        isSettingsActive
+                            ? 'text-evo-orange'
+                            : 'text-evo-purple lg:group-hover:text-evo-orange',
+                        '[&_svg]:h-auto [&_svg]:w-7',
+                    ]"
+                    v-html="settingsSvg"
+                />
+                <span>Parametres</span>
             </Link>
             <Link
                 :href="logout()"
                 method="post"
                 as="button"
-                class="flex items-center gap-4 text-left text-sm font-medium hover:cursor-pointer"
+                class="group flex items-center gap-4 text-left text-sm font-medium text-black hover:cursor-pointer"
             >
-                <img :src="exitSvg" alt="Déconnexion" class="h-auto w-7" />
-                <span>Déconnexion</span>
+                <span
+                    class="text-evo-purple lg:group-hover:text-evo-orange [&_svg]:h-auto [&_svg]:w-7"
+                    v-html="logoutSvg"
+                />
+                <span>Deconnexion</span>
             </Link>
         </div>
     </aside>

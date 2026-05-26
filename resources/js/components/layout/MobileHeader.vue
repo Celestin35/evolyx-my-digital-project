@@ -1,10 +1,27 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Settings } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { home, profile } from '@/routes';
+import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editProfile } from '@/routes/profile';
-import userSvg from '../../../images/icons/user2-purple.svg';
+import { show as showTwoFactor } from '@/routes/two-factor';
+import { edit as editPassword } from '@/routes/user-password';
+import profileSvg from '../../../images/icons/profile.svg?raw';
+import settingsSvg from '../../../images/icons/settings.svg?raw';
 import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
+
+const { isCurrentOrParentUrl } = useCurrentUrl();
+
+const isSettingsActive = computed(() =>
+    [
+        editProfile(),
+        editPassword(),
+        showTwoFactor(),
+        editAppearance(),
+    ].some((href) => isCurrentOrParentUrl(href)),
+);
+const isProfileActive = computed(() => isCurrentOrParentUrl(profile()));
 </script>
 
 <template>
@@ -22,18 +39,32 @@ import logoEvolyxOrange from '../../../images/logo/logo-evolyx-orange.svg';
         <div class="flex items-start gap-2">
             <Link
                 :href="editProfile()"
-                class="flex w-8 flex-col items-center gap-0.5 text-[9px] leading-none font-bold"
+                class="flex w-8 flex-col items-center gap-0.5 text-[9px] leading-none font-bold text-black"
                 aria-label="Parametres"
             >
-                <Settings class="h-5 w-5 text-evo-purple" />
+                <span
+                    :class="[
+                        isSettingsActive
+                            ? 'text-evo-orange'
+                            : 'text-evo-purple',
+                        '[&_svg]:h-5 [&_svg]:w-5',
+                    ]"
+                    v-html="settingsSvg"
+                />
                 <span>Reglages</span>
             </Link>
             <Link
                 :href="profile()"
-                class="flex w-8 flex-col items-center gap-0.5 text-[9px] leading-none font-bold"
+                class="flex w-8 flex-col items-center gap-0.5 text-[9px] leading-none font-bold text-black"
                 aria-label="Profil"
             >
-                <img :src="userSvg" alt="" class="h-5 w-5 object-contain" />
+                <span
+                    :class="[
+                        isProfileActive ? 'text-evo-orange' : 'text-evo-purple',
+                        '[&_svg]:h-5 [&_svg]:w-5',
+                    ]"
+                    v-html="profileSvg"
+                />
                 <span>Profil</span>
             </Link>
         </div>
