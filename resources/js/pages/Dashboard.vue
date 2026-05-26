@@ -183,7 +183,7 @@ const formatCommunityPostDate = (date: string | null) => {
         subtitle="Bienvenue sur votre tableau de bord personnel !"
     >
         <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div class="order-3 flex min-h-90 flex-col rounded-lg bg-white p-4">
+            <div class="order-3 flex min-h-90 flex-col rounded-lg bg-evo-white p-4">
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Suivi du poids</h2>
                     <Button :as="Link" href="/progress" class="px-3 py-1.5 text-sm">
@@ -195,7 +195,7 @@ const formatCommunityPostDate = (date: string | null) => {
                 </div>
             </div>
 
-            <div class="order-3 min-h-90 rounded-lg bg-white p-4">
+            <div class="order-3 min-h-90 rounded-lg bg-evo-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Dernieres performances</h2>
                     <Button :as="Link" href="/progress" class="px-3 py-1.5 text-sm">
@@ -224,7 +224,7 @@ const formatCommunityPostDate = (date: string | null) => {
                             </p>
                         </div>
                         <p
-                            class="rounded-lg border border-evo-orange bg-white px-4 py-3 text-center text-sm font-medium text-evo-orange sm:min-w-40"
+                            class="rounded-lg border border-evo-orange bg-evo-white px-4 py-3 text-center text-sm font-medium text-evo-orange sm:min-w-40"
                         >
                             {{ formatPerformanceDetails(performance) }}
                         </p>
@@ -241,7 +241,7 @@ const formatCommunityPostDate = (date: string | null) => {
                 class="order-2 lg:col-span-2"
             />
 
-            <div class="order-2 rounded-lg bg-white p-4 lg:col-span-2">
+            <div class="order-2 rounded-lg bg-evo-white p-4 lg:col-span-2">
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold">Feed communautaire</h2>
@@ -299,7 +299,7 @@ const formatCommunityPostDate = (date: string | null) => {
                 </div>
             </div>
 
-            <div class="order-1 rounded-lg bg-white p-4 lg:col-span-2">
+            <div class="order-1 rounded-lg bg-evo-white p-4 lg:col-span-2">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold">Dernières séances</h2>
@@ -320,7 +320,7 @@ const formatCommunityPostDate = (date: string | null) => {
                     >
                         <div class="flex items-start gap-3">
                             <div
-                                class="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border border-evo-orange bg-white text-evo-orange"
+                                class="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border border-evo-orange bg-evo-white text-evo-orange"
                             >
                                 <span class="text-lg leading-none font-bold">
                                     {{ session.dayLabel }}

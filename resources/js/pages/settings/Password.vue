@@ -30,7 +30,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
         <h1 class="sr-only">Paramètres du mot de passe</h1>
 
         <SettingsLayout>
-            <div class="rounded-lg bg-white p-4 dark:bg-neutral-900">
+            <div class="rounded-lg bg-evo-white p-4 dark:bg-neutral-900">
                 <div class="space-y-4">
                     <Heading
                         variant="small"
@@ -57,7 +57,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             <PasswordInput
                                 id="current_password"
                                 name="current_password"
-                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                class="evo-input mt-1 block text-evo-black"
                                 autocomplete="current-password"
                                 placeholder="Mot de passe actuel"
                             />
@@ -69,7 +69,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             <PasswordInput
                                 id="password"
                                 name="password"
-                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                class="evo-input mt-1 block text-evo-black"
                                 autocomplete="new-password"
                                 placeholder="Nouveau mot de passe"
                             />
@@ -83,7 +83,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             <PasswordInput
                                 id="password_confirmation"
                                 name="password_confirmation"
-                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                class="evo-input mt-1 block text-evo-black"
                                 autocomplete="new-password"
                                 placeholder="Confirmer le mot de passe"
                             />

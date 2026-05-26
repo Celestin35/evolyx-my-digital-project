@@ -32,7 +32,7 @@ defineProps<{
 
             <main class="flex min-h-svh items-center justify-center p-4">
                 <div class="w-full max-w-2xl">
-                    <div class="rounded-xl border border-evo-black/10 bg-white/78 p-4 shadow-[0_24px_80px_rgba(4,3,5,0.10)] backdrop-blur">
+                    <div class="rounded-xl border border-evo-black/10 bg-evo-white/78 p-4 shadow-[0_24px_80px_rgba(4,3,5,0.10)] backdrop-blur">
                         <div class="mb-4 space-y-2">
                             <p class="font-michroma text-xs uppercase tracking-[0.18em] text-evo-purple">
                                 Evolyx

@@ -2,7 +2,7 @@
 import type { PrimitiveProps } from "reka-ui"
 import type { HTMLAttributes } from "vue"
 import type { ButtonVariants } from "."
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useAttrs, watch } from "vue"
 import { Primitive } from "reka-ui"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "."
@@ -18,26 +18,25 @@ const props = withDefaults(defineProps<Props>(), {
   as: "button",
 })
 
+const attrs = useAttrs()
 const buttonRef = ref<HTMLElement | { $el: HTMLElement } | null>(null)
 const currentTextRef = ref<HTMLElement | null>(null)
 const nextTextRef = ref<HTMLElement | null>(null)
 
 let tlHover: gsap.core.Timeline | null = null
 
-function playHover() {
-  if (props.disableAnimation) return
+const isDisabled = computed(() => attrs.disabled === "" || attrs.disabled === true || attrs.disabled === "true")
+const isAnimationDisabled = computed(() => props.disableAnimation || isDisabled.value)
 
-  tlHover?.play()
+function destroyHoverTimeline() {
+  tlHover?.kill()
+  tlHover = null
 }
 
-function reverseHover() {
-  if (props.disableAnimation) return
+function setupHoverTimeline() {
+  destroyHoverTimeline()
 
-  tlHover?.reverse()
-}
-
-onMounted(() => {
-  if (props.disableAnimation) return
+  if (isAnimationDisabled.value) return
 
   const currentText = currentTextRef.value
   const nextText = nextTextRef.value
@@ -64,11 +63,31 @@ onMounted(() => {
       },
       "<",
     )
+}
+
+function playHover() {
+  if (isAnimationDisabled.value) return
+
+  tlHover?.play()
+}
+
+function reverseHover() {
+  if (isAnimationDisabled.value) return
+
+  tlHover?.reverse()
+}
+
+onMounted(() => {
+  setupHoverTimeline()
+})
+
+watch(isAnimationDisabled, async () => {
+  await nextTick()
+  setupHoverTimeline()
 })
 
 onBeforeUnmount(() => {
-  tlHover?.kill()
-  tlHover = null
+  destroyHoverTimeline()
 })
 </script>
 
@@ -84,7 +103,7 @@ onBeforeUnmount(() => {
     @mouseenter="playHover"
     @mouseleave="reverseHover"
   >
-    <span v-if="disableAnimation" class="relative z-10 flex items-center justify-center gap-2">
+    <span v-if="isAnimationDisabled" class="relative z-10 flex items-center justify-center gap-2">
       <slot />
     </span>
     <span v-else class="relative z-10 grid overflow-hidden">

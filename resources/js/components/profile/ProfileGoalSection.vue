@@ -199,7 +199,7 @@ const toggleGoalEditor = () => {
 </script>
 
 <template>
-    <div class="self-start w-full rounded-lg bg-white p-4">
+    <div class="self-start w-full rounded-lg bg-evo-white p-4">
         <button
             type="button"
             class="flex w-full items-center justify-between text-left hover:cursor-pointer"
@@ -246,7 +246,7 @@ const toggleGoalEditor = () => {
 
                 <div
                     v-if="hasActiveGoal"
-                    class="rounded-lg border border-neutral-200 p-4"
+                    class="rounded-lg border border-neutral-200 p-4 bg-white"
                 >
                     <p class="font-medium">Objectif en cours</p>
                     <div class="mt-3 space-y-2 text-sm text-neutral-700">

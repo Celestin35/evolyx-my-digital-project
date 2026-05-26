@@ -71,6 +71,7 @@ const ads = useAds();
 
 const selectedRange = ref<ProgressRange>('3m');
 const selectedPerformanceRange = ref<ProgressRange>('3m');
+const activeProgressTab = ref<'weight' | 'performance'>('weight');
 const selectedSportId = ref<number | 'all'>('all');
 const selectedExerciseId = ref<number | null>(null);
 const selectedMetric = ref<PerformanceMetric>('');
@@ -458,8 +459,47 @@ const submitWeightEntry = () => {
         title="Progression"
         subtitle="Suivez votre poids et ajoutez vos nouvelles mesures."
     >
-        <div class="flex flex-col gap-4">
-            <section class="order-1 rounded-lg bg-white p-4">
+        <div class="space-y-4">
+            <section class="rounded-lg bg-evo-white p-4">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-semibold">Fenêtres d'évolution</h2>
+                        <p class="mt-1 text-sm text-neutral-600">
+                            Consultez vos mesures corporelles ou vos performances sportives.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2 border-b border-neutral-200">
+                    <button
+                        type="button"
+                        class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
+                        :class="
+                            activeProgressTab === 'weight'
+                                ? 'border-evo-orange text-evo-black'
+                                : 'border-transparent text-neutral-500 hover:text-evo-black'
+                        "
+                        @click="activeProgressTab = 'weight'"
+                    >
+                        Evolution du poids
+                    </button>
+                    <button
+                        type="button"
+                        class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
+                        :class="
+                            activeProgressTab === 'performance'
+                                ? 'border-evo-orange text-evo-black'
+                                : 'border-transparent text-neutral-500 hover:text-evo-black'
+                        "
+                        @click="activeProgressTab = 'performance'"
+                    >
+                        Performances
+                    </button>
+                </div>
+            </section>
+
+            <template v-if="activeProgressTab === 'weight'">
+            <section class="rounded-lg bg-evo-white p-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-semibold">Courbe de poids</h2>
@@ -473,11 +513,11 @@ const submitWeightEntry = () => {
                             v-for="option in rangeOptions"
                             :key="option.value"
                             type="button"
-                            class="rounded-full border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
+                            class="rounded-xl border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
                             :class="
                                 selectedRange === option.value
-                                    ? 'border-evo-black bg-evo-black text-evo-white'
-                                    : 'border-neutral-300 text-evo-black hover:bg-neutral-100'
+                                    ? 'bg-evo-orange text-evo-white border-neutral-300'
+                                    : 'bg-evo-purple text-evo-white border-neutral-300'
                             "
                             @click="selectedRange = option.value"
                         >
@@ -486,7 +526,7 @@ const submitWeightEntry = () => {
                     </div>
                 </div>
 
-                <div class="mt-4 h-[320px]">
+                <div class="mt-4 h-80">
                     <WeightChart
                         v-if="filteredWeightEntries.length > 0"
                         :key="chartKey"
@@ -502,7 +542,7 @@ const submitWeightEntry = () => {
                 </div>
             </section>
 
-            <section class="order-4 rounded-lg bg-white p-4">
+            <section class="rounded-lg bg-evo-white p-4">
                 <h2 class="text-lg font-semibold">
                     Ajouter une entrée de poids
                 </h2>
@@ -523,7 +563,7 @@ const submitWeightEntry = () => {
                             min="20"
                             max="500"
                             step="0.01"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="weightEntryForm.errors.weight"
@@ -542,7 +582,7 @@ const submitWeightEntry = () => {
                             v-model="weightEntryForm.entry_date"
                             type="date"
                             :max="todayDate"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="weightEntryForm.errors.entry_date"
@@ -563,7 +603,7 @@ const submitWeightEntry = () => {
                             min="2"
                             max="75"
                             step="0.01"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="weightEntryForm.errors.body_fat"
@@ -597,8 +637,10 @@ const submitWeightEntry = () => {
                     </p>
                 </div>
             </section>
+            </template>
 
-            <section class="order-2 rounded-lg bg-white p-4">
+            <template v-else>
+            <section class="rounded-lg bg-evo-white p-4">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-semibold">
@@ -621,7 +663,7 @@ const submitWeightEntry = () => {
                         <select
                             id="performance_sport"
                             v-model="selectedSportId"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                             @change="onSportChange"
                         >
                             <option value="all">Tous les sports</option>
@@ -645,7 +687,7 @@ const submitWeightEntry = () => {
                         <select
                             id="performance_exercise"
                             v-model="selectedExerciseId"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                             @change="onExerciseChange"
                         >
                             <option :value="null">
@@ -671,7 +713,7 @@ const submitWeightEntry = () => {
                         <select
                             id="performance_metric"
                             v-model="selectedMetric"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         >
                             <option
                                 v-for="metric in availableMetricOptions"
@@ -690,11 +732,11 @@ const submitWeightEntry = () => {
                                 v-for="option in rangeOptions"
                                 :key="option.value"
                                 type="button"
-                                class="rounded-full border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
+                                class="rounded-xl border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
                                 :class="
                                     selectedPerformanceRange === option.value
-                                        ? 'border-evo-black bg-evo-black text-evo-white'
-                                        : 'border-neutral-300 text-evo-black hover:bg-neutral-100'
+                                        ? 'bg-evo-orange text-evo-white border-neutral-300'
+                                        : 'bg-evo-purple text-evo-white border-neutral-300'
                                 "
                                 @click="selectedPerformanceRange = option.value"
                             >
@@ -704,7 +746,7 @@ const submitWeightEntry = () => {
                     </div>
                 </div>
 
-                <div class="mt-4 h-[320px]">
+                <div class="mt-4 h-80">
                     <PerformanceChart
                         v-if="chartPerformanceEntries.length > 0"
                         :key="performanceChartKey"
@@ -723,9 +765,9 @@ const submitWeightEntry = () => {
                 </div>
             </section>
 
-            <AdInlineSlot :enabled="ads.enabled" class="order-3" />
+            <AdInlineSlot :enabled="ads.enabled" />
 
-            <section class="order-5 rounded-lg bg-white p-4">
+            <section class="rounded-lg bg-evo-white p-4">
                 <h2 class="text-lg font-semibold">Dernières performances</h2>
 
                 <div
@@ -735,7 +777,7 @@ const submitWeightEntry = () => {
                     <div
                         v-for="performance in recentPerformances"
                         :key="performance.id"
-                        class="rounded-lg border border-neutral-200 p-4"
+                        class="rounded-lg border border-neutral-200 p-4 bg-white"
                     >
                         <div class="flex items-start justify-between gap-3">
                             <div>
@@ -746,7 +788,7 @@ const submitWeightEntry = () => {
                                     {{ performance.sport_name ?? 'Sport' }}
                                 </p>
                             </div>
-                            <p class="text-sm text-neutral-500">
+                            <p class="text-sm text-evo-orange">
                                 {{ performance.dateLabel }}
                             </p>
                         </div>
@@ -775,6 +817,7 @@ const submitWeightEntry = () => {
                     Aucune performance enregistree pour le moment.
                 </p>
             </section>
+            </template>
         </div>
     </AppLayout>
 </template>

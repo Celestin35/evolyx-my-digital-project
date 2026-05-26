@@ -133,7 +133,7 @@ const savePersonalInfo = () => {
 </script>
 
 <template>
-    <div class="w-full self-start rounded-lg bg-white p-4">
+    <div class="w-full self-start rounded-lg bg-evo-white p-4">
         <button
             type="button"
             class="flex w-full items-center justify-between text-left hover:cursor-pointer"
@@ -206,7 +206,7 @@ const savePersonalInfo = () => {
                             id="personal_first_name"
                             v-model="personalInfoForm.first_name"
                             type="text"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p v-if="personalInfoForm.errors.first_name" class="text-sm text-red-600">
                             {{ personalInfoForm.errors.first_name }}
@@ -218,7 +218,7 @@ const savePersonalInfo = () => {
                         <select
                             id="personal_sex"
                             v-model="personalInfoForm.sex"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         >
                             <option v-for="option in sexOptions" :key="option.value" :value="option.value">
                                 {{ option.label }}
@@ -237,7 +237,7 @@ const savePersonalInfo = () => {
                             type="number"
                             min="50"
                             max="300"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p v-if="personalInfoForm.errors.height" class="text-sm text-red-600">
                             {{ personalInfoForm.errors.height }}
@@ -251,7 +251,7 @@ const savePersonalInfo = () => {
                             v-model="personalInfoForm.birth_date"
                             type="date"
                             :max="minimumBirthDate"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p v-if="personalInfoForm.errors.birth_date" class="text-sm text-red-600">
                             {{ personalInfoForm.errors.birth_date }}
@@ -265,7 +265,7 @@ const savePersonalInfo = () => {
                         <select
                             id="personal_activity_level"
                             v-model="personalInfoForm.activity_level"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         >
                             <option
                                 v-for="option in activityLevelOptions"

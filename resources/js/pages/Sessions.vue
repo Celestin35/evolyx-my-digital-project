@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
@@ -124,6 +124,12 @@ const activeLibraryTab = ref<'workout-sessions' | 'exercises'>(
 const editingWorkoutSession = ref<WorkoutSession | null>(null);
 const editingExercise = ref<AvailableExercise | null>(null);
 const selectedShareSession = ref<PerformedSession | null>(null);
+const isMobileCalendar = ref(false);
+const mobileCalendarMediaQuery = '(max-width: 767px)';
+
+let mobileCalendarQuery: MediaQueryList | null = null;
+let onMobileCalendarChange: ((event: MediaQueryListEvent) => void) | null =
+    null;
 
 const completeSessionForm = useForm({
     notes: '',
@@ -201,6 +207,20 @@ const calendarEvents = computed(() =>
                 performedSessionId: session.id,
             };
         }),
+);
+const calendarActiveView = computed(() =>
+    isMobileCalendar.value ? 'day' : 'week',
+);
+const calendarDisabledViews = computed(() =>
+    isMobileCalendar.value
+        ? ['years', 'year', 'month']
+        : ['years', 'year'],
+);
+const calendarHeight = computed(() =>
+    isMobileCalendar.value ? '430px' : '500px',
+);
+const calendarKey = computed(() =>
+    isMobileCalendar.value ? 'sessions-calendar-mobile' : 'sessions-calendar',
 );
 
 const recentCompletedSessions = computed(() =>
@@ -679,6 +699,25 @@ const sharePerformedSession = () => {
         onSuccess: closeShareSessionModal,
     });
 };
+
+onMounted(() => {
+    mobileCalendarQuery = window.matchMedia(mobileCalendarMediaQuery);
+    isMobileCalendar.value = mobileCalendarQuery.matches;
+
+    onMobileCalendarChange = (event) => {
+        isMobileCalendar.value = event.matches;
+    };
+
+    mobileCalendarQuery.addEventListener('change', onMobileCalendarChange);
+});
+
+onBeforeUnmount(() => {
+    if (!mobileCalendarQuery || !onMobileCalendarChange) {
+        return;
+    }
+
+    mobileCalendarQuery.removeEventListener('change', onMobileCalendarChange);
+});
 </script>
 
 <template>
@@ -690,7 +729,7 @@ const sharePerformedSession = () => {
     >
         <section
             v-if="!hasConfiguredSports"
-            class="mb-4 rounded-lg border border-dashed border-neutral-300 bg-white p-4"
+            class="mb-4 rounded-lg border border-dashed border-neutral-300 bg-evo-white p-4"
         >
             <p class="text-sm font-medium text-evo-black">
                 Aucun sport configuré.
@@ -702,7 +741,7 @@ const sharePerformedSession = () => {
         </section>
 
         <div class="space-y-4">
-            <section class="rounded-lg bg-white p-4">
+            <section class="rounded-lg bg-evo-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-lg font-semibold">
                         Calendrier des séances
@@ -713,23 +752,25 @@ const sharePerformedSession = () => {
                 </div>
 
                 <div
-                    class="mt-4 overflow-hidden rounded-lg border border-neutral-200"
+                    class="sessions-calendar mt-4 overflow-hidden rounded-xl border border-neutral-200"
                 >
                     <VueCal
+                        :key="calendarKey"
                         locale="fr"
-                        active-view="month"
+                        class="evolyx-calendar"
+                        :active-view="calendarActiveView"
                         :time="false"
-                        :disable-views="['years', 'year']"
+                        :disable-views="calendarDisabledViews"
                         events-on-month-view
                         :events="calendarEvents"
                         @cell-click="onCalendarCellClick"
                         @event-click="onCalendarEventClick"
-                        style="height: 500px"
+                        :style="{ height: calendarHeight }"
                     />
                 </div>
             </section>
 
-            <section class="rounded-lg bg-white p-4">
+            <section class="rounded-lg bg-evo-white p-4">
                 <h2 class="text-lg font-semibold">
                     Ajouter une séance au calendrier
                 </h2>
@@ -752,7 +793,7 @@ const sharePerformedSession = () => {
                         <select
                             id="performed_workout_session"
                             v-model="performedSessionForm.workout_session_id"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input px-3 text-sm sm:px-4 sm:text-base"
                         >
                             <option value="">Sélectionner une séance</option>
                             <option
@@ -781,7 +822,7 @@ const sharePerformedSession = () => {
                             id="performed_at"
                             v-model="performedSessionForm.performed_at"
                             type="datetime-local"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="performedSessionForm.errors.performed_at"
@@ -799,7 +840,7 @@ const sharePerformedSession = () => {
                             id="performed_notes"
                             v-model="performedSessionForm.notes"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="performedSessionForm.errors.notes"
@@ -827,7 +868,7 @@ const sharePerformedSession = () => {
 
             <AdInlineSlot :enabled="ads.enabled" />
 
-            <section class="rounded-lg bg-white p-4">
+            <section class="rounded-lg bg-evo-white p-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-semibold">Bibliothèque</h2>
@@ -897,7 +938,7 @@ const sharePerformedSession = () => {
                         <div
                             v-for="session in workoutSessions"
                             :key="session.id"
-                            class="grid gap-3 border-b border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_auto]"
+                            class="grid gap-3 border-b bg-white border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_auto]"
                         >
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
@@ -914,8 +955,8 @@ const sharePerformedSession = () => {
                                         class="rounded-full px-2 py-1 text-xs font-medium"
                                         :class="
                                             session.is_system
-                                                ? 'bg-emerald-50 text-emerald-700'
-                                                : 'bg-neutral-100 text-evo-black'
+                                                ? 'bg-evo-purple text-evo-white'
+                                                : 'bg-evo-orange text-evo-white'
                                         "
                                     >
                                         {{
@@ -995,7 +1036,7 @@ const sharePerformedSession = () => {
                         <div
                             v-for="exercise in availableExercises"
                             :key="exercise.id"
-                            class="grid gap-3 border-b border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
+                            class="grid gap-3 bg-white border-b border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
                         >
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
@@ -1006,8 +1047,8 @@ const sharePerformedSession = () => {
                                         class="rounded-full px-2 py-1 text-xs font-medium"
                                         :class="
                                             exercise.is_custom
-                                                ? 'bg-neutral-100 text-evo-black'
-                                                : 'bg-emerald-50 text-emerald-700'
+                                                ? 'bg-evo-purple text-evo-white'
+                                                : 'bg-evo-orange text-evo-white'
                                         "
                                     >
                                         {{
@@ -1074,7 +1115,7 @@ const sharePerformedSession = () => {
                 </div>
             </section>
 
-            <section id="dernieres-seances" class="rounded-lg bg-white p-4">
+            <section id="dernieres-seances" class="rounded-lg bg-evo-white p-4">
                 <h2 class="text-lg font-semibold">
                     Dernières séances effectuées
                 </h2>
@@ -1086,13 +1127,13 @@ const sharePerformedSession = () => {
                     <div
                         v-for="session in recentCompletedSessions"
                         :key="session.id"
-                        class="rounded-lg border border-neutral-200 p-4"
+                        class="rounded-lg border border-neutral-200 p-4 bg-white"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p class="font-semibold">
                                 {{ session.workout_session_name ?? 'Séance' }}
                             </p>
-                            <p class="text-xs text-emerald-700">Validée</p>
+                            <p class="text-xs text-evo-orange">Validée</p>
                         </div>
                         <p
                             v-if="session.notes"
@@ -1149,7 +1190,7 @@ const sharePerformedSession = () => {
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">
@@ -1178,7 +1219,7 @@ const sharePerformedSession = () => {
                             id="edit_session_name"
                             v-model="workoutSessionEditForm.name"
                             type="text"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="workoutSessionEditForm.errors.name"
@@ -1199,7 +1240,7 @@ const sharePerformedSession = () => {
                             id="edit_session_description"
                             v-model="workoutSessionEditForm.description"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                     </div>
 
@@ -1221,7 +1262,7 @@ const sharePerformedSession = () => {
                                 <label
                                     v-for="exercise in group.exercises"
                                     :key="exercise.id"
-                                    class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                                    class="flex items-center bg-white justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm"
                                 >
                                     <span class="flex items-center gap-2">
                                         <input
@@ -1272,7 +1313,7 @@ const sharePerformedSession = () => {
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">Modifier l'exercice</h2>
@@ -1299,7 +1340,7 @@ const sharePerformedSession = () => {
                             id="edit_exercise_name"
                             v-model="customExerciseEditForm.name"
                             type="text"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="customExerciseEditForm.errors.name"
@@ -1319,7 +1360,7 @@ const sharePerformedSession = () => {
                         <select
                             id="edit_exercise_sport"
                             v-model="customExerciseEditForm.sport_id"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         >
                             <option value="">Sélectionner un sport</option>
                             <option
@@ -1344,7 +1385,7 @@ const sharePerformedSession = () => {
                             v-model="
                                 customExerciseEditForm.exercise_category_id
                             "
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         >
                             <option value="">Sélectionner une catégorie</option>
                             <option
@@ -1368,7 +1409,7 @@ const sharePerformedSession = () => {
                             id="edit_exercise_description"
                             v-model="customExerciseEditForm.description"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                     </div>
 
@@ -1392,7 +1433,7 @@ const sharePerformedSession = () => {
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">Créer une séance type</h2>
@@ -1416,7 +1457,7 @@ const sharePerformedSession = () => {
                             id="session_name"
                             v-model="workoutSessionForm.name"
                             type="text"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="workoutSessionForm.errors.name"
@@ -1437,7 +1478,7 @@ const sharePerformedSession = () => {
                             id="session_description"
                             v-model="workoutSessionForm.description"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="workoutSessionForm.errors.description"
@@ -1466,7 +1507,7 @@ const sharePerformedSession = () => {
                                     <label
                                         v-for="exercise in group.exercises"
                                         :key="exercise.id"
-                                        class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                                        class="flex items-center bg-white justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm hover:cursor-pointer"
                                     >
                                         <span class="flex items-center gap-2">
                                             <input
@@ -1518,7 +1559,7 @@ const sharePerformedSession = () => {
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">
@@ -1544,7 +1585,7 @@ const sharePerformedSession = () => {
                             id="exercise_name"
                             v-model="customExerciseForm.name"
                             type="text"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="customExerciseForm.errors.name"
@@ -1561,7 +1602,7 @@ const sharePerformedSession = () => {
                         <select
                             id="exercise_sport"
                             v-model="customExerciseForm.sport_id"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         >
                             <option value="">Sélectionner un sport</option>
                             <option
@@ -1587,7 +1628,7 @@ const sharePerformedSession = () => {
                         <select
                             id="exercise_category"
                             v-model="customExerciseForm.exercise_category_id"
-                            class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         >
                             <option value="">Sélectionner une catégorie</option>
                             <option
@@ -1619,7 +1660,7 @@ const sharePerformedSession = () => {
                             id="exercise_description"
                             v-model="customExerciseForm.description"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                     </div>
 
@@ -1643,7 +1684,7 @@ const sharePerformedSession = () => {
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -1711,7 +1752,7 @@ const sharePerformedSession = () => {
                                 selectedShareSession.workout_session_name ??
                                 'Séance partagée'
                             "
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="shareSessionForm.errors.title"
@@ -1729,7 +1770,7 @@ const sharePerformedSession = () => {
                             id="share_content"
                             v-model="shareSessionForm.content"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="shareSessionForm.errors.content"
@@ -1775,7 +1816,7 @@ const sharePerformedSession = () => {
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
             <section
-                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+                class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -1848,7 +1889,7 @@ const sharePerformedSession = () => {
                             id="complete_notes"
                             v-model="completeSessionForm.notes"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="completeSessionForm.errors.notes"
@@ -1864,7 +1905,7 @@ const sharePerformedSession = () => {
                                 performance, exerciseIndex
                             ) in completeSessionForm.performances"
                             :key="performance.exercise_id"
-                            class="rounded-lg border border-neutral-200 p-4"
+                            class="rounded-lg border border-neutral-200 p-4 bg-white"
                         >
                             <p class="font-semibold">
                                 {{
@@ -1899,7 +1940,7 @@ const sharePerformedSession = () => {
                                         type="number"
                                         min="0"
                                         :step="metricInputStep(metric)"
-                                        class="w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-evo-black focus:outline-none"
+                                        class="evo-input px-3"
                                     />
                                 </div>
                             </div>
@@ -1941,19 +1982,159 @@ const sharePerformedSession = () => {
 </template>
 
 <style scoped>
+:deep(.evolyx-calendar.vuecal) {
+    border: 0;
+    box-shadow: none;
+    background: #fbfaf7;
+    color: #111111;
+}
+
+:deep(.evolyx-calendar .vuecal__menu) {
+    justify-content: center;
+    gap: 0.35rem;
+    border-bottom: 1px solid #e5e5e5;
+    background: #E9E9E9;
+    padding: 0.55rem 0.65rem 0;
+}
+
+:deep(.evolyx-calendar .vuecal__view-btn) {
+    height: 2.35rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0.5rem 0.5rem 0 0;
+    padding: 0 0.8rem;
+    color: #5f5f5f;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+:deep(.evolyx-calendar .vuecal__view-btn:hover) {
+    background: #f2f2f2;
+    color: #111111;
+}
+
+:deep(.evolyx-calendar .vuecal__view-btn--active) {
+    border-bottom-color: #ff6b00;
+    background: transparent;
+    color: #111111;
+}
+
+:deep(.evolyx-calendar .vuecal__title-bar) {
+    min-height: 3.25rem;
+    border-bottom: 1px solid #e5e5e5;
+    background: #ffffff;
+    color: #111111;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+:deep(.evolyx-calendar .vuecal__title button),
+:deep(.evolyx-calendar .vuecal__arrow) {
+    color: #111111;
+}
+
+:deep(.evolyx-calendar .vuecal__arrow) {
+    display: grid;
+    min-width: 2.5rem;
+    place-items: center;
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+}
+
+:deep(.evolyx-calendar .vuecal__arrow:hover) {
+    background: #f2f2f2;
+}
+
+:deep(.evolyx-calendar .vuecal__weekdays-headings) {
+    border-bottom: 1px solid #e5e5e5;
+    background: #ffffff;
+}
+
+:deep(.evolyx-calendar .vuecal__heading) {
+    color: #737373;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+:deep(.evolyx-calendar .vuecal__cell:before) {
+    border-color: #ededed;
+}
+
+:deep(.evolyx-calendar .vuecal__cell-content) {
+    color: #262626;
+}
+
+:deep(.evolyx-calendar .vuecal__cell--out-of-scope .vuecal__cell-content) {
+    color: #a3a3a3;
+}
+
+:deep(.evolyx-calendar .vuecal__cell--today) {
+    background: #fff4eb;
+}
+
+:deep(.evolyx-calendar .vuecal__cell--selected) {
+    background: #f7f0ff;
+}
+
+:deep(.evolyx-calendar .vuecal__cell--today .vuecal__cell-date) {
+    display: inline-flex;
+    min-width: 1.75rem;
+    height: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #ff6b00;
+    color: #ffffff;
+    font-weight: 400;
+}
+
 :deep(.vuecal__event.evolyx-session-event) {
     cursor: pointer;
+    border-radius: 0.2rem;
+    box-shadow: none;
+    font-weight: 400;
+    line-height: 1.2;
+    padding: 5px;
+    font-size: 0.9rem;
 }
 
 :deep(.vuecal__event.evolyx-session-event--planned) {
-    background-color: #f1e9ff;
+    background-color: #f5edff;
     border: 1px solid #c7a8ff;
     color: #111111;
 }
 
 :deep(.vuecal__event.evolyx-session-event--completed) {
-    background-color: #dcfce7;
-    border: 1px solid #22c55e;
-    color: #14532d;
+    background-color: #ffac80;
+    border: 1px solid #f76618;
+    color: #000000;
+}
+
+@media (max-width: 767px) {
+    :deep(.evolyx-calendar .vuecal__menu) {
+        justify-content: center;
+        padding-inline: 0.5rem;
+    }
+
+    :deep(.evolyx-calendar .vuecal__view-btn) {
+        flex: 1;
+        max-width: 8rem;
+        padding-inline: 0.5rem;
+    }
+
+    :deep(.evolyx-calendar .vuecal__title-bar) {
+        min-height: 3rem;
+        font-size: 0.95rem;
+    }
+
+    :deep(.evolyx-calendar .vuecal__arrow) {
+        min-width: 2.25rem;
+    }
 }
 </style>
