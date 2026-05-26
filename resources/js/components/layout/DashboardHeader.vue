@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { profile } from '@/routes';
-import user from '../../../images/icons/user2-purple.svg';
+import profileSvg from '../../../images/icons/profile.svg?raw';
 defineProps<{
     title: String;
     subtitle?: String;
 }>();
+
+const { isCurrentOrParentUrl } = useCurrentUrl();
+
+const isProfileActive = computed(() => isCurrentOrParentUrl(profile()));
 </script>
 
 <template>
@@ -20,8 +26,19 @@ defineProps<{
                 </p>
             </div>
             <div>
-                <Link :href="profile()" class="flex items-center gap-4">
-                    <img :src="user" alt="Profile" class="h-auto w-7" />
+                <Link
+                    :href="profile()"
+                    class="group flex items-center gap-4 text-black"
+                >
+                    <span
+                        :class="[
+                            isProfileActive
+                                ? 'text-evo-orange'
+                                : 'text-evo-purple lg:group-hover:text-evo-orange',
+                            '[&_svg]:h-auto [&_svg]:w-7',
+                        ]"
+                        v-html="profileSvg"
+                    />
                     <p class="text-lg font-medium">Profil</p>
                 </Link>
             </div>
