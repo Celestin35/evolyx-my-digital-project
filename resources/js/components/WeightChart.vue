@@ -26,6 +26,22 @@ type WeightChartPoint = {
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 let weightChart: Chart<'line', WeightChartPoint[], unknown> | null = null;
 
+const lineShadowPlugin = {
+    id: 'lineShadow',
+    beforeDatasetDraw(chart: Chart) {
+        const { ctx } = chart;
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(4, 3, 5, 0.18)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 6;
+    },
+    afterDatasetDraw(chart: Chart) {
+        chart.ctx.restore();
+    },
+};
+
 const chartTheme = () => {
     const isDark = document.documentElement.classList.contains('dark');
 
@@ -64,6 +80,8 @@ onMounted(() => {
                     data: chartData,
                     borderColor: CHART_COLORS.orange,
                     backgroundColor: transparentize(CHART_COLORS.orange, 0.8),
+                    pointBackgroundColor: CHART_COLORS.orange,
+                    pointBorderColor: CHART_COLORS.orange,
                     borderWidth: 2,
                     tension: 0.3,
                     pointRadius: 4,
@@ -75,6 +93,11 @@ onMounted(() => {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 8,
+                },
+            },
             plugins: {
                 legend: {
                     labels: {
@@ -148,7 +171,7 @@ onMounted(() => {
                         color: theme.tickColor,
                     },
                     grid: {
-                        color: theme.gridColor,
+                        display: false,
                     },
                 },
                 y: {
@@ -165,6 +188,7 @@ onMounted(() => {
                 },
             },
         },
+        plugins: [lineShadowPlugin],
     });
 });
 
