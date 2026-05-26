@@ -72,7 +72,6 @@ onUnmounted(() => {
                         <div>
                             <Button
                                 v-if="hasSetupData"
-                                class="rounded-full bg-evo-black px-4 py-2 text-evo-white hover:bg-evo-black/90"
                                 @click="showSetupModal = true"
                             >
                                 <ShieldCheck />Continuer la configuration
@@ -86,7 +85,6 @@ onUnmounted(() => {
                                 <Button
                                     type="submit"
                                     :disabled="processing"
-                                    class="rounded-full bg-evo-black px-4 py-2 text-evo-white hover:bg-evo-black/90"
                                 >
                                     <ShieldCheck />Activer la 2FA
                                 </Button>
@@ -110,7 +108,6 @@ onUnmounted(() => {
                         <div class="relative inline">
                             <Form v-bind="disable.form()" #default="{ processing }">
                                 <Button
-                                    variant="destructive"
                                     type="submit"
                                     :disabled="processing"
                                     class="rounded-full px-4 py-2"

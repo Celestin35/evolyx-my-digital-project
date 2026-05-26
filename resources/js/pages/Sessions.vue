@@ -3,6 +3,7 @@ import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Button } from '@/components/ui/button';
 import { useAds } from '@/composables/useAds';
 import VueCal from 'vue-cal';
 import 'vue-cal/dist/vuecal.css';
@@ -809,9 +810,8 @@ const sharePerformedSession = () => {
                     </div>
 
                     <div class="flex items-center gap-3 lg:col-span-2">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="performedSessionForm.processing"
                             @click="createPerformedSession"
                         >
@@ -820,7 +820,7 @@ const sharePerformedSession = () => {
                                     ? 'Ajout...'
                                     : 'Ajouter au calendrier'
                             }}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </section>
@@ -836,22 +836,20 @@ const sharePerformedSession = () => {
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <button
+                        <Button
                             v-if="activeLibraryTab === 'workout-sessions'"
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
                             @click="openWorkoutSessionModal"
                         >
                             Créer une séance type
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             v-else
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
                             @click="openCustomExerciseModal"
                         >
                             Créer un exercice
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -954,32 +952,33 @@ const sharePerformedSession = () => {
                             <div
                                 class="flex flex-wrap items-start gap-2 lg:justify-end"
                             >
-                                <button
+                                <Button
                                     v-if="!session.is_system"
                                     type="button"
-                                    class="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                    class="px-3 py-1.5 text-sm"
                                     @click="openWorkoutSessionEditor(session)"
                                 >
                                     Modifier
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="button"
-                                    class="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                    class="px-3 py-1.5 text-sm"
                                     @click="duplicateWorkoutSession(session)"
                                 >
                                     Dupliquer
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     v-if="!session.is_system"
                                     type="button"
-                                    class="rounded-full border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:cursor-pointer hover:bg-red-50"
+                                    variant="destructive"
+                                    class="px-3 py-1.5 text-sm"
                                     :disabled="
                                         deleteWorkoutSessionForm.processing
                                     "
                                     @click="deleteWorkoutSession(session)"
                                 >
                                     Supprimer
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -1048,23 +1047,24 @@ const sharePerformedSession = () => {
                             <div
                                 class="flex flex-wrap items-start gap-2 lg:justify-end"
                             >
-                                <button
+                                <Button
                                     v-if="exercise.is_custom"
                                     type="button"
-                                    class="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                    class="px-3 py-1.5 text-sm"
                                     @click="openExerciseEditor(exercise)"
                                 >
                                     Modifier
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     v-if="exercise.is_custom"
                                     type="button"
-                                    class="rounded-full border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:cursor-pointer hover:bg-red-50"
+                                    variant="destructive"
+                                    class="px-3 py-1.5 text-sm"
                                     :disabled="deleteExerciseForm.processing"
                                     @click="deleteExercise(exercise)"
                                 >
                                     Supprimer
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -1104,9 +1104,9 @@ const sharePerformedSession = () => {
                             {{ session.performances.length }} performance(s)
                         </p>
                         <div class="mt-4 flex flex-wrap items-center gap-2">
-                            <button
+                            <Button
                                 type="button"
-                                class="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:cursor-pointer hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                class="px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50"
                                 :disabled="
                                     shareSessionForm.processing ||
                                     Boolean(session.community_post_id) ||
@@ -1121,7 +1121,7 @@ const sharePerformedSession = () => {
                                           ? 'Partager'
                                           : 'Premium requis'
                                 }}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -1155,13 +1155,15 @@ const sharePerformedSession = () => {
                     <h2 class="text-lg font-semibold">
                         Modifier la séance type
                     </h2>
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        variant="transparent"
+                        disable-animation
+                        class="px-3 py-1 text-sm"
                         @click="closeWorkoutSessionEditor"
                     >
                         Fermer
-                    </button>
+                    </Button>
                 </div>
 
                 <div class="mt-4 space-y-4">
@@ -1250,9 +1252,8 @@ const sharePerformedSession = () => {
                         </p>
                     </div>
 
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="workoutSessionEditForm.processing"
                         @click="updateWorkoutSession"
                     >
@@ -1261,7 +1262,7 @@ const sharePerformedSession = () => {
                                 ? 'Enregistrement...'
                                 : 'Enregistrer'
                         }}
-                    </button>
+                    </Button>
                 </div>
             </section>
         </div>
@@ -1275,13 +1276,15 @@ const sharePerformedSession = () => {
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">Modifier l'exercice</h2>
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        variant="transparent"
+                        disable-animation
+                        class="px-3 py-1 text-sm"
                         @click="closeExerciseEditor"
                     >
                         Fermer
-                    </button>
+                    </Button>
                 </div>
 
                 <div class="mt-4 space-y-4">
@@ -1369,9 +1372,8 @@ const sharePerformedSession = () => {
                         />
                     </div>
 
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="customExerciseEditForm.processing"
                         @click="updateExercise"
                     >
@@ -1380,7 +1382,7 @@ const sharePerformedSession = () => {
                                 ? 'Enregistrement...'
                                 : 'Enregistrer'
                         }}
-                    </button>
+                    </Button>
                 </div>
             </section>
         </div>
@@ -1394,13 +1396,15 @@ const sharePerformedSession = () => {
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">Créer une séance type</h2>
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        variant="transparent"
+                        disable-animation
+                        class="px-3 py-1 text-sm"
                         @click="closeWorkoutSessionModal"
                     >
                         Fermer
-                    </button>
+                    </Button>
                 </div>
 
                 <div class="mt-4 space-y-4">
@@ -1494,9 +1498,8 @@ const sharePerformedSession = () => {
                         </p>
                     </div>
 
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="workoutSessionForm.processing"
                         @click="createWorkoutSession"
                     >
@@ -1505,7 +1508,7 @@ const sharePerformedSession = () => {
                                 ? 'Création...'
                                 : 'Créer la séance type'
                         }}
-                    </button>
+                    </Button>
                 </div>
             </section>
         </div>
@@ -1521,13 +1524,15 @@ const sharePerformedSession = () => {
                     <h2 class="text-lg font-semibold">
                         Créer un exercice personnalisé
                     </h2>
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        variant="transparent"
+                        disable-animation
+                        class="px-3 py-1 text-sm"
                         @click="closeCustomExerciseModal"
                     >
                         Fermer
-                    </button>
+                    </Button>
                 </div>
 
                 <div class="mt-4 space-y-4">
@@ -1618,9 +1623,8 @@ const sharePerformedSession = () => {
                         />
                     </div>
 
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="customExerciseForm.processing"
                         @click="createCustomExercise"
                     >
@@ -1629,7 +1633,7 @@ const sharePerformedSession = () => {
                                 ? 'Création...'
                                 : "Créer l'exercice"
                         }}
-                    </button>
+                    </Button>
                 </div>
             </section>
         </div>
@@ -1659,13 +1663,15 @@ const sharePerformedSession = () => {
                             Validée le {{ selectedShareSessionDateLabel }}
                         </p>
                     </div>
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        variant="transparent"
+                        disable-animation
+                        class="px-3 py-1 text-sm"
                         @click="closeShareSessionModal"
                     >
                         Fermer
-                    </button>
+                    </Button>
                 </div>
 
                 <div
@@ -1741,9 +1747,8 @@ const sharePerformedSession = () => {
                     </p>
 
                     <div class="flex flex-wrap items-center gap-3">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="shareSessionForm.processing"
                             @click="sharePerformedSession"
                         >
@@ -1752,7 +1757,7 @@ const sharePerformedSession = () => {
                                     ? 'Partage...'
                                     : 'Partager la séance'
                             }}
-                        </button>
+                        </Button>
                         <button
                             type="button"
                             class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
@@ -1785,13 +1790,15 @@ const sharePerformedSession = () => {
                             </span>
                         </p>
                     </div>
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:cursor-pointer"
+                        variant="transparent"
+                        disable-animation
+                        class="px-3 py-1 text-sm"
                         @click="closeCompleteSessionModal"
                     >
                         Fermer
-                    </button>
+                    </Button>
                 </div>
 
                 <div
@@ -1803,9 +1810,8 @@ const sharePerformedSession = () => {
                         ?
                     </p>
                     <div class="flex flex-wrap gap-3">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white hover:cursor-pointer"
                             :disabled="!selectedWorkoutSessionHasExercises"
                             :class="{
                                 'cursor-not-allowed opacity-50':
@@ -1814,7 +1820,7 @@ const sharePerformedSession = () => {
                             @click="wantsPerformanceEntry = true"
                         >
                             Oui, ajouter des performances
-                        </button>
+                        </Button>
                         <button
                             type="button"
                             class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
@@ -1908,9 +1914,8 @@ const sharePerformedSession = () => {
                     </p>
 
                     <div class="flex flex-wrap items-center gap-3">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="completeSessionForm.processing"
                             @click="completeSelectedSession"
                         >
@@ -1919,7 +1924,7 @@ const sharePerformedSession = () => {
                                     ? 'Validation...'
                                     : 'Valider la séance'
                             }}
-                        </button>
+                        </Button>
                         <button
                             v-if="wantsPerformanceEntry"
                             type="button"

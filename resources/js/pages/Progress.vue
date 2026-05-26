@@ -5,6 +5,7 @@ import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PerformanceChart from '@/components/PerformanceChart.vue';
 import WeightChart from '@/components/WeightChart.vue';
+import { Button } from '@/components/ui/button';
 import { useAds } from '@/composables/useAds';
 
 type WeightEntry = {
@@ -574,9 +575,8 @@ const submitWeightEntry = () => {
                 </div>
 
                 <div class="mt-4 flex flex-wrap items-center gap-4">
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="weightEntryForm.processing"
                         @click="submitWeightEntry"
                     >
@@ -585,7 +585,7 @@ const submitWeightEntry = () => {
                                 ? 'Enregistrement...'
                                 : "Ajouter l'entrée"
                         }}
-                    </button>
+                    </Button>
                     <p
                         v-if="
                             weightEntryForm.recentlySuccessful ||

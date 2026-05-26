@@ -73,7 +73,6 @@ onMounted(async () => {
                     #default="{ processing }"
                 >
                     <Button
-                        variant="secondary"
                         type="submit"
                         :disabled="processing"
                     >

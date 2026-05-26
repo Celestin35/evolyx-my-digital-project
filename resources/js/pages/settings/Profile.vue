@@ -265,7 +265,6 @@ const confirmSubscriptionChange = () => {
                             <Button
                                 :disabled="accountInfoForm.processing"
                                 data-test="update-profile-button"
-                                class="rounded-full bg-evo-black px-4 py-2 text-evo-white hover:bg-evo-black/90"
                                 @click="saveAccountInfo"
                             >
                                 {{
@@ -365,18 +364,19 @@ const confirmSubscriptionChange = () => {
                             </div>
 
                             <div class="mt-4">
-                                <button
+                                <Button
                                     type="button"
-                                    class="rounded-full px-4 py-2 text-sm font-medium transition"
+                                    variant="transparent"
                                     :class="
                                         plan.isCurrent
-                                            ? 'cursor-not-allowed border border-neutral-200 text-neutral-400'
+                                            ? 'cursor-not-allowed border-neutral-200 text-neutral-400'
                                             : selectedSubscriptionPlanName ===
                                                 plan.name
                                               ? 'bg-evo-black text-evo-white hover:cursor-pointer hover:opacity-90'
-                                              : 'border border-neutral-300 text-evo-black hover:cursor-pointer hover:bg-neutral-100'
+                                              : ''
                                     "
                                     :disabled="plan.isCurrent"
+                                    :disable-animation="plan.isCurrent"
                                     @click="selectSubscriptionPlan(plan.name)"
                                 >
                                     {{
@@ -387,7 +387,7 @@ const confirmSubscriptionChange = () => {
                                               ? 'Plan sélectionné'
                                               : 'Choisir'
                                     }}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -403,13 +403,13 @@ const confirmSubscriptionChange = () => {
                         <p class="mt-1 text-sm text-neutral-600">
                             {{ selectedSubscriptionPlan.priceLabel }}
                         </p>
-                        <button
+                        <Button
                             type="button"
-                            class="mt-4 rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
+                            class="mt-4"
                             @click="openSubscriptionModal"
                         >
                             Passer à cet abonnement
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -440,16 +440,15 @@ const confirmSubscriptionChange = () => {
                     </div>
 
                     <div class="mt-4 flex items-center justify-end gap-4">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
+                            variant="transparent"
                             @click="closeSubscriptionModal"
                         >
                             Annuler
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="subscriptionForm.processing"
                             @click="confirmSubscriptionChange"
                         >
@@ -458,7 +457,7 @@ const confirmSubscriptionChange = () => {
                                     ? 'Traitement...'
                                     : subscriptionActionLabel
                             }}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

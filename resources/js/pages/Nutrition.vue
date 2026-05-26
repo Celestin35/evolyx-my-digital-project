@@ -4,6 +4,7 @@ import { computed, ref } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
+import { Button } from '@/components/ui/button';
 import { useAds } from '@/composables/useAds';
 import { profile } from '@/routes';
 
@@ -150,12 +151,12 @@ const saveMacros = () => {
                             kcal à consommer aujourd'hui
                         </p>
                     </div>
-                    <Link
+                    <Button
+                        :as="Link"
                         :href="profile()"
-                        class="inline-flex rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:bg-neutral-100"
                     >
                         Modifier mon objectif
-                    </Link>
+                    </Button>
                 </div>
             </section>
 
@@ -238,14 +239,13 @@ const saveMacros = () => {
                         >
                             Gestion des macros nutriment
                         </p>
-                        <button
+                        <Button
                             v-if="canEditMacros && !isEditingMacros"
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
                             @click="startMacrosEdit"
                         >
                             Modifier mes macros
-                        </button>
+                        </Button>
                     </div>
 
                     <div
@@ -382,9 +382,8 @@ const saveMacros = () => {
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <button
+                            <Button
                                 type="button"
-                                class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                                 :disabled="macrosForm.processing"
                                 @click="saveMacros"
                             >
@@ -393,14 +392,14 @@ const saveMacros = () => {
                                         ? 'Enregistrement...'
                                         : 'Enregistrer'
                                 }}
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="button"
-                                class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
+                                variant="transparent"
                                 @click="cancelMacrosEdit"
                             >
                                 Annuler
-                            </button>
+                            </Button>
                         </div>
                     </div>
 
@@ -564,12 +563,11 @@ const saveMacros = () => {
                                 </div>
                             </div>
 
-                            <button
+                            <Button
                                 type="button"
-                                class="inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white opacity-80 hover:cursor-pointer"
                             >
                                 Ajouter ce repas
-                            </button>
+                            </Button>
                         </div>
                     </div>
 
@@ -683,12 +681,9 @@ const saveMacros = () => {
                 Aucun objectif actif n'est disponible pour calculer vos calories
                 du jour.
             </p>
-            <Link
-                :href="profile()"
-                class="mt-4 inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90"
-            >
+            <Button :as="Link" :href="profile()" class="mt-4">
                 Créer ou modifier mon objectif
-            </Link>
+            </Button>
         </section>
     </AppLayout>
 </template>

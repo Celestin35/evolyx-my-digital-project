@@ -3,6 +3,7 @@ import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
+import { Button } from '@/components/ui/button';
 
 type CommunityPerformanceMetric = {
     key: string;
@@ -302,12 +303,9 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                 membres que vous suivez.
                             </p>
                         </div>
-                        <Link
-                            href="/sessions#dernieres-seances"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90"
-                        >
+                        <Button :as="Link" href="/sessions#dernieres-seances">
                             Partager une séance
-                        </Link>
+                        </Button>
                     </div>
 
                     <div
@@ -603,21 +601,23 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     v-if="post.is_own_post"
                                     class="flex flex-wrap gap-2"
                                 >
-                                    <button
+                                    <Button
                                         type="button"
-                                        class="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:cursor-pointer hover:bg-neutral-100"
+                                        variant="transparent"
+                                        class="px-3 py-1.5 text-xs"
                                         @click="openPostEditor(post)"
                                     >
                                         Modifier
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         type="button"
-                                        class="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:cursor-pointer hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                        variant="destructive"
+                                        class="px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50"
                                         :disabled="deletePostForm.processing"
                                         @click="deleteCommunityPost(post)"
                                     >
                                         Supprimer
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
 
@@ -838,9 +838,8 @@ const deleteCommunityPost = (post: CommunityPost) => {
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="editPostForm.processing"
                             @click="updateCommunityPost"
                         >
@@ -849,7 +848,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     ? 'Enregistrement...'
                                     : 'Enregistrer'
                             }}
-                        </button>
+                        </Button>
                         <button
                             type="button"
                             class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"

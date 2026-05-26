@@ -94,7 +94,6 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             <Button
                                 :disabled="processing"
                                 data-test="update-password-button"
-                                class="rounded-full bg-evo-black px-4 py-2 text-evo-white hover:bg-evo-black/90"
                             >
                                 Enregistrer le mot de passe
                             </Button>

@@ -2,6 +2,7 @@
 import { Link, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
 import { progress } from '@/routes';
 import {
     activityLevelOptions,
@@ -158,14 +159,13 @@ const savePersonalInfo = () => {
         >
             <div v-show="isOpen" id="profile-personal-info-content" class="space-y-2 pt-4">
                 <div class="flex items-center justify-end">
-                    <button
+                    <Button
                         v-if="!isEditing"
                         type="button"
-                        class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
                         @click="startEdit"
                     >
                         Modifier
-                    </button>
+                    </Button>
                 </div>
 
                 <template v-if="!isEditing">
@@ -284,30 +284,27 @@ const savePersonalInfo = () => {
                         <p class="text-sm text-neutral-600">
                             Pour modifier ou ajouter une entree de poids, rendez-vous sur votre suivi d'evolution.
                         </p>
-                        <Link
-                            :href="progress()"
-                            class="mt-3 inline-flex rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
-                        >
+                        <Button :as="Link" :href="progress()" class="mt-3">
                             Gerer mes entrees de poids
-                        </Link>
+                        </Button>
                     </div>
 
                     <div class="flex items-center gap-3 pt-2">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="personalInfoForm.processing"
                             @click="savePersonalInfo"
                         >
                             {{ personalInfoForm.processing ? 'Enregistrement...' : 'Enregistrer' }}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
+                            variant="transparent"
+                            :disabled="personalInfoForm.processing"
                             @click="cancelEdit"
                         >
                             Annuler
-                        </button>
+                        </Button>
                         <p v-if="personalInfoForm.recentlySuccessful" class="text-sm text-neutral-600">
                             Enregistre.
                         </p>

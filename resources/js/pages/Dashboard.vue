@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import WeightChart from '@/components/WeightChart.vue';
+import { Button } from '@/components/ui/button';
 import { useAds } from '@/composables/useAds';
 
 type WeightEntry = {
@@ -241,12 +242,7 @@ const formatCommunityPostDate = (date: string | null) => {
                             suivez.
                         </p>
                     </div>
-                    <Link
-                        href="/community"
-                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:opacity-90"
-                    >
-                        Ouvrir
-                    </Link>
+                    <Button :as="Link" href="/community">Ouvrir</Button>
                 </div>
 
                 <div

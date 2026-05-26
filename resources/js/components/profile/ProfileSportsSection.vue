@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
 
 type ProfileUser = {
     sport_ids: number[];
@@ -92,13 +93,12 @@ const saveSports = () => {
                         {{ selectedSportsLabel }}
                     </p>
 
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
                         @click="startEdit"
                     >
                         Modifier
-                    </button>
+                    </Button>
                 </div>
 
                 <div v-else class="space-y-4">
@@ -123,21 +123,20 @@ const saveSports = () => {
                     </p>
 
                     <div class="flex items-center gap-3">
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="sportsForm.processing"
                             @click="saveSports"
                         >
                             {{ sportsForm.processing ? 'Enregistrement...' : 'Enregistrer' }}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-evo-black transition hover:cursor-pointer hover:bg-neutral-100"
+                            variant="transparent"
                             @click="cancelEdit"
                         >
                             Annuler
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
