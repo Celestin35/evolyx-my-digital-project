@@ -138,7 +138,7 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
     const details = [];
 
     if (performance.weight !== null) {
-        details.push(`${performance.weight.toFixed(2)} kg`);
+        details.push(`${Number(performance.weight.toFixed(2))}kg`);
     }
 
     if (performance.repetitions !== null) {
@@ -146,14 +146,19 @@ const formatPerformanceDetails = (performance: RecentPerformance) => {
     }
 
     if (performance.duration_minutes !== null) {
-        details.push(`${performance.duration_minutes.toFixed(2)} min`);
+        details.push(`${Number(performance.duration_minutes.toFixed(2))}min`);
     }
 
     if (performance.distance_meters !== null) {
-        details.push(`${performance.distance_meters.toFixed(0)} m`);
+        const distance =
+            performance.distance_meters >= 1000
+                ? `${Number((performance.distance_meters / 1000).toFixed(2))}km`
+                : `${performance.distance_meters.toFixed(0)}m`;
+
+        details.push(distance);
     }
 
-    return details.length > 0 ? details.join(' - ') : 'Performance renseignee';
+    return details.length > 0 ? details.join(' | ') : 'Performance renseignee';
 };
 
 const formatCommunityPostDate = (date: string | null) => {
@@ -178,21 +183,24 @@ const formatCommunityPostDate = (date: string | null) => {
         subtitle="Bienvenue sur votre tableau de bord personnel !"
     >
         <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div class="order-3 flex min-h-90 flex-col rounded-lg bg-white p-4">
-                <h2 class="mb-4 text-xl font-bold">Suivi du poids</h2>
+            <div class="order-3 flex min-h-90 flex-col rounded-lg bg-evo-white p-4">
+                <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="text-xl font-bold">Suivi du poids</h2>
+                    <Button :as="Link" href="/progress" class="px-3 py-1.5 text-sm">
+                        Mon poids
+                    </Button>
+                </div>
                 <div class="min-h-0 flex-1">
                     <WeightChart :weight-entries="weightEntries" />
                 </div>
             </div>
 
-            <div class="order-3 min-h-90 rounded-lg bg-white p-4">
+            <div class="order-3 min-h-90 rounded-lg bg-evo-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Dernieres performances</h2>
-                    <div
-                        class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700"
-                    >
-                        {{ formattedRecentPerformances.length }} entrée(s)
-                    </div>
+                    <Button :as="Link" href="/progress" class="px-3 py-1.5 text-sm">
+                        Mes performances
+                    </Button>
                 </div>
 
                 <div
@@ -202,22 +210,22 @@ const formatCommunityPostDate = (date: string | null) => {
                     <div
                         v-for="performance in formattedRecentPerformances"
                         :key="performance.id"
-                        class="rounded-lg border border-neutral-200 p-3"
+                        class="grid gap-3 rounded-lg border border-neutral-300 bg-evo-gray p-3 sm:grid-cols-[1fr_auto] sm:items-center"
                     >
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="truncate font-semibold">
-                                    {{ performance.exercise_name }}
-                                </p>
-                                <p class="mt-1 text-sm text-neutral-600">
-                                    {{ performance.sport_name ?? 'Sport' }}
-                                </p>
-                            </div>
-                            <p class="shrink-0 text-sm text-neutral-500">
-                                {{ performance.dateLabel }}
+                        <div class="min-w-0">
+                            <p class="truncate font-semibold">
+                                {{ performance.exercise_name }}
+                            </p>
+                            <p class="mt-1 text-xs text-neutral-600">
+                                {{ performance.sport_name ?? 'Sport' }}
+                                <span v-if="performance.dateLabel">
+                                    | {{ performance.dateLabel }}
+                                </span>
                             </p>
                         </div>
-                        <p class="mt-2 text-sm text-evo-black">
+                        <p
+                            class="rounded-lg border border-evo-orange bg-evo-white px-4 py-3 text-center text-sm font-medium text-evo-orange sm:min-w-40"
+                        >
                             {{ formatPerformanceDetails(performance) }}
                         </p>
                     </div>
@@ -233,7 +241,7 @@ const formatCommunityPostDate = (date: string | null) => {
                 class="order-2 lg:col-span-2"
             />
 
-            <div class="order-2 rounded-lg bg-white p-4 lg:col-span-2">
+            <div class="order-2 rounded-lg bg-evo-white p-4 lg:col-span-2">
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold">Feed communautaire</h2>
@@ -253,18 +261,18 @@ const formatCommunityPostDate = (date: string | null) => {
                         v-for="post in communityFeed"
                         :key="post.id"
                         href="/community"
-                        class="rounded-lg border border-neutral-200 bg-neutral-50 p-4 transition hover:border-evo-purple"
+                        class="rounded-lg border border-neutral-300 bg-evo-gray p-4 transition hover:border-evo-orange"
                     >
-                        <p class="text-sm text-neutral-500">
+                        <p class="text-xs text-neutral-600">
                             {{ post.author_name }}
                             <span v-if="post.published_at">
-                                · {{ formatCommunityPostDate(post.published_at) }}
+                                | {{ formatCommunityPostDate(post.published_at) }}
                             </span>
                         </p>
                         <h3 class="mt-2 font-semibold">
                             {{ post.title }}
                         </h3>
-                        <p class="mt-2 text-sm text-neutral-600">
+                        <p class="mt-2 text-sm text-neutral-700">
                             {{ post.workout_session_name }}
                         </p>
                     </Link>
@@ -272,7 +280,7 @@ const formatCommunityPostDate = (date: string | null) => {
 
                 <div
                     v-else
-                    class="mt-4 rounded-lg border border-dashed border-neutral-300 p-4"
+                    class="mt-4 rounded-lg border border-neutral-300 bg-evo-gray p-4"
                 >
                     <p class="font-semibold">
                         {{
@@ -291,19 +299,14 @@ const formatCommunityPostDate = (date: string | null) => {
                 </div>
             </div>
 
-            <div class="order-1 rounded-lg bg-white p-4 lg:col-span-2">
+            <div class="order-1 rounded-lg bg-evo-white p-4 lg:col-span-2">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold">Dernières séances</h2>
-                        <p class="mt-1 text-sm text-neutral-600">
-                            Vos dernieres validations.
-                        </p>
                     </div>
-                    <div
-                        class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
-                    >
-                        {{ formattedRecentSessions.length }} validée(s)
-                    </div>
+                    <Button :as="Link" href="/sessions" class="px-3 py-1.5 text-sm">
+                        Mes séances
+                    </Button>
                 </div>
 
                 <div
@@ -313,11 +316,11 @@ const formatCommunityPostDate = (date: string | null) => {
                     <div
                         v-for="session in formattedRecentSessions"
                         :key="session.id"
-                        class="min-w-0 rounded-lg border border-neutral-200 bg-neutral-50 p-4"
+                        class="min-w-0 rounded-lg border border-neutral-300 bg-evo-gray p-4"
                     >
                         <div class="flex items-start gap-3">
                             <div
-                                class="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border border-emerald-200 bg-white text-emerald-800"
+                                class="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border border-evo-orange bg-evo-white text-evo-orange"
                             >
                                 <span class="text-lg leading-none font-bold">
                                     {{ session.dayLabel }}
@@ -348,3 +351,4 @@ const formatCommunityPostDate = (date: string | null) => {
         </section>
     </AppLayout>
 </template>
+

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import Chart from 'chart.js/auto';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
@@ -57,13 +58,9 @@ const progressPercent = computed(() => {
     );
 });
 
-const ringStyle = computed(() => {
-    return {
-        background: `conic-gradient(var(--color-evo-purple) ${progressPercent.value}%, #ececec 0%)`,
-    };
-});
-
 const isEditingMacros = ref(false);
+const progressChartCanvas = ref<HTMLCanvasElement | null>(null);
+let progressChart: Chart<'doughnut', number[], string> | null = null;
 
 const macrosForm = useForm({
     protein: props.caloriesOverview.macros?.protein ?? 0,
@@ -72,6 +69,7 @@ const macrosForm = useForm({
 });
 
 const canEditMacros = computed(() => props.can_edit_macros);
+const showNutritionAd = computed(() => ads.enabled && !canEditMacros.value);
 const baseTargetCalories = computed(
     () => props.caloriesOverview.target_calories ?? 0,
 );
@@ -126,6 +124,68 @@ const saveMacros = () => {
         },
     });
 };
+
+const progressChartData = computed(() => [
+    consumedCalories.value,
+    remainingCalories.value,
+]);
+
+const updateProgressChart = () => {
+    if (!progressChart) {
+        return;
+    }
+
+    progressChart.data.datasets[0].data = progressChartData.value;
+    progressChart.update();
+};
+
+onMounted(() => {
+    if (!progressChartCanvas.value) {
+        return;
+    }
+
+    progressChart = new Chart(progressChartCanvas.value, {
+        type: 'doughnut',
+        data: {
+            labels: ['Consommees', 'Restantes'],
+            datasets: [
+                {
+                    data: progressChartData.value,
+                    backgroundColor: ['#FF813E', '#F6BE9D'],
+                    borderWidth: 0,
+                    hoverOffset: 0,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: 0,
+            rotation: -90,
+            circumference: 180,
+            animation: {
+                animateRotate: true,
+                animateScale: false,
+            },
+            events: [],
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    enabled: false,
+                },
+            },
+        },
+    });
+});
+
+watch(progressChartData, updateProgressChart);
+
+onBeforeUnmount(() => {
+    progressChart?.destroy();
+    progressChart = null;
+});
 </script>
 
 <template>
@@ -136,546 +196,364 @@ const saveMacros = () => {
         subtitle="Visualisez directement vos calories cibles à partir de votre objectif."
     >
         <div v-if="caloriesOverview.target_calories" class="space-y-4">
-            <section class="rounded-lg bg-white p-4">
-                <p
-                    class="text-sm font-medium tracking-wide text-neutral-500 uppercase"
-                >
-                    Objectif du jour
-                </p>
-                <div class="mt-4 flex items-end justify-between gap-4">
-                    <div class="space-y-2">
-                        <p class="text-5xl font-semibold text-evo-black">
-                            {{ caloriesOverview.target_calories }}
-                        </p>
-                        <p class="text-sm text-neutral-600">
-                            kcal à consommer aujourd'hui
-                        </p>
-                    </div>
-                    <Button
-                        :as="Link"
-                        :href="profile()"
-                    >
-                        Modifier mon objectif
-                    </Button>
-                </div>
-            </section>
-
-            <div :class="ads.enabled ? 'grid gap-4 lg:grid-cols-2' : ''">
-                <section class="rounded-lg bg-white p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p
-                                class="text-sm font-medium tracking-wide text-neutral-500 uppercase"
-                            >
-                                Progression du jour
+            <div class="grid gap-4 xl:grid-cols-2">
+                <section class="rounded-lg bg-evo-white p-4">
+                    <div class="flex h-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div class="h-full flex flex-col justify-between">
+                            <p class="text-sm font-medium tracking-wide text-neutral-500 uppercase ">
+                                Objectif du jour
                             </p>
-                            <p class="mt-2 text-sm text-neutral-600">
-                                Aperçu visuel de la consommation du jour.
+                            <div>
+                                <p class="mt-5 text-6xl font-semibold leading-none text-evo-black">
+                                {{ caloriesOverview.target_calories }}
                             </p>
-                        </div>
-                        <p class="text-sm font-medium text-evo-purple">
-                            {{ progressPercent }}%
-                        </p>
-                    </div>
-
-                    <div
-                        class="mt-4 flex flex-col items-center gap-4 md:flex-row"
-                    >
-                        <div
-                            class="relative flex h-55 w-55 shrink-0 items-center justify-center rounded-full"
-                            :style="ringStyle"
-                        >
-                            <div
-                                class="flex h-40 w-40 flex-col items-center justify-center rounded-full bg-white text-center"
-                            >
-                                <p class="text-3xl font-semibold">
-                                    {{ remainingCalories }}
-                                </p>
-                                <p class="text-xs text-neutral-500">
-                                    kcal restantes
-                                </p>
+                            <p class="mt-2 text-base text-neutral-600">
+                                kcal a consommer aujourd'hui
+                            </p>
                             </div>
+                            
                         </div>
 
-                        <div class="w-full flex-1 space-y-3">
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">
-                                    Consommées
-                                </p>
-                                <p class="mt-2 text-2xl font-semibold">
-                                    {{ consumedCalories }} kcal
-                                </p>
+                        <div class="max-w-md space-y-4 sm:text-right h-full flex flex-col justify-between">
+                            <div class="w-fit sm:self-end">
+                                <Button :as="Link" :href="profile()">
+                                Modifier mon objectif
+                            </Button>
                             </div>
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">Objectif</p>
-                                <p class="mt-2 text-2xl font-semibold">
-                                    {{ targetCalories }} kcal
+                            
+                            <div class="mt-5 rounded-lg border border-neutral-300 bg-evo-gray px-4 py-3 shadow-sm">
+                                <p class="text-base text-evo-black">
+                                    {{ consumedCalories }} kcal consommées
+                                </p>
+                                <p class="text-base text-evo-black">
+                                    {{ remainingCalories }} kcal restantes
                                 </p>
                             </div>
                         </div>
                     </div>
                 </section>
 
+                <section class="overflow-hidden rounded-lg bg-evo-white p-4">
+                    <div class="grid h-full gap-4 md:items-start">
+                        <div>
+                            <p class="text-sm font-medium tracking-wide text-neutral-500 uppercase">
+                                Progression du jour
+                            </p>
+
+                            
+                        </div>
+
+                        <div class="relative mx-auto h-36 w-72 max-w-full">
+                            <canvas
+                                ref="progressChartCanvas"
+                                class="h-full w-full"
+                                aria-label="Progression calorique du jour"
+                            />
+                            <p class="absolute inset-x-0 top-16 text-center text-3xl font-semibold text-evo-white">
+                                {{ progressPercent }}%
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div
+                class="grid gap-4"
+                :class="showNutritionAd ? 'lg:grid-cols-2' : ''"
+            >
+                <PremiumFeatureGate
+                    :locked="!canEditMacros"
+                    feature-name="Gestion des macros nutriment"
+                    :current-plan="active_subscription_plan"
+                    class="h-full"
+                >
+                    <div class="transition">
+                        <div class="flex items-center justify-between gap-4">
+                            <p class="text-sm font-medium tracking-wide text-neutral-500 uppercase">
+                                Gestion des macros nutriment
+                            </p>
+                            <Button
+                                v-if="canEditMacros && !isEditingMacros"
+                                type="button"
+                                @click="startMacrosEdit"
+                            >
+                                Modifier mes macros
+                            </Button>
+                        </div>
+
+                        <div v-if="!isEditingMacros" class="mt-4 grid gap-4 sm:grid-cols-3">
+                            <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                <p class="text-sm text-neutral-500">Proteines</p>
+                                <p class="mt-2 text-2xl font-semibold">
+                                    {{ caloriesOverview.macros?.protein ?? '-' }} g
+                                </p>
+                            </div>
+                            <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                <p class="text-sm text-neutral-500">Glucides</p>
+                                <p class="mt-2 text-2xl font-semibold">
+                                    {{ caloriesOverview.macros?.carbs ?? '-' }} g
+                                </p>
+                            </div>
+                            <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                <p class="text-sm text-neutral-500">Lipides</p>
+                                <p class="mt-2 text-2xl font-semibold">
+                                    {{ caloriesOverview.macros?.fats ?? '-' }} g
+                                </p>
+                            </div>
+                        </div>
+
+                        <div v-else class="mt-4 space-y-4">
+                            <div class="grid gap-4 sm:grid-cols-3">
+                                <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                    <p class="text-sm text-neutral-500">Proteines</p>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <button type="button" class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100" @click="stepMacro('protein', -1)">-</button>
+                                        <p class="text-2xl font-semibold">{{ macrosForm.protein }} g</p>
+                                        <button type="button" class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100" @click="stepMacro('protein', 1)">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                    <p class="text-sm text-neutral-500">Glucides</p>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <button type="button" class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100" @click="stepMacro('carbs', -1)">-</button>
+                                        <p class="text-2xl font-semibold">{{ macrosForm.carbs }} g</p>
+                                        <button type="button" class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100" @click="stepMacro('carbs', 1)">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                    <p class="text-sm text-neutral-500">Lipides</p>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <button type="button" class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100" @click="stepMacro('fats', -1)">-</button>
+                                        <p class="text-2xl font-semibold">{{ macrosForm.fats }} g</p>
+                                        <button type="button" class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100" @click="stepMacro('fats', 1)">+</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                                <p class="text-sm text-neutral-600">Calories estimees avec ces macros</p>
+                                <p class="mt-2 text-3xl font-semibold" :class="isCaloriesOverBase ? 'text-red-600' : 'text-emerald-600'">
+                                    {{ editedCalories }} kcal
+                                </p>
+                                <p class="mt-1 text-sm text-neutral-600">
+                                    Delta vs objectif actuel: {{ caloriesDelta > 0 ? '+' : '' }}{{ caloriesDelta }} kcal
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <Button type="button" :disabled="macrosForm.processing" @click="saveMacros">
+                                    {{ macrosForm.processing ? 'Enregistrement...' : 'Enregistrer' }}
+                                </Button>
+                                <Button type="button" variant="transparent" @click="cancelMacrosEdit">
+                                    Annuler
+                                </Button>
+                            </div>
+                        </div>
+
+                        <p v-if="macroErrorMessage" class="mt-4 text-sm text-red-600">
+                            {{ macroErrorMessage }}
+                        </p>
+                        <p v-if="flashSuccessMessage" class="mt-4 text-sm text-emerald-700">
+                            {{ flashSuccessMessage }}
+                        </p>
+                        <p class="mt-4 text-sm text-neutral-600">
+                            Ces valeurs viennent directement de votre objectif actif.
+                        </p>
+                    </div>
+
+                    <template #locked-preview>
+                        <div class="pointer-events-none opacity-35 blur-[5px] select-none">
+                            <div class="flex items-center justify-between gap-4">
+                                <p class="text-sm font-medium tracking-wide text-neutral-500 uppercase">
+                                    Gestion des macros nutriment
+                                </p>
+                                <div class="h-9 w-32 rounded-full border border-neutral-300" />
+                            </div>
+
+                            <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                                <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                    <p class="text-sm text-neutral-500">Proteines</p>
+                                    <p class="mt-2 text-2xl font-semibold">-- g</p>
+                                </div>
+                                <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                    <p class="text-sm text-neutral-500">Glucides</p>
+                                    <p class="mt-2 text-2xl font-semibold">-- g</p>
+                                </div>
+                                <div class="rounded-lg border border-neutral-200 bg-white p-4">
+                                    <p class="text-sm text-neutral-500">Lipides</p>
+                                    <p class="mt-2 text-2xl font-semibold">-- g</p>
+                                </div>
+                            </div>
+
+                            <p class="mt-4 text-sm text-neutral-600">
+                                Ces valeurs viennent directement de votre objectif actif.
+                            </p>
+                        </div>
+                    </template>
+                </PremiumFeatureGate>
+
                 <AdInlineSlot
-                    :enabled="ads.enabled"
+                    v-if="showNutritionAd"
+                    :enabled="true"
                     variant="square"
                     class="h-full"
                 />
             </div>
-
-            <PremiumFeatureGate
-                :locked="!canEditMacros"
-                feature-name="Gestion des macros nutriment"
-                :current-plan="active_subscription_plan"
-            >
-                <div class="transition">
-                    <div class="flex items-center justify-between gap-4">
-                        <p
-                            class="text-sm font-medium tracking-wide text-neutral-500 uppercase"
-                        >
-                            Gestion des macros nutriment
-                        </p>
-                        <Button
-                            v-if="canEditMacros && !isEditingMacros"
-                            type="button"
-                            @click="startMacrosEdit"
-                        >
-                            Modifier mes macros
-                        </Button>
-                    </div>
-
-                    <div
-                        v-if="!isEditingMacros"
-                        class="mt-4 grid gap-4 sm:grid-cols-3"
-                    >
-                        <div class="rounded-lg border border-neutral-200 p-4">
-                            <p class="text-sm text-neutral-500">Protéines</p>
-                            <p class="mt-2 text-2xl font-semibold">
-                                {{ caloriesOverview.macros?.protein ?? '-' }} g
-                            </p>
-                        </div>
-                        <div class="rounded-lg border border-neutral-200 p-4">
-                            <p class="text-sm text-neutral-500">Glucides</p>
-                            <p class="mt-2 text-2xl font-semibold">
-                                {{ caloriesOverview.macros?.carbs ?? '-' }} g
-                            </p>
-                        </div>
-                        <div class="rounded-lg border border-neutral-200 p-4">
-                            <p class="text-sm text-neutral-500">Lipides</p>
-                            <p class="mt-2 text-2xl font-semibold">
-                                {{ caloriesOverview.macros?.fats ?? '-' }} g
-                            </p>
-                        </div>
-                    </div>
-
-                    <div v-else class="mt-4 space-y-4">
-                        <div class="grid gap-4 sm:grid-cols-3">
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">
-                                    Protéines
-                                </p>
-                                <div
-                                    class="mt-3 flex items-center justify-between"
-                                >
-                                    <button
-                                        type="button"
-                                        class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
-                                        @click="stepMacro('protein', -1)"
-                                    >
-                                        -
-                                    </button>
-                                    <p class="text-2xl font-semibold">
-                                        {{ macrosForm.protein }} g
-                                    </p>
-                                    <button
-                                        type="button"
-                                        class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
-                                        @click="stepMacro('protein', 1)"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">Glucides</p>
-                                <div
-                                    class="mt-3 flex items-center justify-between"
-                                >
-                                    <button
-                                        type="button"
-                                        class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
-                                        @click="stepMacro('carbs', -1)"
-                                    >
-                                        -
-                                    </button>
-                                    <p class="text-2xl font-semibold">
-                                        {{ macrosForm.carbs }} g
-                                    </p>
-                                    <button
-                                        type="button"
-                                        class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
-                                        @click="stepMacro('carbs', 1)"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">Lipides</p>
-                                <div
-                                    class="mt-3 flex items-center justify-between"
-                                >
-                                    <button
-                                        type="button"
-                                        class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
-                                        @click="stepMacro('fats', -1)"
-                                    >
-                                        -
-                                    </button>
-                                    <p class="text-2xl font-semibold">
-                                        {{ macrosForm.fats }} g
-                                    </p>
-                                    <button
-                                        type="button"
-                                        class="h-9 w-9 rounded-full border border-neutral-300 text-lg leading-none hover:cursor-pointer hover:bg-neutral-100"
-                                        @click="stepMacro('fats', 1)"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            class="rounded-lg border border-neutral-200 bg-neutral-50 p-4"
-                        >
-                            <p class="text-sm text-neutral-600">
-                                Calories estimées avec ces macros
-                            </p>
-                            <p
-                                class="mt-2 text-3xl font-semibold"
-                                :class="
-                                    isCaloriesOverBase
-                                        ? 'text-red-600'
-                                        : 'text-emerald-600'
-                                "
-                            >
-                                {{ editedCalories }} kcal
-                            </p>
-                            <p class="mt-1 text-sm text-neutral-600">
-                                Delta vs objectif actuel:
-                                {{ caloriesDelta > 0 ? '+' : ''
-                                }}{{ caloriesDelta }} kcal
-                            </p>
-                        </div>
-
-                        <div class="flex items-center gap-3">
-                            <Button
-                                type="button"
-                                :disabled="macrosForm.processing"
-                                @click="saveMacros"
-                            >
-                                {{
-                                    macrosForm.processing
-                                        ? 'Enregistrement...'
-                                        : 'Enregistrer'
-                                }}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="transparent"
-                                @click="cancelMacrosEdit"
-                            >
-                                Annuler
-                            </Button>
-                        </div>
-                    </div>
-
-                    <p
-                        v-if="macroErrorMessage"
-                        class="mt-4 text-sm text-red-600"
-                    >
-                        {{ macroErrorMessage }}
-                    </p>
-                    <p
-                        v-if="flashSuccessMessage"
-                        class="mt-4 text-sm text-emerald-700"
-                    >
-                        {{ flashSuccessMessage }}
-                    </p>
-                    <p class="mt-4 text-sm text-neutral-600">
-                        Ces valeurs viennent directement de votre objectif
-                        actif.
+            <section class="rounded-lg bg-evo-white p-4 sm:p-6">
+                <div>
+                    <h2 class="text-2xl font-semibold text-evo-black">
+                        Saisie des repas
+                    </h2>
+                    <p class="mt-1 max-w-xl text-sm leading-4 text-neutral-500">
+                        Cette colonne montre simplement a quoi pourrait ressembler l'ajout manuel de
+                        calories plus tard, sans logique metier pour le moment.
                     </p>
                 </div>
 
-                <template #locked-preview>
-                    <div
-                        class="pointer-events-none opacity-35 blur-[5px] select-none"
-                    >
-                        <div class="flex items-center justify-between gap-4">
-                            <p
-                                class="text-sm font-medium tracking-wide text-neutral-500 uppercase"
-                            >
-                                Gestion des macros nutriment
-                            </p>
-                            <div
-                                class="h-9 w-32 rounded-full border border-neutral-300"
-                            />
-                        </div>
-
-                        <div class="mt-4 grid gap-4 sm:grid-cols-3">
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">
-                                    Protéines
-                                </p>
-                                <p class="mt-2 text-2xl font-semibold">-- g</p>
-                            </div>
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">Glucides</p>
-                                <p class="mt-2 text-2xl font-semibold">-- g</p>
-                            </div>
-                            <div
-                                class="rounded-lg border border-neutral-200 p-4"
-                            >
-                                <p class="text-sm text-neutral-500">Lipides</p>
-                                <p class="mt-2 text-2xl font-semibold">-- g</p>
-                            </div>
-                        </div>
-
-                        <p class="mt-4 text-sm text-neutral-600">
-                            Ces valeurs viennent directement de votre objectif
-                            actif.
-                        </p>
-                    </div>
-                </template>
-            </PremiumFeatureGate>
-
-            <section class="rounded-lg bg-white p-4">
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <p
-                            class="text-sm font-medium tracking-wide text-neutral-500 uppercase"
-                        >
-                            Saisie des repas
-                        </p>
-                        <h2 class="mt-2 text-2xl font-semibold">
-                            Aperçu V3 non fonctionnel
-                        </h2>
-                        <p class="mt-2 max-w-md text-sm text-neutral-600">
-                            Cette colonne montre simplement à quoi pourrait
-                            ressembler l'ajout manuel de calories plus tard,
-                            sans logique métier pour le moment.
-                        </p>
-                    </div>
-                    <span
-                        class="rounded-full bg-evo-purple/10 px-3 py-1 text-xs font-medium text-evo-purple"
-                    >
-                        Présentation
-                    </span>
-                </div>
-
-                <div class="mt-4 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                    <div class="rounded-lg border border-neutral-200 p-4">
-                        <p class="text-sm font-medium text-neutral-500">
+                <div class="mt-10 grid gap-5 xl:grid-cols-2">
+                    <div class="rounded-2xl border border-neutral-400 bg-evo-gray p-5 shadow-sm">
+                        <h3 class="text-2xl font-semibold text-evo-black">
                             Ajouter un repas
-                        </p>
+                        </h3>
 
-                        <div class="mt-4 space-y-4">
+                        <div class="mt-6 space-y-3">
                             <div class="space-y-2">
-                                <label class="block text-sm font-medium">
+                                <label class="block text-sm font-semibold">
                                     Moment du repas
                                 </label>
-                                <div
-                                    class="flex flex-wrap gap-2 text-sm text-evo-black"
-                                >
-                                    <span
-                                        class="rounded-full border border-neutral-300 px-3 py-2"
-                                    >
-                                        Petit-déjeuner
+                                <div class="flex flex-wrap gap-2 text-sm text-evo-black">
+                                    <span class="rounded-full border border-evo-purple px-3 py-1 leading-none">
+                                        Petit-dejeuner
                                     </span>
-                                    <span
-                                        class="rounded-full border border-neutral-300 px-3 py-2"
-                                    >
-                                        Déjeuner
+                                    <span class="rounded-full border border-evo-purple px-3 py-1 leading-none">
+                                        Dejeuner
                                     </span>
-                                    <span
-                                        class="rounded-full bg-evo-black px-3 py-2 text-evo-white"
-                                    >
-                                        Dîner
+                                    <span class="rounded-full bg-evo-purple px-3 py-1 leading-none text-evo-white">
+                                        Diner
                                     </span>
-                                    <span
-                                        class="rounded-full border border-neutral-300 px-3 py-2"
-                                    >
+                                    <span class="rounded-full border border-evo-purple px-3 py-1 leading-none">
                                         Collation
                                     </span>
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <label class="block text-sm font-medium">
+                                <label class="block text-sm font-semibold">
                                     Description
                                 </label>
-                                <div
-                                    class="rounded-lg border border-neutral-300 px-4 py-3 text-sm text-neutral-700"
-                                >
-                                    500 g de riz et 2 morceaux de poulet
+                                <div class="rounded-full border border-neutral-400 bg-white px-5 py-3 text-sm text-neutral-500 shadow-sm">
+                                    500 grammes de riz et 2 cuisses de poulets
                                 </div>
                             </div>
 
-                            <div class="grid gap-3 sm:grid-cols-2">
+                            <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="space-y-2">
-                                    <label class="block text-sm font-medium">
-                                        Calories estimées
+                                    <label class="block text-sm font-semibold">
+                                        Calories estimees
                                     </label>
-                                    <div
-                                        class="rounded-lg border border-neutral-300 px-4 py-3 text-sm text-neutral-700"
-                                    >
-                                        800 kcal
+                                    <div class="rounded-full border border-neutral-400 bg-white px-5 py-3 text-sm text-evo-orange shadow-sm">
+                                        800 calories
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label class="block text-sm font-medium">
+                                    <label class="block text-sm font-semibold">
                                         Heure
                                     </label>
-                                    <div
-                                        class="rounded-lg border border-neutral-300 px-4 py-3 text-sm text-neutral-700"
-                                    >
+                                    <div class="rounded-full border border-neutral-400 bg-white px-5 py-3 text-sm text-evo-orange shadow-sm">
                                         20:15
                                     </div>
                                 </div>
                             </div>
 
-                            <Button
-                                type="button"
-                            >
+                            <Button type="button" disabled>
                                 Ajouter ce repas
                             </Button>
+
+                            <div class="pt-8">
+                                <h3 class="text-2xl font-semibold text-evo-black">
+                                    Reste apres ajout
+                                </h3>
+                                <div class="mt-2 flex items-center justify-between gap-4 rounded-2xl border border-evo-orange bg-white px-5 py-7 shadow-sm">
+                                    <p class="text-2xl font-semibold text-evo-orange">
+                                        {{ Math.max(0, remainingCalories - 800) }} calories
+                                    </p>
+                                    <p class="text-sm text-evo-black">-800 calories</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-4">
-                        <div
-                            class="rounded-lg border border-neutral-200 bg-neutral-50 p-4"
-                        >
-                            <div
-                                class="flex items-center justify-between gap-3"
-                            >
+                    <div class="rounded-2xl border border-neutral-400 bg-evo-gray p-5 shadow-sm">
+                        <h3 class="text-2xl font-semibold text-evo-black">
+                            Journal du jour
+                        </h3>
+
+                        <div class="mt-6 space-y-3">
+                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-evo-orange bg-white px-5 py-6 shadow-sm">
                                 <div>
-                                    <p
-                                        class="text-sm font-medium text-neutral-500"
-                                    >
-                                        Reste après ajout
+                                    <p class="text-lg font-semibold text-evo-black">
+                                        Petit-dejeuner | 8h20
                                     </p>
-                                    <p
-                                        class="mt-2 text-3xl font-semibold text-evo-black"
-                                    >
-                                        {{
-                                            Math.max(0, remainingCalories - 800)
-                                        }}
-                                        kcal
+                                    <p class="text-sm text-evo-black">
+                                        Porridge, banane, beurre de cacahuetes
                                     </p>
                                 </div>
-                                <div
-                                    class="rounded-full bg-white px-3 py-1 text-sm font-medium text-evo-purple"
-                                >
-                                    -800 kcal
-                                </div>
+                                <p class="text-2xl font-semibold text-evo-orange">
+                                    450Kcal
+                                </p>
                             </div>
-                        </div>
 
-                        <div class="rounded-lg border border-neutral-200 p-4">
-                            <p class="text-sm font-medium text-neutral-500">
-                                Journal du jour
-                            </p>
-
-                            <div class="mt-4 space-y-3">
-                                <div
-                                    class="rounded-lg border border-neutral-200 bg-neutral-50 p-4"
-                                >
-                                    <div
-                                        class="flex items-center justify-between gap-3"
-                                    >
-                                        <div>
-                                            <p class="font-medium">
-                                                Petit-déjeuner
-                                            </p>
-                                            <p class="text-sm text-neutral-600">
-                                                Porridge, banane, beurre de
-                                                cacahuète
-                                            </p>
-                                        </div>
-                                        <p class="font-semibold">520 kcal</p>
-                                    </div>
+                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-evo-orange bg-white px-5 py-6 shadow-sm">
+                                <div>
+                                    <p class="text-lg font-semibold text-evo-black">
+                                        Dejeuner | 13h15
+                                    </p>
+                                    <p class="text-sm text-evo-black">
+                                        Pates, legumes, steak hache
+                                    </p>
                                 </div>
-
-                                <div
-                                    class="rounded-lg border border-neutral-200 bg-neutral-50 p-4"
-                                >
-                                    <div
-                                        class="flex items-center justify-between gap-3"
-                                    >
-                                        <div>
-                                            <p class="font-medium">Déjeuner</p>
-                                            <p class="text-sm text-neutral-600">
-                                                Pâtes, légumes, steak haché
-                                            </p>
-                                        </div>
-                                        <p class="font-semibold">730 kcal</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="rounded-lg border border-evo-purple bg-evo-purple/5 p-4"
-                                >
-                                    <div
-                                        class="flex items-center justify-between gap-3"
-                                    >
-                                        <div>
-                                            <p class="font-medium">Dîner</p>
-                                            <p class="text-sm text-neutral-600">
-                                                500 g de riz et 2 morceaux de
-                                                poulet
-                                            </p>
-                                        </div>
-                                        <p class="font-semibold">800 kcal</p>
-                                    </div>
-                                </div>
+                                <p class="text-2xl font-semibold text-evo-orange">
+                                    725Kcal
+                                </p>
                             </div>
-                        </div>
 
-                        <div
-                            class="rounded-lg border border-dashed border-neutral-300 p-4"
-                        >
-                            <p class="text-sm text-neutral-600">
-                                Plus tard, cette zone permettra d'ajouter de
-                                vrais aliments, de calculer automatiquement les
-                                calories et d'actualiser la progression du jour.
-                            </p>
+                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-evo-orange bg-white px-5 py-6 shadow-sm">
+                                <div>
+                                    <p class="text-lg font-semibold text-evo-black">
+                                        Collation | 16h
+                                    </p>
+                                    <p class="text-sm text-evo-black">
+                                        Barre de cereales
+                                    </p>
+                                </div>
+                                <p class="text-2xl font-semibold text-evo-orange">
+                                    100Kcal
+                                </p>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-evo-orange bg-white px-5 py-6 shadow-sm">
+                                <div>
+                                    <p class="text-lg font-semibold text-evo-black">
+                                        Diner | 20h15
+                                    </p>
+                                    <p class="text-sm text-evo-black">
+                                        500 g de riz et 2 morceaux de poulet
+                                    </p>
+                                </div>
+                                <p class="text-2xl font-semibold text-evo-orange">
+                                    800Kcal
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
 
-        <section v-else class="rounded-lg bg-white p-4">
+        <section v-else class="rounded-lg bg-evo-white p-4">
             <h2 class="text-lg font-semibold">Nutrition</h2>
             <p class="mt-3 text-sm text-neutral-600">
                 Aucun objectif actif n'est disponible pour calculer vos calories

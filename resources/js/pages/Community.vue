@@ -290,7 +290,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
             description="Suivez des membres Premium et consultez les séances qu'ils partagent."
         >
             <div class="space-y-4">
-                <section class="rounded-lg bg-white p-4">
+                <section class="rounded-lg bg-evo-white p-4">
                     <div
                         class="flex flex-wrap items-start justify-between gap-3"
                     >
@@ -364,7 +364,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                 </section>
 
                 <section v-if="activeTab === 'relations'" class="space-y-4">
-                    <section class="rounded-lg bg-white p-4">
+                    <section class="rounded-lg bg-evo-white p-4">
                         <h2 class="text-lg font-semibold">
                             Rechercher un membre
                         </h2>
@@ -372,7 +372,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                             v-model="searchQuery"
                             type="search"
                             placeholder="Rechercher par pseudo"
-                            class="mt-3 w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input mt-3"
                         />
 
                         <div
@@ -435,7 +435,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                     </section>
 
                     <section class="grid gap-4 xl:grid-cols-2">
-                        <div class="rounded-lg bg-white p-4">
+                        <div class="rounded-lg bg-evo-white p-4">
                             <h2 class="text-lg font-semibold">
                                 Membres suivis
                             </h2>
@@ -489,7 +489,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                             </p>
                         </div>
 
-                        <div class="rounded-lg bg-white p-4">
+                        <div class="rounded-lg bg-evo-white p-4">
                             <h2 class="text-lg font-semibold">
                                 Vos abonnés
                             </h2>
@@ -557,7 +557,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                     <article
                         v-for="post in activePosts"
                         :key="post.id"
-                        class="overflow-hidden rounded-lg bg-white"
+                        class="overflow-hidden rounded-lg bg-evo-white"
                     >
                         <div class="p-4 sm:p-5">
                             <div
@@ -682,7 +682,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                             performance, performanceIndex
                                         ) in post.performed_session.performances"
                                         :key="`${post.id}-${performanceIndex}`"
-                                        class="rounded-lg border border-neutral-200 bg-white p-3"
+                                        class="rounded-lg border border-neutral-200 bg-evo-white p-3"
                                     >
                                         <div
                                             class="flex items-start justify-between gap-2"
@@ -724,7 +724,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
 
                     <section
                         v-if="activePosts.length === 0"
-                        class="rounded-lg bg-white p-6"
+                        class="rounded-lg bg-evo-white p-6"
                     >
                         <p
                             class="text-sm font-medium tracking-wide text-neutral-500 uppercase"
@@ -755,7 +755,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
 
             <template #locked-preview>
                 <div class="space-y-4">
-                    <section class="rounded-lg bg-white p-4 opacity-60">
+                    <section class="rounded-lg bg-evo-white p-4 opacity-60">
                         <h2 class="text-lg font-semibold">
                             Espace communautaire
                         </h2>
@@ -771,7 +771,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
             v-if="editingPost"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
-            <section class="w-full max-w-xl rounded-lg bg-white p-4 shadow-xl">
+            <section class="w-full max-w-xl rounded-lg bg-evo-white p-4 shadow-xl">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-semibold">
@@ -806,7 +806,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                 editingPost.performed_session
                                     .workout_session_name ?? 'Séance partagée'
                             "
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="editPostForm.errors.title"
@@ -827,7 +827,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                             id="edit_post_content"
                             v-model="editPostForm.content"
                             rows="3"
-                            class="w-full rounded-md border border-neutral-300 px-4 py-2 focus:border-evo-black focus:outline-none"
+                            class="evo-input"
                         />
                         <p
                             v-if="editPostForm.errors.content"
@@ -865,7 +865,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
             v-if="selectedProfile || isProfileLoading"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
-            <section class="w-full max-w-xl rounded-lg bg-white p-4 shadow-xl">
+            <section class="w-full max-w-xl rounded-lg bg-evo-white p-4 shadow-xl">
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">Profil membre</h2>
                     <button

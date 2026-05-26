@@ -191,7 +191,7 @@ onBeforeUnmount(() => {
                     </div>
 
                     <div
-                        class="mt-5 flex aspect-[16/7] items-center justify-center rounded-lg border border-dashed border-evo-purple/40 bg-white text-center dark:bg-neutral-950"
+                        class="mt-5 flex aspect-[16/7] items-center justify-center rounded-lg border border-dashed border-evo-purple/40 bg-evo-white text-center dark:bg-neutral-950"
                     >
                         <div class="px-6">
                             <p class="text-xl font-bold">Espace publicitaire</p>

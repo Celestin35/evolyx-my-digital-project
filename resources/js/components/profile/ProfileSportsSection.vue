@@ -63,7 +63,7 @@ const saveSports = () => {
 </script>
 
 <template>
-    <div class="w-full self-start rounded-lg bg-white p-4">
+    <div class="w-full self-start rounded-lg bg-evo-white p-4">
         <button
             type="button"
             class="flex w-full items-center justify-between text-left hover:cursor-pointer"

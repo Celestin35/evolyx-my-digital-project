@@ -189,7 +189,7 @@ const confirmSubscriptionChange = () => {
         <h1 class="sr-only">Paramètres du compte</h1>
 
         <SettingsLayout>
-            <div class="rounded-lg bg-white p-4 dark:bg-neutral-900">
+            <div class="rounded-lg bg-evo-white p-4 dark:bg-neutral-900">
                 <div class="flex flex-col space-y-4">
                     <Heading
                         variant="small"
@@ -210,7 +210,7 @@ const confirmSubscriptionChange = () => {
                             <Input
                                 id="pseudo"
                                 v-model="accountInfoForm.pseudo"
-                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                class="evo-input mt-1 block text-evo-black"
                                 required
                                 autocomplete="nickname"
                                 placeholder="Pseudo"
@@ -227,7 +227,7 @@ const confirmSubscriptionChange = () => {
                                 id="email"
                                 v-model="accountInfoForm.email"
                                 type="email"
-                                class="mt-1 block w-full border-neutral-300 bg-white text-evo-black"
+                                class="evo-input mt-1 block text-evo-black"
                                 required
                                 autocomplete="username"
                                 placeholder="Adresse email"
@@ -292,7 +292,7 @@ const confirmSubscriptionChange = () => {
                 </div>
             </div>
 
-            <div class="rounded-lg bg-white p-4 dark:bg-neutral-900">
+            <div class="rounded-lg bg-evo-white p-4 dark:bg-neutral-900">
                 <div class="space-y-4">
                     <Heading
                         variant="small"
@@ -302,7 +302,7 @@ const confirmSubscriptionChange = () => {
 
                     <div
                         v-if="activeSubscription"
-                        class="rounded-lg border border-neutral-200 p-4"
+                        class="rounded-lg border border-neutral-200 p-4 bg-white"
                     >
                         <p class="font-medium">Abonnement actuel</p>
                         <div class="mt-2 space-y-2 text-sm text-neutral-700">
@@ -376,7 +376,6 @@ const confirmSubscriptionChange = () => {
                                               : ''
                                     "
                                     :disabled="plan.isCurrent"
-                                    :disable-animation="plan.isCurrent"
                                     @click="selectSubscriptionPlan(plan.name)"
                                 >
                                     {{
@@ -420,7 +419,7 @@ const confirmSubscriptionChange = () => {
                 v-if="isSubscriptionModalOpen && selectedSubscriptionPlan"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-evo-black/50 px-4"
             >
-                <div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-lg">
+                <div class="w-full max-w-md rounded-2xl bg-evo-white p-4 shadow-lg">
                     <div class="space-y-3">
                         <h2 class="text-lg font-semibold">Changer d'abonnement</h2>
                         <p class="text-sm text-neutral-600">

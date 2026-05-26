@@ -40,11 +40,10 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
                     :key="toUrl(item.href)"
                     :href="item.href"
                     :class="[
-                        'flex w-full items-center gap-2 rounded-full px-4 py-2 text-evo-black hover:bg-neutral-100 dark:text-evo-white dark:hover:bg-neutral-800',
-                        {
-                            'bg-evo-black text-evo-white hover:bg-evo-black hover:text-evo-white dark:bg-evo-white dark:text-evo-black dark:hover:bg-evo-white dark:hover:text-evo-black':
-                                isCurrentOrParentUrl(item.href),
-                        },
+                        'flex w-full items-center gap-2 rounded-full px-4 py-2',
+                        isCurrentOrParentUrl(item.href)
+                            ? 'bg-evo-purple text-evo-white hover:bg-evo-purple hover:text-evo-white dark:bg-evo-white dark:text-evo-purple dark:hover:bg-evo-white dark:hover:text-evo-purple'
+                            : 'text-evo-black hover:bg-neutral-100 dark:text-evo-white dark:hover:bg-neutral-800',
                     ]"
                 >
                     <component :is="item.icon" class="h-4 w-4" />

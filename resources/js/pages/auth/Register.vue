@@ -415,7 +415,7 @@ function submit() {
                             id="sex"
                             v-model="form.sex"
                             required
-                            class="h-11 w-full rounded-md border border-evo-black/15 bg-white/80 px-3 text-sm outline-none transition focus:border-evo-purple focus:ring-3 focus:ring-evo-purple/20"
+                            class="evo-input h-11 border-evo-black/15 px-3 text-sm transition focus:border-evo-purple focus:ring-3 focus:ring-evo-purple/20"
                         >
                             <option value="" disabled>Sélectionner</option>
                             <option value="male">Homme</option>
@@ -447,7 +447,7 @@ function submit() {
                         id="activity_level"
                         v-model="form.activity_level"
                         required
-                        class="h-11 w-full rounded-md border border-evo-black/15 bg-white/80 px-3 text-sm outline-none transition focus:border-evo-purple focus:ring-3 focus:ring-evo-purple/20"
+                        class="evo-input h-11 border-evo-black/15 px-3 text-sm transition focus:border-evo-purple focus:ring-3 focus:ring-evo-purple/20"
                     >
                         <option
                             v-for="option in activityLevelOptions"
@@ -470,7 +470,7 @@ function submit() {
                     <p class="text-xs text-evo-black/50">
                         Si ton sport n'est pas dans la liste, tu pourras le créer ensuite depuis l'application.
                     </p>
-                    <div class="grid max-h-48 gap-2 overflow-y-auto rounded-lg border border-evo-black/10 bg-white/70 p-2 sm:grid-cols-2">
+                    <div class="grid max-h-48 gap-2 overflow-y-auto rounded-lg border border-evo-black/10 bg-evo-white/70 p-2 sm:grid-cols-2">
                         <label
                             v-for="sport in availableSports"
                             :key="sport.id"

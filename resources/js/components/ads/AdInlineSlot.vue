@@ -10,7 +10,7 @@ defineProps<{
 <template>
     <aside
         v-if="enabled"
-        class="rounded-lg border border-evo-purple/25 bg-white p-4 text-evo-black shadow-sm dark:border-evo-purple/45 dark:bg-neutral-900 dark:text-evo-white"
+        class="rounded-lg border border-evo-purple/25 bg-evo-white p-4 text-evo-black shadow-sm dark:border-evo-purple/45 dark:bg-neutral-900 dark:text-evo-white"
         :class="variant === 'square' ? 'min-h-80' : 'min-h-[120px]'"
         aria-label="Publicite"
     >
