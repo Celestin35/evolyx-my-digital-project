@@ -2,6 +2,7 @@
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
 import {
     formatFrenchDate,
     parseWeight,
@@ -285,9 +286,9 @@ const toggleGoalEditor = () => {
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90"
+                        :variant="isGoalEditorOpen ? 'transparent' : 'default'"
                         @click="toggleGoalEditor"
                     >
                         {{
@@ -297,7 +298,7 @@ const toggleGoalEditor = () => {
                                   ? 'Modifier'
                                   : 'Créer un objectif'
                         }}
-                    </button>
+                    </Button>
                 </div>
 
                 <Transition
@@ -317,9 +318,9 @@ const toggleGoalEditor = () => {
                             <p class="font-medium">Poids cible :</p>
 
                             <div class="flex items-center gap-4">
-                                <button
+                                <Button
                                     type="button"
-                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-evo-black p-2 text-xl leading-none text-evo-white transition-all duration-300 ease-in-out hover:cursor-pointer hover:opacity-70"
+                                    class="size-9 rounded-full p-2"
                                     @click="decreaseWeight"
                                 >
                                     <svg
@@ -334,13 +335,13 @@ const toggleGoalEditor = () => {
                                             fill="currentColor"
                                         />
                                     </svg>
-                                </button>
+                                </Button>
                                 <p class="min-w-24 text-center text-lg font-semibold">
                                     {{ formattedTargetWeight }}
                                 </p>
-                                <button
+                                <Button
                                     type="button"
-                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-evo-black p-2 text-xl leading-none text-evo-white transition-all duration-300 ease-in-out hover:cursor-pointer hover:opacity-70"
+                                    class="size-9 rounded-full p-2"
                                     @click="increaseWeight"
                                 >
                                     <svg
@@ -352,7 +353,7 @@ const toggleGoalEditor = () => {
                                             d="M15 5L15 15L5 15L5 17L15 17L15 27L17 27L17 17L27 17L27 15L17 15L17 5Z"
                                         />
                                     </svg>
-                                </button>
+                                </Button>
                             </div>
                         </div>
 
@@ -423,9 +424,8 @@ const toggleGoalEditor = () => {
                                 {{ goalForm.errors.weekly_weight_goal }}
                             </p>
 
-                            <button
+                            <Button
                                 type="button"
-                                class="rounded-full bg-evo-black px-4 py-2 text-sm font-medium text-evo-white transition hover:cursor-pointer hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                                 :disabled="!canSubmitGoal || goalForm.processing"
                                 @click="confirmWeightGoal"
                             >
@@ -434,7 +434,7 @@ const toggleGoalEditor = () => {
                                         ? 'Enregistrement...'
                                         : 'Confirmer'
                                 }}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                     </div>

@@ -356,7 +356,7 @@ function submit() {
 
                 <Button
                     type="button"
-                    class="h-11 w-full bg-evo-black text-evo-white hover:bg-evo-black/90"
+                    class="w-full"
                     :disabled="validatingAccount"
                     @click="goToProfile"
                 >
@@ -496,7 +496,6 @@ function submit() {
                 <div class="grid gap-3 sm:grid-cols-[auto_1fr]">
                     <Button
                         type="button"
-                        variant="outline"
                         class="h-11 border-evo-black/15 bg-white/80 px-4"
                         @click="goToAccount"
                     >
@@ -505,7 +504,6 @@ function submit() {
                     </Button>
                     <Button
                         type="submit"
-                        class="h-11 bg-evo-black text-evo-white hover:bg-evo-black/90"
                         :disabled="form.processing"
                         data-test="register-user-button"
                     >

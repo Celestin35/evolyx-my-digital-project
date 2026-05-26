@@ -39,9 +39,13 @@ const passwordInput = useTemplateRef('passwordInput');
             </div>
             <Dialog>
                 <DialogTrigger as-child>
-                    <Button variant="destructive" data-test="delete-user-button"
-                        >Supprimer le compte</Button
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        data-test="delete-user-button"
                     >
+                        Supprimer le compte
+                    </Button>
                 </DialogTrigger>
                 <DialogContent>
                     <Form
@@ -82,7 +86,6 @@ const passwordInput = useTemplateRef('passwordInput');
                         <DialogFooter class="gap-2">
                             <DialogClose as-child>
                                 <Button
-                                    variant="secondary"
                                     @click="
                                         () => {
                                             clearErrors();

@@ -91,7 +91,7 @@ defineProps<{
 
                 <Button
                     type="submit"
-                    class="h-11 w-full bg-evo-black text-evo-white hover:bg-evo-black/90"
+                    class="w-full"
                     :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"

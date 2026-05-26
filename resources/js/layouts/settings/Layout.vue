@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { toUrl } from '@/lib/utils';
@@ -36,24 +35,21 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
     <div class="flex flex-col gap-4 lg:flex-row">
         <aside class="w-full max-w-xl lg:w-48">
             <nav class="flex flex-col space-y-1 space-x-0" aria-label="Parametres">
-                <Button
+                <Link
                     v-for="item in sidebarNavItems"
                     :key="toUrl(item.href)"
-                    variant="ghost"
+                    :href="item.href"
                     :class="[
-                        'w-full justify-start rounded-full px-4 py-2 text-evo-black hover:bg-neutral-100 dark:text-evo-white dark:hover:bg-neutral-800',
+                        'flex w-full items-center gap-2 rounded-full px-4 py-2 text-evo-black hover:bg-neutral-100 dark:text-evo-white dark:hover:bg-neutral-800',
                         {
                             'bg-evo-black text-evo-white hover:bg-evo-black hover:text-evo-white dark:bg-evo-white dark:text-evo-black dark:hover:bg-evo-white dark:hover:text-evo-black':
                                 isCurrentOrParentUrl(item.href),
                         },
                     ]"
-                    as-child
                 >
-                    <Link :href="item.href">
-                        <component :is="item.icon" class="h-4 w-4" />
-                        {{ item.title }}
-                    </Link>
-                </Button>
+                    <component :is="item.icon" class="h-4 w-4" />
+                    {{ item.title }}
+                </Link>
             </nav>
         </aside>
 
