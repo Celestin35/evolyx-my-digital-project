@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { Separator } from '@/components/ui/separator';
+import { computed } from 'vue';
+import HorizontalTabs from '@/components/HorizontalTabs.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
@@ -29,35 +29,29 @@ const sidebarNavItems: NavItem[] = [
 ];
 
 const { isCurrentOrParentUrl } = useCurrentUrl();
+
+const settingsTabs = computed(() =>
+    sidebarNavItems.map((item) => ({
+        value: toUrl(item.href),
+        label: item.title,
+        href: item.href,
+        active: isCurrentOrParentUrl(item.href),
+    })),
+);
 </script>
 
 <template>
-    <div class="flex flex-col gap-4 lg:flex-row">
-        <aside class="w-full max-w-xl lg:w-48">
-            <nav class="flex flex-col space-y-1 space-x-0" aria-label="Parametres">
-                <Link
-                    v-for="item in sidebarNavItems"
-                    :key="toUrl(item.href)"
-                    :href="item.href"
-                    :class="[
-                        'flex w-full items-center gap-2 rounded-full px-4 py-2',
-                        isCurrentOrParentUrl(item.href)
-                            ? 'bg-evo-purple text-evo-white hover:bg-evo-purple hover:text-evo-white dark:bg-evo-white dark:text-evo-purple dark:hover:bg-evo-white dark:hover:text-evo-purple'
-                            : 'text-evo-black hover:bg-neutral-100 dark:text-evo-white dark:hover:bg-neutral-800',
-                    ]"
-                >
-                    <component :is="item.icon" class="h-4 w-4" />
-                    {{ item.title }}
-                </Link>
-            </nav>
-        </aside>
+    <div class="space-y-4">
+        <section class="rounded-lg bg-evo-white p-4 dark:bg-neutral-900">
+            <HorizontalTabs
+                :tabs="settingsTabs"
+                aria-label="Parametres"
+                :spaced="false"
+            />
+        </section>
 
-        <Separator class="my-4 lg:hidden" />
-
-        <div class="flex-1">
-            <section class="space-y-4">
-                <slot />
-            </section>
-        </div>
+        <section class="space-y-4">
+            <slot />
+        </section>
     </div>
 </template>

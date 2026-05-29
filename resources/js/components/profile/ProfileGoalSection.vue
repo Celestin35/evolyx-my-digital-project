@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { ChevronDown } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import {
     formatFrenchDate,
@@ -41,16 +40,14 @@ const currentWeight = parseWeight(props.user.current_weight);
 const initialTargetWeight =
     parseWeight(props.activeGoal?.target_weight ?? null) ??
     (currentWeight === null ? null : roundToQuarter(currentWeight));
-const initialWeeklyWeightGoal = parseWeight(
-    props.activeGoal?.weekly_weight_goal ?? null,
-) ?? 0;
+const initialWeeklyWeightGoal =
+    parseWeight(props.activeGoal?.weekly_weight_goal ?? null) ?? 0;
 
 const goalForm = useForm({
     target_weight: initialTargetWeight,
     weekly_weight_goal: initialWeeklyWeightGoal,
 });
 
-const isOpen = ref(true);
 const isGoalEditorOpen = ref(false);
 
 const formattedTargetWeight = computed(() => {
@@ -124,7 +121,10 @@ const dynamicGoalEndDate = computed(() => {
         return null;
     }
 
-    if (!isWeeklyGoalDirectionValid.value || goalForm.weekly_weight_goal === 0) {
+    if (
+        !isWeeklyGoalDirectionValid.value ||
+        goalForm.weekly_weight_goal === 0
+    ) {
         return null;
     }
 
@@ -132,7 +132,10 @@ const dynamicGoalEndDate = computed(() => {
         Number(goalForm.target_weight) - currentWeight,
     );
     const weeklyRate = Math.abs(goalForm.weekly_weight_goal);
-    const totalDays = Math.max(1, Math.ceil((totalWeightToChange / weeklyRate) * 7));
+    const totalDays = Math.max(
+        1,
+        Math.ceil((totalWeightToChange / weeklyRate) * 7),
+    );
 
     const goalDate = new Date();
     goalDate.setDate(goalDate.getDate() + totalDays);
@@ -180,7 +183,9 @@ const increaseWeight = () => {
         return;
     }
 
-    goalForm.target_weight = roundToQuarter(Number(goalForm.target_weight) + 0.25);
+    goalForm.target_weight = roundToQuarter(
+        Number(goalForm.target_weight) + 0.25,
+    );
 };
 
 const confirmWeightGoal = () => {
@@ -199,117 +204,92 @@ const toggleGoalEditor = () => {
 </script>
 
 <template>
-    <div class="self-start w-full rounded-lg bg-evo-white p-4">
-        <button
-            type="button"
-            class="flex w-full items-center justify-between text-left hover:cursor-pointer"
-            :aria-expanded="isOpen"
-            aria-controls="profile-goal-content"
-            @click="isOpen = !isOpen"
-        >
-            <h2 class="text-lg font-semibold">Objectif de poids</h2>
-            <ChevronDown
-                class="h-6 w-6 text-evo-black transition-transform duration-200"
-                :class="{ 'rotate-180': isOpen }"
-                aria-hidden="true"
-            />
-        </button>
+    <div class="w-full self-start rounded-lg bg-evo-white p-4">
+        <h2 class="text-lg font-semibold">Objectif de poids</h2>
 
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="-translate-y-1 opacity-0"
-            enter-to-class="translate-y-0 opacity-100"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="translate-y-0 opacity-100"
-            leave-to-class="-translate-y-1 opacity-0"
-        >
+        <div id="profile-goal-content" class="space-y-4 pt-4">
             <div
-                v-show="isOpen"
-                id="profile-goal-content"
-                class="space-y-4 pt-4"
+                v-if="successMessage"
+                class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
             >
-                <div
-                    v-if="successMessage"
-                    class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
-                >
-                    {{ successMessage }}
-                </div>
+                {{ successMessage }}
+            </div>
 
-                <div class="space-y-1">
+            <div class="space-y-1">
+                <p>
+                    Poids actuel :
+                    <span class="font-semibold">
+                        {{ user.current_weight }} kg
+                    </span>
+                </p>
+            </div>
+
+            <div
+                v-if="hasActiveGoal"
+                class="rounded-lg border border-neutral-200 bg-white p-4"
+            >
+                <p class="font-medium">Objectif en cours</p>
+                <div class="mt-3 space-y-2 text-sm text-neutral-700">
                     <p>
-                        Poids actuel :
-                        <span class="font-semibold">
-                            {{ user.current_weight }} kg
+                        Type :
+                        <span class="font-semibold text-evo-black">
+                            {{ activeGoal?.goal_type ?? 'Non défini' }}
+                        </span>
+                    </p>
+                    <p>
+                        Poids cible :
+                        <span class="font-semibold text-evo-black">
+                            {{ formattedActiveTargetWeight ?? 'Non défini' }}
+                        </span>
+                    </p>
+                    <p>
+                        Date de fin estimée :
+                        <span class="font-semibold text-evo-black">
+                            {{
+                                formattedActiveGoalEndDate ??
+                                'Pas de date de fin'
+                            }}
                         </span>
                     </p>
                 </div>
+            </div>
 
-                <div
-                    v-if="hasActiveGoal"
-                    class="rounded-lg border border-neutral-200 p-4 bg-white"
+            <div
+                v-else
+                class="rounded-lg border border-dashed border-neutral-300 p-4"
+            >
+                <p class="font-medium">Pas d'objectif en cours.</p>
+                <p class="mt-1 text-sm text-neutral-600">
+                    Créez un objectif pour définir votre poids cible et votre
+                    rythme.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <Button
+                    type="button"
+                    :variant="isGoalEditorOpen ? 'transparent' : 'default'"
+                    @click="toggleGoalEditor"
                 >
-                    <p class="font-medium">Objectif en cours</p>
-                    <div class="mt-3 space-y-2 text-sm text-neutral-700">
-                        <p>
-                            Type :
-                            <span class="font-semibold text-evo-black">
-                                {{ activeGoal?.goal_type ?? 'Non défini' }}
-                            </span>
-                        </p>
-                        <p>
-                            Poids cible :
-                            <span class="font-semibold text-evo-black">
-                                {{ formattedActiveTargetWeight ?? 'Non défini' }}
-                            </span>
-                        </p>
-                        <p>
-                            Date de fin estimée :
-                            <span class="font-semibold text-evo-black">
-                                {{
-                                    formattedActiveGoalEndDate ??
-                                    'Pas de date de fin'
-                                }}
-                            </span>
-                        </p>
-                    </div>
-                </div>
+                    {{
+                        isGoalEditorOpen
+                            ? 'Fermer'
+                            : hasActiveGoal
+                              ? 'Modifier'
+                              : 'Créer un objectif'
+                    }}
+                </Button>
+            </div>
 
-                <div
-                    v-else
-                    class="rounded-lg border border-dashed border-neutral-300 p-4"
-                >
-                    <p class="font-medium">Pas d'objectif en cours.</p>
-                    <p class="mt-1 text-sm text-neutral-600">
-                        Créez un objectif pour définir votre poids cible et votre
-                        rythme.
-                    </p>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <Button
-                        type="button"
-                        :variant="isGoalEditorOpen ? 'transparent' : 'default'"
-                        @click="toggleGoalEditor"
-                    >
-                        {{
-                            isGoalEditorOpen
-                                ? 'Fermer'
-                                : hasActiveGoal
-                                  ? 'Modifier'
-                                  : 'Créer un objectif'
-                        }}
-                    </Button>
-                </div>
-
-                <Transition
-                    enter-active-class="transition duration-200 ease-out"
-                    enter-from-class="-translate-y-1 opacity-0"
-                    enter-to-class="translate-y-0 opacity-100"
-                    leave-active-class="transition duration-150 ease-in"
-                    leave-from-class="translate-y-0 opacity-100"
-                    leave-to-class="-translate-y-1 opacity-0"
-                >
-                    <div v-show="isGoalEditorOpen">
+            <Transition
+                enter-active-class="transition duration-200 ease-out"
+                enter-from-class="-translate-y-1 opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition duration-150 ease-in"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="-translate-y-1 opacity-0"
+            >
+                <div v-show="isGoalEditorOpen">
                     <div class="js-goal-editor-inner space-y-4 pt-4">
                         <div
                             v-if="goalForm.target_weight !== null"
@@ -336,7 +316,9 @@ const toggleGoalEditor = () => {
                                         />
                                     </svg>
                                 </Button>
-                                <p class="min-w-24 text-center text-lg font-semibold">
+                                <p
+                                    class="min-w-24 text-center text-lg font-semibold"
+                                >
                                     {{ formattedTargetWeight }}
                                 </p>
                                 <Button
@@ -426,7 +408,9 @@ const toggleGoalEditor = () => {
 
                             <Button
                                 type="button"
-                                :disabled="!canSubmitGoal || goalForm.processing"
+                                :disabled="
+                                    !canSubmitGoal || goalForm.processing
+                                "
                                 @click="confirmWeightGoal"
                             >
                                 {{
@@ -437,9 +421,8 @@ const toggleGoalEditor = () => {
                             </Button>
                         </div>
                     </div>
-                    </div>
-                </Transition>
-            </div>
-        </Transition>
+                </div>
+            </Transition>
+        </div>
     </div>
 </template>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Link, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { ChevronDown } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { progress } from '@/routes';
 import {
@@ -26,7 +25,6 @@ const props = defineProps<{
 }>();
 
 const isEditing = ref(false);
-const isOpen = ref(true);
 
 const personalInfoForm = useForm({
     first_name: props.user.first_name ?? '',
@@ -76,7 +74,12 @@ const cancelEdit = () => {
 };
 
 const savePersonalInfo = () => {
-    personalInfoForm.clearErrors('sex', 'height', 'activity_level', 'birth_date');
+    personalInfoForm.clearErrors(
+        'sex',
+        'height',
+        'activity_level',
+        'birth_date',
+    );
     const height = Number(personalInfoForm.height);
 
     if (!['male', 'female', 'other'].includes(personalInfoForm.sex)) {
@@ -99,26 +102,42 @@ const savePersonalInfo = () => {
         return;
     }
 
-    if (!activityLevelOptions.some((option) => option.value === personalInfoForm.activity_level)) {
-        personalInfoForm.setError('activity_level', "Selectionne un niveau d'activite.");
+    if (
+        !activityLevelOptions.some(
+            (option) => option.value === personalInfoForm.activity_level,
+        )
+    ) {
+        personalInfoForm.setError(
+            'activity_level',
+            "Selectionne un niveau d'activite.",
+        );
 
         return;
     }
 
     if (!personalInfoForm.birth_date) {
-        personalInfoForm.setError('birth_date', 'La date de naissance est requise.');
+        personalInfoForm.setError(
+            'birth_date',
+            'La date de naissance est requise.',
+        );
 
         return;
     }
 
     if (personalInfoForm.birth_date > todayDate.value) {
-        personalInfoForm.setError('birth_date', 'La date de naissance ne peut pas etre dans le futur.');
+        personalInfoForm.setError(
+            'birth_date',
+            'La date de naissance ne peut pas etre dans le futur.',
+        );
 
         return;
     }
 
     if (personalInfoForm.birth_date > minimumBirthDate.value) {
-        personalInfoForm.setError('birth_date', "Tu dois avoir au moins 15 ans pour utiliser l'application.");
+        personalInfoForm.setError(
+            'birth_date',
+            "Tu dois avoir au moins 15 ans pour utiliser l'application.",
+        );
 
         return;
     }
@@ -134,183 +153,200 @@ const savePersonalInfo = () => {
 
 <template>
     <div class="w-full self-start rounded-lg bg-evo-white p-4">
-        <button
-            type="button"
-            class="flex w-full items-center justify-between text-left hover:cursor-pointer"
-            :aria-expanded="isOpen"
-            aria-controls="profile-personal-info-content"
-            @click="isOpen = !isOpen"
-        >
-            <h2 class="text-lg font-semibold">Informations personnelles</h2>
-            <ChevronDown
-                class="h-6 w-6 text-evo-black transition-transform duration-200"
-                :class="{ 'rotate-180': isOpen }"
-                aria-hidden="true"
-            />
-        </button>
+        <h2 class="text-lg font-semibold">Informations personnelles</h2>
 
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="-translate-y-1 opacity-0"
-            enter-to-class="translate-y-0 opacity-100"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="translate-y-0 opacity-100"
-            leave-to-class="-translate-y-1 opacity-0"
-        >
-            <div v-show="isOpen" id="profile-personal-info-content" class="space-y-2 pt-4">
-                <div class="flex items-center justify-end">
-                    <Button
-                        v-if="!isEditing"
-                        type="button"
-                        @click="startEdit"
+        <div id="profile-personal-info-content" class="space-y-2 pt-4">
+            <div class="flex items-center justify-end">
+                <Button v-if="!isEditing" type="button" @click="startEdit">
+                    Modifier
+                </Button>
+            </div>
+
+            <template v-if="!isEditing">
+                <div v-if="user.first_name" class="flex items-center gap-1">
+                    <p class="font-medium">Prenom :</p>
+                    <p>{{ user.first_name }}</p>
+                </div>
+                <div v-if="formattedSex" class="flex items-center gap-1">
+                    <p class="font-medium">Sexe :</p>
+                    <p>{{ formattedSex }}</p>
+                </div>
+                <div v-if="user.height" class="flex items-center gap-1">
+                    <p class="font-medium">Taille :</p>
+                    <p>{{ user.height }} cm</p>
+                </div>
+                <div v-if="user.birth_date" class="flex items-center gap-1">
+                    <p class="font-medium">Date de naissance :</p>
+                    <p>{{ user.birth_date }}</p>
+                </div>
+                <div
+                    v-if="formattedActivityLevel"
+                    class="flex items-center gap-1"
+                >
+                    <p class="font-medium">Niveau d'activite :</p>
+                    <p>{{ formattedActivityLevel }}</p>
+                </div>
+                <div v-if="user.age" class="flex items-center gap-1">
+                    <p class="font-medium">Age :</p>
+                    <p>{{ user.age }}</p>
+                </div>
+                <div v-if="user.current_weight" class="flex items-center gap-1">
+                    <p class="font-medium">Poids actuel :</p>
+                    <p>{{ user.current_weight }} kg</p>
+                </div>
+            </template>
+
+            <div v-else class="space-y-4">
+                <div class="space-y-2">
+                    <label for="personal_first_name" class="block font-medium"
+                        >Prenom</label
                     >
-                        Modifier
+                    <input
+                        id="personal_first_name"
+                        v-model="personalInfoForm.first_name"
+                        type="text"
+                        class="evo-input"
+                    />
+                    <p
+                        v-if="personalInfoForm.errors.first_name"
+                        class="text-sm text-red-600"
+                    >
+                        {{ personalInfoForm.errors.first_name }}
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="personal_sex" class="block font-medium"
+                        >Sexe</label
+                    >
+                    <select
+                        id="personal_sex"
+                        v-model="personalInfoForm.sex"
+                        class="evo-input"
+                    >
+                        <option
+                            v-for="option in sexOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </option>
+                    </select>
+                    <p
+                        v-if="personalInfoForm.errors.sex"
+                        class="text-sm text-red-600"
+                    >
+                        {{ personalInfoForm.errors.sex }}
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="personal_height" class="block font-medium"
+                        >Taille</label
+                    >
+                    <input
+                        id="personal_height"
+                        v-model="personalInfoForm.height"
+                        type="number"
+                        min="50"
+                        max="300"
+                        class="evo-input"
+                    />
+                    <p
+                        v-if="personalInfoForm.errors.height"
+                        class="text-sm text-red-600"
+                    >
+                        {{ personalInfoForm.errors.height }}
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="personal_birth_date" class="block font-medium"
+                        >Date de naissance</label
+                    >
+                    <input
+                        id="personal_birth_date"
+                        v-model="personalInfoForm.birth_date"
+                        type="date"
+                        :max="minimumBirthDate"
+                        class="evo-input"
+                    />
+                    <p
+                        v-if="personalInfoForm.errors.birth_date"
+                        class="text-sm text-red-600"
+                    >
+                        {{ personalInfoForm.errors.birth_date }}
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <label
+                        for="personal_activity_level"
+                        class="block font-medium"
+                    >
+                        Niveau d'activite
+                    </label>
+                    <select
+                        id="personal_activity_level"
+                        v-model="personalInfoForm.activity_level"
+                        class="evo-input"
+                    >
+                        <option
+                            v-for="option in activityLevelOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </option>
+                    </select>
+                    <p
+                        v-if="personalInfoForm.errors.activity_level"
+                        class="text-sm text-red-600"
+                    >
+                        {{ personalInfoForm.errors.activity_level }}
+                    </p>
+                </div>
+
+                <div
+                    class="rounded-lg border border-dashed border-neutral-300 p-4"
+                >
+                    <p class="text-sm text-neutral-600">
+                        Pour modifier ou ajouter une entree de poids,
+                        rendez-vous sur votre suivi d'evolution.
+                    </p>
+                    <Button :as="Link" :href="progress()" class="mt-3">
+                        Gerer mes entrees de poids
                     </Button>
                 </div>
 
-                <template v-if="!isEditing">
-                    <div v-if="user.first_name" class="flex items-center gap-1">
-                        <p class="font-medium">Prenom :</p>
-                        <p>{{ user.first_name }}</p>
-                    </div>
-                    <div v-if="formattedSex" class="flex items-center gap-1">
-                        <p class="font-medium">Sexe :</p>
-                        <p>{{ formattedSex }}</p>
-                    </div>
-                    <div v-if="user.height" class="flex items-center gap-1">
-                        <p class="font-medium">Taille :</p>
-                        <p>{{ user.height }} cm</p>
-                    </div>
-                    <div v-if="user.birth_date" class="flex items-center gap-1">
-                        <p class="font-medium">Date de naissance :</p>
-                        <p>{{ user.birth_date }}</p>
-                    </div>
-                    <div v-if="formattedActivityLevel" class="flex items-center gap-1">
-                        <p class="font-medium">Niveau d'activite :</p>
-                        <p>{{ formattedActivityLevel }}</p>
-                    </div>
-                    <div v-if="user.age" class="flex items-center gap-1">
-                        <p class="font-medium">Age :</p>
-                        <p>{{ user.age }}</p>
-                    </div>
-                    <div v-if="user.current_weight" class="flex items-center gap-1">
-                        <p class="font-medium">Poids actuel :</p>
-                        <p>{{ user.current_weight }} kg</p>
-                    </div>
-                </template>
-
-                <div v-else class="space-y-4">
-                    <div class="space-y-2">
-                        <label for="personal_first_name" class="block font-medium">Prenom</label>
-                        <input
-                            id="personal_first_name"
-                            v-model="personalInfoForm.first_name"
-                            type="text"
-                            class="evo-input"
-                        />
-                        <p v-if="personalInfoForm.errors.first_name" class="text-sm text-red-600">
-                            {{ personalInfoForm.errors.first_name }}
-                        </p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="personal_sex" class="block font-medium">Sexe</label>
-                        <select
-                            id="personal_sex"
-                            v-model="personalInfoForm.sex"
-                            class="evo-input"
-                        >
-                            <option v-for="option in sexOptions" :key="option.value" :value="option.value">
-                                {{ option.label }}
-                            </option>
-                        </select>
-                        <p v-if="personalInfoForm.errors.sex" class="text-sm text-red-600">
-                            {{ personalInfoForm.errors.sex }}
-                        </p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="personal_height" class="block font-medium">Taille</label>
-                        <input
-                            id="personal_height"
-                            v-model="personalInfoForm.height"
-                            type="number"
-                            min="50"
-                            max="300"
-                            class="evo-input"
-                        />
-                        <p v-if="personalInfoForm.errors.height" class="text-sm text-red-600">
-                            {{ personalInfoForm.errors.height }}
-                        </p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="personal_birth_date" class="block font-medium">Date de naissance</label>
-                        <input
-                            id="personal_birth_date"
-                            v-model="personalInfoForm.birth_date"
-                            type="date"
-                            :max="minimumBirthDate"
-                            class="evo-input"
-                        />
-                        <p v-if="personalInfoForm.errors.birth_date" class="text-sm text-red-600">
-                            {{ personalInfoForm.errors.birth_date }}
-                        </p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="personal_activity_level" class="block font-medium">
-                            Niveau d'activite
-                        </label>
-                        <select
-                            id="personal_activity_level"
-                            v-model="personalInfoForm.activity_level"
-                            class="evo-input"
-                        >
-                            <option
-                                v-for="option in activityLevelOptions"
-                                :key="option.value"
-                                :value="option.value"
-                            >
-                                {{ option.label }}
-                            </option>
-                        </select>
-                        <p v-if="personalInfoForm.errors.activity_level" class="text-sm text-red-600">
-                            {{ personalInfoForm.errors.activity_level }}
-                        </p>
-                    </div>
-
-                    <div class="rounded-lg border border-dashed border-neutral-300 p-4">
-                        <p class="text-sm text-neutral-600">
-                            Pour modifier ou ajouter une entree de poids, rendez-vous sur votre suivi d'evolution.
-                        </p>
-                        <Button :as="Link" :href="progress()" class="mt-3">
-                            Gerer mes entrees de poids
-                        </Button>
-                    </div>
-
-                    <div class="flex items-center gap-3 pt-2">
-                        <Button
-                            type="button"
-                            :disabled="personalInfoForm.processing"
-                            @click="savePersonalInfo"
-                        >
-                            {{ personalInfoForm.processing ? 'Enregistrement...' : 'Enregistrer' }}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="transparent"
-                            :disabled="personalInfoForm.processing"
-                            @click="cancelEdit"
-                        >
-                            Annuler
-                        </Button>
-                        <p v-if="personalInfoForm.recentlySuccessful" class="text-sm text-neutral-600">
-                            Enregistre.
-                        </p>
-                    </div>
+                <div class="flex items-center gap-3 pt-2">
+                    <Button
+                        type="button"
+                        :disabled="personalInfoForm.processing"
+                        @click="savePersonalInfo"
+                    >
+                        {{
+                            personalInfoForm.processing
+                                ? 'Enregistrement...'
+                                : 'Enregistrer'
+                        }}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="transparent"
+                        :disabled="personalInfoForm.processing"
+                        @click="cancelEdit"
+                    >
+                        Annuler
+                    </Button>
+                    <p
+                        v-if="personalInfoForm.recentlySuccessful"
+                        class="text-sm text-neutral-600"
+                    >
+                        Enregistre.
+                    </p>
                 </div>
             </div>
-        </Transition>
+        </div>
     </div>
 </template>

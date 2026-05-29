@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { ChevronDown } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 
 type ProfileUser = {
@@ -22,7 +21,6 @@ const props = defineProps<{
     availableSports: SportOption[];
 }>();
 
-const isOpen = ref(true);
 const isEditing = ref(false);
 
 const sportsForm = useForm({
@@ -64,82 +62,64 @@ const saveSports = () => {
 
 <template>
     <div class="w-full self-start rounded-lg bg-evo-white p-4">
-        <button
-            type="button"
-            class="flex w-full items-center justify-between text-left hover:cursor-pointer"
-            :aria-expanded="isOpen"
-            aria-controls="profile-sports-content"
-            @click="isOpen = !isOpen"
-        >
-            <h2 class="text-lg font-semibold">Sports pratiqués</h2>
-            <ChevronDown
-                class="h-6 w-6 text-evo-black transition-transform duration-200"
-                :class="{ 'rotate-180': isOpen }"
-                aria-hidden="true"
-            />
-        </button>
+        <h2 class="text-lg font-semibold">Sports pratiqués</h2>
 
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="-translate-y-1 opacity-0"
-            enter-to-class="translate-y-0 opacity-100"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="translate-y-0 opacity-100"
-            leave-to-class="-translate-y-1 opacity-0"
-        >
-            <div v-show="isOpen" id="profile-sports-content" class="space-y-4 pt-4">
-                <div v-if="!isEditing" class="space-y-4">
-                    <p class="text-sm text-neutral-700">
-                        {{ selectedSportsLabel }}
-                    </p>
+        <div id="profile-sports-content" class="space-y-4 pt-4">
+            <div v-if="!isEditing" class="space-y-4">
+                <p class="text-sm text-neutral-700">
+                    {{ selectedSportsLabel }}
+                </p>
 
+                <Button type="button" @click="startEdit"> Modifier </Button>
+            </div>
+
+            <div v-else class="space-y-4">
+                <div
+                    class="grid gap-2 rounded-md border border-neutral-300 p-3 sm:grid-cols-2"
+                >
+                    <label
+                        v-for="sport in availableSports"
+                        :key="sport.id"
+                        class="flex items-center gap-2 text-sm"
+                    >
+                        <input
+                            v-model="sportsForm.sport_ids"
+                            type="checkbox"
+                            :value="sport.id"
+                            class="h-4 w-4 accent-evo-black"
+                        />
+                        <span>{{ sport.name }}</span>
+                    </label>
+                </div>
+
+                <p
+                    v-if="sportsForm.errors.sport_ids"
+                    class="text-sm text-red-600"
+                >
+                    {{ sportsForm.errors.sport_ids }}
+                </p>
+
+                <div class="flex items-center gap-3">
                     <Button
                         type="button"
-                        @click="startEdit"
+                        :disabled="sportsForm.processing"
+                        @click="saveSports"
                     >
-                        Modifier
+                        {{
+                            sportsForm.processing
+                                ? 'Enregistrement...'
+                                : 'Enregistrer'
+                        }}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="transparent"
+                        @click="cancelEdit"
+                    >
+                        Annuler
                     </Button>
                 </div>
-
-                <div v-else class="space-y-4">
-                    <div class="grid gap-2 rounded-md border border-neutral-300 p-3 sm:grid-cols-2">
-                        <label
-                            v-for="sport in availableSports"
-                            :key="sport.id"
-                            class="flex items-center gap-2 text-sm"
-                        >
-                            <input
-                                v-model="sportsForm.sport_ids"
-                                type="checkbox"
-                                :value="sport.id"
-                                class="h-4 w-4 accent-evo-black"
-                            />
-                            <span>{{ sport.name }}</span>
-                        </label>
-                    </div>
-
-                    <p v-if="sportsForm.errors.sport_ids" class="text-sm text-red-600">
-                        {{ sportsForm.errors.sport_ids }}
-                    </p>
-
-                    <div class="flex items-center gap-3">
-                        <Button
-                            type="button"
-                            :disabled="sportsForm.processing"
-                            @click="saveSports"
-                        >
-                            {{ sportsForm.processing ? 'Enregistrement...' : 'Enregistrer' }}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="transparent"
-                            @click="cancelEdit"
-                        >
-                            Annuler
-                        </Button>
-                    </div>
-                </div>
             </div>
-        </Transition>
+        </div>
     </div>
 </template>

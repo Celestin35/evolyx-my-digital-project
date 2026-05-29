@@ -212,9 +212,7 @@ const calendarActiveView = computed(() =>
     isMobileCalendar.value ? 'day' : 'week',
 );
 const calendarDisabledViews = computed(() =>
-    isMobileCalendar.value
-        ? ['years', 'year', 'month']
-        : ['years', 'year'],
+    isMobileCalendar.value ? ['years', 'year', 'month'] : ['years', 'year'],
 );
 const calendarHeight = computed(() =>
     isMobileCalendar.value ? '430px' : '500px',
@@ -902,7 +900,7 @@ onBeforeUnmount(() => {
                         class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
                         :class="
                             activeLibraryTab === 'workout-sessions'
-                                ? 'border-evo-black text-evo-black'
+                                ? 'border-evo-orange text-evo-black'
                                 : 'border-transparent text-neutral-500 hover:text-evo-black'
                         "
                         @click="activeLibraryTab = 'workout-sessions'"
@@ -914,7 +912,7 @@ onBeforeUnmount(() => {
                         class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
                         :class="
                             activeLibraryTab === 'exercises'
-                                ? 'border-evo-black text-evo-black'
+                                ? 'border-evo-orange text-evo-black'
                                 : 'border-transparent text-neutral-500 hover:text-evo-black'
                         "
                         @click="activeLibraryTab = 'exercises'"
@@ -938,7 +936,7 @@ onBeforeUnmount(() => {
                         <div
                             v-for="session in workoutSessions"
                             :key="session.id"
-                            class="grid gap-3 border-b bg-white border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_auto]"
+                            class="grid gap-3 border-b border-neutral-200 bg-white p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_auto]"
                         >
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
@@ -1036,7 +1034,7 @@ onBeforeUnmount(() => {
                         <div
                             v-for="exercise in availableExercises"
                             :key="exercise.id"
-                            class="grid gap-3 bg-white border-b border-neutral-200 p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
+                            class="grid gap-3 border-b border-neutral-200 bg-white p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
                         >
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
@@ -1127,7 +1125,7 @@ onBeforeUnmount(() => {
                     <div
                         v-for="session in recentCompletedSessions"
                         :key="session.id"
-                        class="rounded-lg border border-neutral-200 p-4 bg-white"
+                        class="rounded-lg border border-neutral-200 bg-white p-4"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p class="font-semibold">
@@ -1262,7 +1260,7 @@ onBeforeUnmount(() => {
                                 <label
                                     v-for="exercise in group.exercises"
                                     :key="exercise.id"
-                                    class="flex items-center bg-white justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                                    class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
                                 >
                                     <span class="flex items-center gap-2">
                                         <input
@@ -1507,7 +1505,7 @@ onBeforeUnmount(() => {
                                     <label
                                         v-for="exercise in group.exercises"
                                         :key="exercise.id"
-                                        class="flex items-center bg-white justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm hover:cursor-pointer"
+                                        class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm hover:cursor-pointer"
                                     >
                                         <span class="flex items-center gap-2">
                                             <input
@@ -1799,13 +1797,14 @@ onBeforeUnmount(() => {
                                     : 'Partager la séance'
                             }}
                         </Button>
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
+                            variant="transparent"
+                            disable-animation
                             @click="closeShareSessionModal"
                         >
                             Annuler
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </section>
@@ -1862,13 +1861,14 @@ onBeforeUnmount(() => {
                         >
                             Oui, ajouter des performances
                         </Button>
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
+                            variant="transparent"
+                            disable-animation
                             @click="completeSelectedSession"
                         >
                             Non, valider la séance
-                        </button>
+                        </Button>
                     </div>
                     <p
                         v-if="!selectedWorkoutSessionHasExercises"
@@ -1905,7 +1905,7 @@ onBeforeUnmount(() => {
                                 performance, exerciseIndex
                             ) in completeSessionForm.performances"
                             :key="performance.exercise_id"
-                            class="rounded-lg border border-neutral-200 p-4 bg-white"
+                            class="rounded-lg border border-neutral-200 bg-white p-4"
                         >
                             <p class="font-semibold">
                                 {{
@@ -1966,14 +1966,15 @@ onBeforeUnmount(() => {
                                     : 'Valider la séance'
                             }}
                         </Button>
-                        <button
+                        <Button
                             v-if="wantsPerformanceEntry"
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
+                            variant="transparent"
+                            disable-animation
                             @click="wantsPerformanceEntry = false"
                         >
                             Valider sans performances
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </section>
@@ -1993,7 +1994,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     gap: 0.35rem;
     border-bottom: 1px solid #e5e5e5;
-    background: #E9E9E9;
+    background: #e9e9e9;
     padding: 0.55rem 0.65rem 0;
 }
 

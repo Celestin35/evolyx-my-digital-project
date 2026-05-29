@@ -18,22 +18,23 @@
     .dark .bg-white,
     .dark .bg-evo-white,
     .dark .dark\:bg-neutral-900 {
-        background-color: #2b3038;
+        background-color: #2b3038 !important;
     }
 
+    .dark .bg-evo-gray,
     .dark .bg-neutral-50,
     .dark .bg-neutral-100 {
-        background-color: #353b45;
+        background-color: #353b45 !important;
     }
 
     .dark .bg-white\/70,
     .dark .bg-white\/78,
     .dark .bg-white\/80 {
-        background-color: rgb(43 48 56 / 0.88);
+        background-color: rgb(43 48 56 / 0.88) !important;
     }
 
     .dark .bg-white\/80 {
-        background-color: rgb(43 48 56 / 0.82);
+        background-color: rgb(43 48 56 / 0.82) !important;
     }
 
     .dark .bg-emerald-50 {
@@ -43,7 +44,7 @@
     .dark .bg-evo-purple,
     .dark .bg-evo-purple\/10,
     .dark .bg-evo-purple\/20 {
-        background-color: #eadcff;
+        background-color: #7A4896;
     }
 
     .dark .bg-evo-purple\/10,
@@ -89,6 +90,7 @@
 
     .dark .text-evo-black,
     .dark .text-black,
+    .dark .text-white,
     .dark .text-neutral-950,
     .dark .text-neutral-900,
     .dark .text-neutral-800,
@@ -113,9 +115,23 @@
     .dark .border-neutral-100,
     .dark .border-neutral-200,
     .dark .border-neutral-300,
+    .dark .border-neutral-400,
     .dark .border-evo-black\/10,
     .dark .border-evo-black\/15 {
         border-color: #596271;
+    }
+
+    .dark .border-evo-orange {
+        border-color: #ff813e;
+    }
+
+    .dark .shadow-sm,
+    .dark .shadow,
+    .dark .shadow-lg,
+    .dark .shadow-xl,
+    .dark .shadow-2xl {
+        --tw-shadow-color: rgb(4 3 5 / 0.38);
+        --tw-shadow: var(--tw-shadow-colored);
     }
 
     .dark input,
