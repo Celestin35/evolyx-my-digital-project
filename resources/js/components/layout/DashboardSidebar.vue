@@ -74,7 +74,7 @@ const navItems = computed(() => [
         class="fixed left-4 top-4 hidden h-[calc(100dvh-2rem)] w-1/5 flex-col items-center justify-between rounded-lg bg-evo-white p-4 lg:flex"
     >
         <div class="w-full">
-            <Link :href="home()" class="mb-4 block h-auto w-40">
+            <Link :href="home()" class="mb-12 block h-auto w-40">
                 <img
                     :src="logoEvolyxOrange"
                     alt="Evolyx"

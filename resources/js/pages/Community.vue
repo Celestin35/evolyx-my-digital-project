@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import HorizontalTabs from '@/components/HorizontalTabs.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
 import { Button } from '@/components/ui/button';
@@ -79,6 +80,20 @@ const editPostForm = useForm({
 });
 
 const activeTab = ref<'feed' | 'relations' | 'mine'>('feed');
+const communityTabs = [
+    {
+        value: 'feed',
+        label: 'Feed',
+    },
+    {
+        value: 'relations',
+        label: 'Abonnements',
+    },
+    {
+        value: 'mine',
+        label: 'Mes posts',
+    },
+] as const;
 const searchQuery = ref('');
 const searchResults = ref<CommunityUser[]>([]);
 const isSearching = ref(false);
@@ -185,6 +200,47 @@ const formatPerformanceDetails = (performance: CommunityPerformance) => {
     return details.length > 0 ? details.join(' - ') : 'Séance validée';
 };
 
+const performanceDetailItems = (performance: CommunityPerformance) => {
+    if (performance.metric_values.length > 0) {
+        return performance.metric_values.map((metricValue) => ({
+            label: metricValue.label,
+            value: `${metricValue.value}${metricValue.unit ? ` ${metricValue.unit}` : ''}`,
+        }));
+    }
+
+    const details: Array<{ label: string; value: string }> = [];
+
+    if (performance.weight !== null) {
+        details.push({
+            label: 'Charge',
+            value: `${performance.weight.toFixed(2)} kg`,
+        });
+    }
+
+    if (performance.repetitions !== null) {
+        details.push({
+            label: 'Répétitions',
+            value: `${performance.repetitions} rep`,
+        });
+    }
+
+    if (performance.duration_minutes !== null) {
+        details.push({
+            label: 'Temps',
+            value: `${performance.duration_minutes.toFixed(2)} min`,
+        });
+    }
+
+    if (performance.distance_meters !== null) {
+        details.push({
+            label: 'Distance',
+            value: `${performance.distance_meters.toFixed(0)} m`,
+        });
+    }
+
+    return details;
+};
+
 const authorInitial = (post: CommunityPost) => {
     return (post.author_name ?? 'E').slice(0, 1).toUpperCase();
 };
@@ -266,7 +322,9 @@ const updateCommunityPost = () => {
 };
 
 const deleteCommunityPost = (post: CommunityPost) => {
-    if (!window.confirm('Supprimer cette publication du feed communautaire ?')) {
+    if (
+        !window.confirm('Supprimer cette publication du feed communautaire ?')
+    ) {
         return;
     }
 
@@ -287,6 +345,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
             :locked="!canAccessCommunity"
             feature-name="Feed communautaire"
             :current-plan="activeSubscriptionPlan"
+            plain-when-unlocked
             description="Suivez des membres Premium et consultez les séances qu'ils partagent."
         >
             <div class="space-y-4">
@@ -308,46 +367,11 @@ const deleteCommunityPost = (post: CommunityPost) => {
                         </Button>
                     </div>
 
-                    <div
-                        class="mt-4 flex flex-wrap gap-2 border-b border-neutral-200"
-                    >
-                        <button
-                            type="button"
-                            class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
-                            :class="
-                                activeTab === 'feed'
-                                    ? 'border-evo-black text-evo-black'
-                                    : 'border-transparent text-neutral-500 hover:text-evo-black'
-                            "
-                            @click="activeTab = 'feed'"
-                        >
-                            Feed
-                        </button>
-                        <button
-                            type="button"
-                            class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
-                            :class="
-                                activeTab === 'relations'
-                                    ? 'border-evo-black text-evo-black'
-                                    : 'border-transparent text-neutral-500 hover:text-evo-black'
-                            "
-                            @click="activeTab = 'relations'"
-                        >
-                            Abonnements
-                        </button>
-                        <button
-                            type="button"
-                            class="border-b-2 px-3 py-2 text-sm font-medium transition hover:cursor-pointer"
-                            :class="
-                                activeTab === 'mine'
-                                    ? 'border-evo-black text-evo-black'
-                                    : 'border-transparent text-neutral-500 hover:text-evo-black'
-                            "
-                            @click="activeTab = 'mine'"
-                        >
-                            Mes posts
-                        </button>
-                    </div>
+                    <HorizontalTabs
+                        v-model="activeTab"
+                        :tabs="communityTabs"
+                        aria-label="Espace communautaire"
+                    />
 
                     <p
                         v-if="flashSuccessMessage"
@@ -372,7 +396,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                             v-model="searchQuery"
                             type="search"
                             placeholder="Rechercher par pseudo"
-                            class="evo-input mt-3"
+                            class="evo-input mt-3 rounded-full"
                         />
 
                         <div
@@ -382,7 +406,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                             <div
                                 v-for="user in searchResults"
                                 :key="user.id"
-                                class="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 p-3"
+                                class="flex items-center justify-between gap-3 rounded-xl border border-neutral-400 bg-neutral-100 p-3"
                             >
                                 <button
                                     type="button"
@@ -392,14 +416,15 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     <span
                                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-semibold text-white"
                                         :style="{
-                                            backgroundColor:
-                                                user.avatar_color,
+                                            backgroundColor: user.avatar_color,
                                         }"
                                     >
                                         {{ user.initial }}
                                     </span>
                                     <span class="min-w-0">
-                                        <span class="block truncate font-semibold">
+                                        <span
+                                            class="block truncate font-semibold"
+                                        >
                                             {{ user.display_name }}
                                         </span>
                                         <span class="text-sm text-neutral-500">
@@ -410,7 +435,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
 
                                 <button
                                     type="button"
-                                    class="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                    class="rounded-lg bg-evo-purple px-3 py-1.5 text-xs font-medium text-evo-white hover:cursor-pointer hover:bg-evo-purple/90"
                                     @click="
                                         user.is_following
                                             ? unfollowUser(user)
@@ -427,7 +452,9 @@ const deleteCommunityPost = (post: CommunityPost) => {
                         </div>
 
                         <p
-                            v-else-if="searchQuery.trim().length >= 2 && !isSearching"
+                            v-else-if="
+                                searchQuery.trim().length >= 2 && !isSearching
+                            "
                             class="mt-4 text-sm text-neutral-600"
                         >
                             Aucun membre trouvé.
@@ -446,7 +473,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                 <div
                                     v-for="user in following"
                                     :key="user.id"
-                                    class="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 p-3"
+                                    class="flex items-center justify-between gap-3 rounded-xl border border-neutral-400 bg-neutral-100 p-3"
                                 >
                                     <button
                                         type="button"
@@ -477,7 +504,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     </button>
                                     <button
                                         type="button"
-                                        class="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                        class="rounded-lg bg-evo-purple px-3 py-1.5 text-xs font-medium text-evo-white hover:cursor-pointer hover:bg-evo-purple/90"
                                         @click="unfollowUser(user)"
                                     >
                                         Ne plus suivre
@@ -490,9 +517,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                         </div>
 
                         <div class="rounded-lg bg-evo-white p-4">
-                            <h2 class="text-lg font-semibold">
-                                Vos abonnés
-                            </h2>
+                            <h2 class="text-lg font-semibold">Vos abonnés</h2>
                             <div
                                 v-if="followers.length > 0"
                                 class="mt-4 space-y-3"
@@ -500,7 +525,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                 <div
                                     v-for="user in followers"
                                     :key="user.id"
-                                    class="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 p-3"
+                                    class="flex items-center justify-between gap-3 rounded-xl border border-neutral-400 bg-neutral-100 p-3"
                                 >
                                     <button
                                         type="button"
@@ -531,7 +556,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     </button>
                                     <button
                                         type="button"
-                                        class="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:cursor-pointer hover:bg-neutral-100"
+                                        class="rounded-lg bg-evo-purple px-3 py-1.5 text-xs font-medium text-evo-white hover:cursor-pointer hover:bg-evo-purple/90"
                                         @click="
                                             user.is_following
                                                 ? unfollowUser(user)
@@ -559,13 +584,13 @@ const deleteCommunityPost = (post: CommunityPost) => {
                         :key="post.id"
                         class="overflow-hidden rounded-lg bg-evo-white"
                     >
-                        <div class="p-4 sm:p-5">
+                        <div class="p-4">
                             <div
                                 class="flex flex-wrap items-start justify-between gap-4"
                             >
                                 <div class="flex min-w-0 items-start gap-3">
                                     <div
-                                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-evo-purple text-lg font-semibold text-white"
+                                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-evo-orange text-lg font-semibold text-white"
                                     >
                                         {{ authorInitial(post) }}
                                     </div>
@@ -628,19 +653,17 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                 {{ post.content }}
                             </p>
 
-                            <div
-                                class="mt-5 rounded-lg border border-neutral-200 bg-neutral-50 p-4"
-                            >
+                            <div class="mt-5 rounded-xl border bg-white border-evo-orange p-4">
                                 <div
                                     class="flex flex-wrap items-start justify-between gap-3"
                                 >
                                     <div>
                                         <p
-                                            class="text-xs font-medium tracking-wide text-neutral-500 uppercase"
+                                            class="text-sm font-semibold text-evo-black"
                                         >
                                             Séance partagée
                                         </p>
-                                        <h3 class="mt-1 text-lg font-semibold">
+                                        <h3 class="sr-only">
                                             {{
                                                 post.performed_session
                                                     .workout_session_name ??
@@ -648,7 +671,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                             }}
                                         </h3>
                                         <p
-                                            class="mt-1 text-sm text-neutral-500"
+                                            class="mt-0.5 text-xs text-neutral-600"
                                         >
                                             Effectuée le
                                             {{
@@ -660,7 +683,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                         </p>
                                     </div>
                                     <div
-                                        class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
+                                        class="rounded-lg border border-evo-orange bg-evo-white px-3 py-1 text-xs font-semibold text-evo-black"
                                     >
                                         {{
                                             post.performed_session.performances
@@ -675,14 +698,15 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                         post.performed_session.performances
                                             .length > 0
                                     "
-                                    class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4"
+                                    class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3"
                                 >
                                     <div
                                         v-for="(
                                             performance, performanceIndex
-                                        ) in post.performed_session.performances"
+                                        ) in post.performed_session
+                                            .performances"
                                         :key="`${post.id}-${performanceIndex}`"
-                                        class="rounded-lg border border-neutral-200 bg-evo-white p-3"
+                                        class="rounded-xl border border-neutral-400 bg-neutral-100 p-3"
                                     >
                                         <div
                                             class="flex items-start justify-between gap-2"
@@ -694,7 +718,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                                 }}
                                             </p>
                                             <span
-                                                class="rounded-full bg-neutral-100 px-2 py-1 text-xs text-neutral-600"
+                                                class="text-xs text-neutral-500"
                                             >
                                                 {{
                                                     performance.category_name ??
@@ -703,13 +727,34 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                                 }}
                                             </span>
                                         </div>
-                                        <p class="mt-3 text-sm text-evo-black">
-                                            {{
-                                                formatPerformanceDetails(
+                                        <div class="mt-3 flex flex-wrap gap-2">
+                                            <span
+                                                v-for="detail in performanceDetailItems(
                                                     performance,
-                                                )
-                                            }}
-                                        </p>
+                                                )"
+                                                :key="`${detail.label}-${detail.value}`"
+                                                class="rounded-md border border-evo-orange bg-white px-2 py-1 text-xs text-neutral-600"
+                                            >
+                                                {{ detail.label }} :
+                                                <span class="text-evo-black">
+                                                    {{ detail.value }}
+                                                </span>
+                                            </span>
+                                            <span
+                                                v-if="
+                                                    performanceDetailItems(
+                                                        performance,
+                                                    ).length === 0
+                                                "
+                                                class="rounded-md border border-evo-orange bg-white px-2 py-1 text-xs text-neutral-600"
+                                            >
+                                                {{
+                                                    formatPerformanceDetails(
+                                                        performance,
+                                                    )
+                                                }}
+                                            </span>
+                                        </div>
                                         <p
                                             v-if="performance.sport_name"
                                             class="mt-2 text-xs text-neutral-500"
@@ -771,7 +816,9 @@ const deleteCommunityPost = (post: CommunityPost) => {
             v-if="editingPost"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
-            <section class="w-full max-w-xl rounded-lg bg-evo-white p-4 shadow-xl">
+            <section
+                class="w-full max-w-xl rounded-lg bg-evo-white p-4 shadow-xl"
+            >
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-semibold">
@@ -849,13 +896,14 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     : 'Enregistrer'
                             }}
                         </Button>
-                        <button
+                        <Button
                             type="button"
-                            class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer"
+                            variant="transparent"
+                            disable-animation
                             @click="closePostEditor"
                         >
                             Annuler
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </section>
@@ -865,7 +913,9 @@ const deleteCommunityPost = (post: CommunityPost) => {
             v-if="selectedProfile || isProfileLoading"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
-            <section class="w-full max-w-xl rounded-lg bg-evo-white p-4 shadow-xl">
+            <section
+                class="w-full max-w-xl rounded-lg bg-evo-white p-4 shadow-xl"
+            >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">Profil membre</h2>
                     <button
@@ -877,7 +927,10 @@ const deleteCommunityPost = (post: CommunityPost) => {
                     </button>
                 </div>
 
-                <p v-if="isProfileLoading" class="mt-4 text-sm text-neutral-600">
+                <p
+                    v-if="isProfileLoading"
+                    class="mt-4 text-sm text-neutral-600"
+                >
                     Chargement...
                 </p>
 
@@ -922,9 +975,10 @@ const deleteCommunityPost = (post: CommunityPost) => {
                         </div>
                     </div>
 
-                    <button
+                    <Button
                         type="button"
-                        class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:cursor-pointer hover:bg-neutral-100"
+                        variant="transparent"
+                        disable-animation
                         @click="
                             selectedProfile.is_following
                                 ? unfollowUser(selectedProfile)
@@ -936,7 +990,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                 ? 'Ne plus suivre'
                                 : 'Suivre'
                         }}
-                    </button>
+                    </Button>
 
                     <div class="space-y-3">
                         <h3 class="font-semibold">Derniers posts</h3>
@@ -965,8 +1019,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                     ·
                                     {{
                                         formatDate(
-                                            post.performed_session
-                                                .completed_at,
+                                            post.performed_session.completed_at,
                                         )
                                     }}
                                 </p>

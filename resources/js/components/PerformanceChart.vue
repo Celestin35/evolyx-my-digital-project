@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import Chart from 'chart.js/auto';
 import { DateTime } from 'luxon';
 import 'chartjs-adapter-luxon';
-import { CHART_COLORS, transparentize } from '@/lib/utils';
+import { transparentize } from '@/lib/utils';
 
 type PerformanceMetric = string;
 
@@ -38,6 +38,24 @@ const props = defineProps<{
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 let performanceChart: Chart<'line', PerformanceChartPoint[], unknown> | null =
     null;
+
+const evoPurple = '#7A4896';
+
+const lineShadowPlugin = {
+    id: 'performanceLineShadow',
+    beforeDatasetDraw(chart: Chart) {
+        const { ctx } = chart;
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(122, 72, 150, 0.22)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 6;
+    },
+    afterDatasetDraw(chart: Chart) {
+        chart.ctx.restore();
+    },
+};
 
 const chartTheme = () => {
     const isDark = document.documentElement.classList.contains('dark');
@@ -114,8 +132,10 @@ onMounted(() => {
                 {
                     label: props.metricLabel,
                     data: chartData,
-                    borderColor: CHART_COLORS.purple,
-                    backgroundColor: transparentize(CHART_COLORS.purple, 0.82),
+                    borderColor: evoPurple,
+                    backgroundColor: transparentize(evoPurple, 0.82),
+                    pointBackgroundColor: evoPurple,
+                    pointBorderColor: evoPurple,
                     borderWidth: 2,
                     tension: 0.3,
                     pointRadius: 4,
@@ -127,6 +147,11 @@ onMounted(() => {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 8,
+                },
+            },
             plugins: {
                 legend: {
                     labels: {
@@ -195,7 +220,7 @@ onMounted(() => {
                         color: theme.tickColor,
                     },
                     grid: {
-                        color: theme.gridColor,
+                        display: false,
                     },
                 },
                 y: {
@@ -212,6 +237,7 @@ onMounted(() => {
                 },
             },
         },
+        plugins: [lineShadowPlugin],
     });
 });
 

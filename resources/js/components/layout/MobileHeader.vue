@@ -25,19 +25,8 @@ const isProfileActive = computed(() => isCurrentOrParentUrl(profile()));
 </script>
 
 <template>
-    <header class="grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 lg:hidden">
-        <div aria-hidden="true"></div>
-
-        <Link :href="home()" class="justify-self-center">
-            <img
-                :src="logoEvolyxOrange"
-                alt="Evolyx"
-                class="h-auto w-36 max-w-[42vw]"
-            />
-        </Link>
-
-        <div class="flex items-start gap-2">
-            <Link
+    <header class="flex w-full justify-between items-center gap-3 mb-1 lg:hidden">        
+        <Link
                 :href="editProfile()"
                 class="flex w-8 flex-col items-center gap-0.5 text-[9px] leading-none font-bold text-black"
                 aria-label="Parametres"
@@ -47,12 +36,19 @@ const isProfileActive = computed(() => isCurrentOrParentUrl(profile()));
                         isSettingsActive
                             ? 'text-evo-orange'
                             : 'text-evo-purple',
-                        '[&_svg]:h-5 [&_svg]:w-5',
+                        '[&_svg]:h-6.5 [&_svg]:w-6.5',
                     ]"
                     v-html="settingsSvg"
                 />
-                <span>Reglages</span>
             </Link>
+
+        <Link :href="home()" class="justify-self-center">
+            <img
+                :src="logoEvolyxOrange"
+                alt="Evolyx"
+                class="h-auto w-36 max-w-[42vw]"
+            />
+        </Link>
             <Link
                 :href="profile()"
                 class="flex w-8 flex-col items-center gap-0.5 text-[9px] leading-none font-bold text-black"
@@ -61,12 +57,10 @@ const isProfileActive = computed(() => isCurrentOrParentUrl(profile()));
                 <span
                     :class="[
                         isProfileActive ? 'text-evo-orange' : 'text-evo-purple',
-                        '[&_svg]:h-5 [&_svg]:w-5',
+                        '[&_svg]:h-6.5 [&_svg]:w-6.5',
                     ]"
                     v-html="profileSvg"
                 />
-                <span>Profil</span>
             </Link>
-        </div>
     </header>
 </template>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import HorizontalTabs from '@/components/HorizontalTabs.vue';
 import ProfileGoalSection from '@/components/profile/ProfileGoalSection.vue';
 import ProfilePersonalInfoSection from '@/components/profile/ProfilePersonalInfoSection.vue';
 import ProfileSportsSection from '@/components/profile/ProfileSportsSection.vue';
@@ -41,21 +43,61 @@ const props = defineProps<{
     availableSports: SportOption[];
     activeGoal: ActiveGoal | null;
 }>();
+
+const activeProfileTab = ref<'goal' | 'personal' | 'sports'>('goal');
+
+const profileTabs = [
+    {
+        value: 'goal',
+        label: 'Objectif de poids',
+    },
+    {
+        value: 'personal',
+        label: 'Infos personnelles',
+    },
+    {
+        value: 'sports',
+        label: 'Sports',
+    },
+] as const;
 </script>
 
 <template>
     <Head title="Profil" />
 
     <AppLayout title="Profil" subtitle="Gérez vos informations personnelles.">
-        <section class="flex flex-col gap-4 lg:flex-row">
-            <div class="flex w-full flex-col gap-4 lg:w-1/2">
-                <ProfilePersonalInfoSection :user="props.user" />
-                <ProfileSportsSection :user="props.user" :available-sports="props.availableSports" />
-            </div>
+        <div class="space-y-4">
+            <section class="rounded-lg bg-evo-white p-4">
+                <div>
+                    <h2 class="text-lg font-semibold">Fenêtres du profil</h2>
+                    <p class="mt-1 text-sm text-neutral-600">
+                        Consultez et modifiez vos informations personnelles.
+                    </p>
+                </div>
 
-            <div class="flex w-full flex-col gap-4 lg:w-1/2">
-                <ProfileGoalSection :user="props.user" :active-goal="props.activeGoal" />
+                <HorizontalTabs
+                    v-model="activeProfileTab"
+                    :tabs="profileTabs"
+                    aria-label="Fenetres du profil"
+                />
+            </section>
+
+            <div>
+                <ProfileGoalSection
+                    v-if="activeProfileTab === 'goal'"
+                    :user="props.user"
+                    :active-goal="props.activeGoal"
+                />
+                <ProfilePersonalInfoSection
+                    v-else-if="activeProfileTab === 'personal'"
+                    :user="props.user"
+                />
+                <ProfileSportsSection
+                    v-else
+                    :user="props.user"
+                    :available-sports="props.availableSports"
+                />
             </div>
-        </section>
+        </div>
     </AppLayout>
 </template>

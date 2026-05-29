@@ -5,8 +5,8 @@ import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { profile } from '@/routes';
 import profileSvg from '../../../images/icons/profile.svg?raw';
 defineProps<{
-    title: String;
-    subtitle?: String;
+    title: string;
+    subtitle?: string;
 }>();
 
 const { isCurrentOrParentUrl } = useCurrentUrl();
@@ -15,17 +15,18 @@ const isProfileActive = computed(() => isCurrentOrParentUrl(profile()));
 </script>
 
 <template>
-    <header
-        class="hidden w-full rounded-lg bg-evo-white p-4 lg:block"
-    >
+    <header class="w-full rounded-lg bg-evo-white p-4">
         <div class="flex items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-evo-black">{{ title }}</h1>
-                <p v-if="subtitle" class="text-sm text-gray-600">
+                <p
+                    v-if="subtitle"
+                    class="hidden text-sm text-gray-600 lg:block"
+                >
                     {{ subtitle }}
                 </p>
             </div>
-            <div>
+            <div class="hidden lg:block">
                 <Link
                     :href="profile()"
                     class="group flex items-center gap-4 text-black"
