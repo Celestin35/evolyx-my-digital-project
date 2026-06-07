@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { Minus, Plus } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import {
     formatFrenchDate,
@@ -37,26 +38,15 @@ const props = defineProps<{
 
 const page = usePage();
 const currentWeight = parseWeight(props.user.current_weight);
-const initialTargetWeight =
-    parseWeight(props.activeGoal?.target_weight ?? null) ??
-    (currentWeight === null ? null : roundToQuarter(currentWeight));
-const initialWeeklyWeightGoal =
-    parseWeight(props.activeGoal?.weekly_weight_goal ?? null) ?? 0;
+const initialTargetWeight = currentWeight;
 
 const goalForm = useForm({
     target_weight: initialTargetWeight,
-    weekly_weight_goal: initialWeeklyWeightGoal,
+    weekly_weight_goal: 0,
 });
 
 const isGoalEditorOpen = ref(false);
-
-const formattedTargetWeight = computed(() => {
-    if (goalForm.target_weight === null) {
-        return null;
-    }
-
-    return `${Number(goalForm.target_weight).toFixed(2)} kg`;
-});
+const hasEditedTargetWeight = ref(false);
 
 const goalWeightDelta = computed(() => {
     if (currentWeight === null || goalForm.target_weight === null) {
@@ -90,6 +80,22 @@ const selectedGoalTypeLabel = computed(() => {
         maintenance: 'Maintien',
         muscle_gain: 'Prise de masse',
     }[selectedGoalType.value ?? 'maintenance'];
+});
+
+const filteredWeeklyGoalOptions = computed(() => {
+    if (selectedGoalType.value === 'maintenance') {
+        return [];
+    }
+
+    if (selectedGoalType.value === 'weight_loss') {
+        return weeklyGoalOptions.filter((option) => option.value < 0);
+    }
+
+    if (selectedGoalType.value === 'muscle_gain') {
+        return weeklyGoalOptions.filter((option) => option.value > 0);
+    }
+
+    return weeklyGoalOptions;
 });
 
 const isWeeklyGoalDirectionValid = computed(() => {
@@ -167,11 +173,42 @@ const canSubmitGoal = computed(() => {
 });
 const hasActiveGoal = computed(() => props.activeGoal !== null);
 
+const syncWeeklyGoalWithTarget = () => {
+    if (selectedGoalType.value === null) {
+        return;
+    }
+
+    const currentWeeklyGoal = Number(goalForm.weekly_weight_goal);
+
+    if (
+        filteredWeeklyGoalOptions.value.some(
+            (option) => option.value === currentWeeklyGoal,
+        )
+    ) {
+        return;
+    }
+
+    if (selectedGoalType.value === 'maintenance') {
+        goalForm.weekly_weight_goal = 0;
+
+        return;
+    }
+
+    const currentPace = Math.abs(currentWeeklyGoal) || 0.5;
+    const matchingOption = filteredWeeklyGoalOptions.value.find(
+        (option) => Math.abs(option.value) === currentPace,
+    );
+
+    goalForm.weekly_weight_goal =
+        matchingOption?.value ?? filteredWeeklyGoalOptions.value[0]?.value ?? 0;
+};
+
 const decreaseWeight = () => {
     if (goalForm.target_weight === null) {
         return;
     }
 
+    hasEditedTargetWeight.value = true;
     goalForm.target_weight = Math.max(
         0,
         roundToQuarter(Number(goalForm.target_weight) - 0.25),
@@ -183,8 +220,24 @@ const increaseWeight = () => {
         return;
     }
 
+    hasEditedTargetWeight.value = true;
     goalForm.target_weight = roundToQuarter(
         Number(goalForm.target_weight) + 0.25,
+    );
+};
+
+const markTargetWeightAsEdited = () => {
+    hasEditedTargetWeight.value = true;
+};
+
+const roundTargetWeight = () => {
+    if (goalForm.target_weight === null) {
+        return;
+    }
+
+    goalForm.target_weight = Math.max(
+        0,
+        roundToQuarter(Number(goalForm.target_weight)),
     );
 };
 
@@ -201,6 +254,8 @@ const confirmWeightGoal = () => {
 const toggleGoalEditor = () => {
     isGoalEditorOpen.value = !isGoalEditorOpen.value;
 };
+
+watch(selectedGoalType, syncWeeklyGoalWithTarget);
 </script>
 
 <template>
@@ -297,72 +352,83 @@ const toggleGoalEditor = () => {
                         >
                             <p class="font-medium">Poids cible :</p>
 
-                            <div class="flex items-center gap-4">
+                            <div
+                                class="flex w-fit items-center overflow-hidden rounded-lg border border-neutral-300 bg-white"
+                            >
                                 <Button
                                     type="button"
-                                    class="size-9 rounded-full p-2"
+                                    variant="transparent"
+                                    class="size-10 rounded-none border-0 p-0 text-evo-purple"
+                                    aria-label="Diminuer le poids cible"
                                     @click="decreaseWeight"
                                 >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            clip-rule="evenodd"
-                                            d="M6.00001 11.25L18 11.25L18 12.75L6.00001 12.75L6.00001 11.25Z"
-                                            fill="currentColor"
-                                        />
-                                    </svg>
+                                    <Minus class="size-5" />
                                 </Button>
-                                <p
-                                    class="min-w-24 text-center text-lg font-semibold"
+                                <div
+                                    class="flex items-baseline border-x border-neutral-200 px-3"
                                 >
-                                    {{ formattedTargetWeight }}
-                                </p>
+                                    <input
+                                        v-model.number="
+                                            goalForm.target_weight
+                                        "
+                                        type="number"
+                                        min="0"
+                                        step="0.25"
+                                        class="h-10 w-20 bg-transparent text-center text-lg font-semibold focus:outline-none"
+                                        @input="markTargetWeightAsEdited"
+                                        @blur="roundTargetWeight"
+                                    />
+                                    <span class="text-sm font-semibold">
+                                        kg
+                                    </span>
+                                </div>
                                 <Button
                                     type="button"
-                                    class="size-9 rounded-full p-2"
+                                    variant="transparent"
+                                    class="size-10 rounded-none border-0 p-0 text-evo-purple"
+                                    aria-label="Augmenter le poids cible"
                                     @click="increaseWeight"
                                 >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="currentColor"
-                                        viewBox="0 0 32 32"
-                                    >
-                                        <path
-                                            d="M15 5L15 15L5 15L5 17L15 17L15 27L17 27L17 17L27 17L27 15L17 15L17 5Z"
-                                        />
-                                    </svg>
+                                    <Plus class="size-5" />
                                 </Button>
                             </div>
                         </div>
 
                         <div class="space-y-3">
-                            <label
-                                for="weekly_weight_goal"
-                                class="block font-medium"
-                            >
-                                Rythme hebdomadaire
-                            </label>
-
                             <div
-                                class="w-fit rounded-md border border-evo-black bg-evo-white px-4 py-2 focus-within:ring-1 focus-within:ring-evo-purple"
+                                v-if="
+                                    hasEditedTargetWeight &&
+                                    selectedGoalType &&
+                                    selectedGoalType !== 'maintenance'
+                                "
+                                class="space-y-3"
                             >
-                                <select
-                                    id="weekly_weight_goal"
-                                    v-model.number="goalForm.weekly_weight_goal"
-                                    class="bg-transparent focus:outline-none"
+                                <label
+                                    for="weekly_weight_goal"
+                                    class="block font-medium"
                                 >
-                                    <option
-                                        v-for="option in weeklyGoalOptions"
-                                        :key="option.value"
-                                        :value="option.value"
+                                    Rythme hebdomadaire
+                                </label>
+
+                                <div
+                                    class="w-fit rounded-md border border-evo-black bg-evo-white px-4 py-2 focus-within:ring-1 focus-within:ring-evo-purple"
+                                >
+                                    <select
+                                        id="weekly_weight_goal"
+                                        v-model.number="
+                                            goalForm.weekly_weight_goal
+                                        "
+                                        class="bg-transparent focus:outline-none"
                                     >
-                                        {{ option.label }}
-                                    </option>
-                                </select>
+                                        <option
+                                            v-for="option in filteredWeeklyGoalOptions"
+                                            :key="option.value"
+                                            :value="option.value"
+                                        >
+                                            {{ option.label }}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
 
                             <p v-if="selectedGoalType" class="font-medium">
@@ -386,7 +452,10 @@ const toggleGoalEditor = () => {
                                 Date de fin estimée : {{ formattedGoalEndDate }}
                             </p>
                             <p
-                                v-else-if="!isWeeklyGoalDirectionValid"
+                                v-else-if="
+                                    hasEditedTargetWeight &&
+                                    !isWeeklyGoalDirectionValid
+                                "
                                 class="text-sm text-red-600"
                             >
                                 Le rythme hebdomadaire doit correspondre au sens

@@ -155,46 +155,53 @@ const savePersonalInfo = () => {
     <div class="w-full self-start rounded-lg bg-evo-white p-4">
         <h2 class="text-lg font-semibold">Informations personnelles</h2>
 
-        <div id="profile-personal-info-content" class="space-y-2 pt-4">
-            <div class="flex items-center justify-end">
-                <Button v-if="!isEditing" type="button" @click="startEdit">
-                    Modifier
-                </Button>
-            </div>
+        <div id="profile-personal-info-content" class="space-y-4 pt-4">
+            <div v-if="!isEditing" class="space-y-4">
+                <div class="space-y-2">
+                    <div
+                        v-if="user.first_name"
+                        class="flex items-center gap-1"
+                    >
+                        <p class="font-medium">Prenom :</p>
+                        <p>{{ user.first_name }}</p>
+                    </div>
+                    <div v-if="formattedSex" class="flex items-center gap-1">
+                        <p class="font-medium">Sexe :</p>
+                        <p>{{ formattedSex }}</p>
+                    </div>
+                    <div v-if="user.height" class="flex items-center gap-1">
+                        <p class="font-medium">Taille :</p>
+                        <p>{{ user.height }} cm</p>
+                    </div>
+                    <div
+                        v-if="user.birth_date"
+                        class="flex items-center gap-1"
+                    >
+                        <p class="font-medium">Date de naissance :</p>
+                        <p>{{ user.birth_date }}</p>
+                    </div>
+                    <div
+                        v-if="formattedActivityLevel"
+                        class="flex items-center gap-1"
+                    >
+                        <p class="font-medium">Niveau d'activite :</p>
+                        <p>{{ formattedActivityLevel }}</p>
+                    </div>
+                    <div v-if="user.age" class="flex items-center gap-1">
+                        <p class="font-medium">Age :</p>
+                        <p>{{ user.age }}</p>
+                    </div>
+                    <div
+                        v-if="user.current_weight"
+                        class="flex items-center gap-1"
+                    >
+                        <p class="font-medium">Poids actuel :</p>
+                        <p>{{ user.current_weight }} kg</p>
+                    </div>
+                </div>
 
-            <template v-if="!isEditing">
-                <div v-if="user.first_name" class="flex items-center gap-1">
-                    <p class="font-medium">Prenom :</p>
-                    <p>{{ user.first_name }}</p>
-                </div>
-                <div v-if="formattedSex" class="flex items-center gap-1">
-                    <p class="font-medium">Sexe :</p>
-                    <p>{{ formattedSex }}</p>
-                </div>
-                <div v-if="user.height" class="flex items-center gap-1">
-                    <p class="font-medium">Taille :</p>
-                    <p>{{ user.height }} cm</p>
-                </div>
-                <div v-if="user.birth_date" class="flex items-center gap-1">
-                    <p class="font-medium">Date de naissance :</p>
-                    <p>{{ user.birth_date }}</p>
-                </div>
-                <div
-                    v-if="formattedActivityLevel"
-                    class="flex items-center gap-1"
-                >
-                    <p class="font-medium">Niveau d'activite :</p>
-                    <p>{{ formattedActivityLevel }}</p>
-                </div>
-                <div v-if="user.age" class="flex items-center gap-1">
-                    <p class="font-medium">Age :</p>
-                    <p>{{ user.age }}</p>
-                </div>
-                <div v-if="user.current_weight" class="flex items-center gap-1">
-                    <p class="font-medium">Poids actuel :</p>
-                    <p>{{ user.current_weight }} kg</p>
-                </div>
-            </template>
+                <Button type="button" @click="startEdit"> Modifier </Button>
+            </div>
 
             <div v-else class="space-y-4">
                 <div class="space-y-2">

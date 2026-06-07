@@ -899,7 +899,6 @@ const deleteCommunityPost = (post: CommunityPost) => {
                         <Button
                             type="button"
                             variant="transparent"
-                            disable-animation
                             @click="closePostEditor"
                         >
                             Annuler
@@ -978,7 +977,6 @@ const deleteCommunityPost = (post: CommunityPost) => {
                     <Button
                         type="button"
                         variant="transparent"
-                        disable-animation
                         @click="
                             selectedProfile.is_following
                                 ? unfollowUser(selectedProfile)
