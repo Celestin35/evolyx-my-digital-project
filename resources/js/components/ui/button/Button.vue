@@ -26,7 +26,7 @@ const nextTextRef = ref<HTMLElement | null>(null)
 let tlHover: gsap.core.Timeline | null = null
 
 const isDisabled = computed(() => attrs.disabled === "" || attrs.disabled === true || attrs.disabled === "true")
-const isAnimationDisabled = computed(() => props.disableAnimation || isDisabled.value)
+const isAnimationDisabled = computed(() => props.disableAnimation || props.variant === "transparent" || isDisabled.value)
 
 function destroyHoverTimeline() {
   tlHover?.kill()

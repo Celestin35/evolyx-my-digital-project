@@ -164,11 +164,46 @@ const shareSessionForm = useForm({
     content: '',
 });
 
+const sortUserContentFirst = <T>(
+    firstItem: T,
+    secondItem: T,
+    isUserContent: (item: T) => boolean,
+) => {
+    const firstIsUserContent = isUserContent(firstItem);
+    const secondIsUserContent = isUserContent(secondItem);
+
+    if (firstIsUserContent === secondIsUserContent) {
+        return 0;
+    }
+
+    return firstIsUserContent ? -1 : 1;
+};
+
+const sortedAvailableExercises = computed(() =>
+    [...props.availableExercises].sort((firstExercise, secondExercise) =>
+        sortUserContentFirst(
+            firstExercise,
+            secondExercise,
+            (exercise) => exercise.is_custom,
+        ),
+    ),
+);
+
+const sortedWorkoutSessions = computed(() =>
+    [...props.workoutSessions].sort((firstSession, secondSession) =>
+        sortUserContentFirst(
+            firstSession,
+            secondSession,
+            (session) => !session.is_system,
+        ),
+    ),
+);
+
 const exerciseGroups = computed(() =>
     props.sports
         .map((sport) => ({
             sport,
-            exercises: props.availableExercises.filter(
+            exercises: sortedAvailableExercises.value.filter(
                 (exercise) => exercise.sport_id === sport.id,
             ),
         }))
@@ -176,7 +211,7 @@ const exerciseGroups = computed(() =>
 );
 
 const customExercises = computed(() =>
-    props.availableExercises.filter((exercise) => exercise.is_custom),
+    sortedAvailableExercises.value.filter((exercise) => exercise.is_custom),
 );
 
 const libraryErrorMessage = computed(
@@ -795,7 +830,7 @@ onBeforeUnmount(() => {
                         >
                             <option value="">Sélectionner une séance</option>
                             <option
-                                v-for="session in workoutSessions"
+                                v-for="session in sortedWorkoutSessions"
                                 :key="session.id"
                                 :value="session.id"
                             >
@@ -930,11 +965,11 @@ onBeforeUnmount(() => {
                     class="mt-4"
                 >
                     <div
-                        v-if="workoutSessions.length > 0"
+                        v-if="sortedWorkoutSessions.length > 0"
                         class="overflow-hidden rounded-lg border border-neutral-200"
                     >
                         <div
-                            v-for="session in workoutSessions"
+                            v-for="session in sortedWorkoutSessions"
                             :key="session.id"
                             class="grid gap-3 border-b border-neutral-200 bg-white p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_auto]"
                         >
@@ -1028,11 +1063,11 @@ onBeforeUnmount(() => {
 
                 <div v-else class="mt-4">
                     <div
-                        v-if="availableExercises.length > 0"
+                        v-if="sortedAvailableExercises.length > 0"
                         class="overflow-hidden rounded-lg border border-neutral-200"
                     >
                         <div
-                            v-for="exercise in availableExercises"
+                            v-for="exercise in sortedAvailableExercises"
                             :key="exercise.id"
                             class="grid gap-3 border-b border-neutral-200 bg-white p-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_1fr_auto]"
                         >
@@ -1045,8 +1080,8 @@ onBeforeUnmount(() => {
                                         class="rounded-full px-2 py-1 text-xs font-medium"
                                         :class="
                                             exercise.is_custom
-                                                ? 'bg-evo-purple text-evo-white'
-                                                : 'bg-evo-orange text-evo-white'
+                                                ? 'bg-evo-orange text-evo-white'
+                                                : 'bg-evo-purple text-evo-white'
                                         "
                                     >
                                         {{
@@ -1197,7 +1232,6 @@ onBeforeUnmount(() => {
                     <Button
                         type="button"
                         variant="transparent"
-                        disable-animation
                         class="px-3 py-1 text-sm"
                         @click="closeWorkoutSessionEditor"
                     >
@@ -1318,7 +1352,6 @@ onBeforeUnmount(() => {
                     <Button
                         type="button"
                         variant="transparent"
-                        disable-animation
                         class="px-3 py-1 text-sm"
                         @click="closeExerciseEditor"
                     >
@@ -1438,7 +1471,6 @@ onBeforeUnmount(() => {
                     <Button
                         type="button"
                         variant="transparent"
-                        disable-animation
                         class="px-3 py-1 text-sm"
                         @click="closeWorkoutSessionModal"
                     >
@@ -1566,7 +1598,6 @@ onBeforeUnmount(() => {
                     <Button
                         type="button"
                         variant="transparent"
-                        disable-animation
                         class="px-3 py-1 text-sm"
                         @click="closeCustomExerciseModal"
                     >
@@ -1705,7 +1736,6 @@ onBeforeUnmount(() => {
                     <Button
                         type="button"
                         variant="transparent"
-                        disable-animation
                         class="px-3 py-1 text-sm"
                         @click="closeShareSessionModal"
                     >
@@ -1800,7 +1830,6 @@ onBeforeUnmount(() => {
                         <Button
                             type="button"
                             variant="transparent"
-                            disable-animation
                             @click="closeShareSessionModal"
                         >
                             Annuler
@@ -1833,7 +1862,6 @@ onBeforeUnmount(() => {
                     <Button
                         type="button"
                         variant="transparent"
-                        disable-animation
                         class="px-3 py-1 text-sm"
                         @click="closeCompleteSessionModal"
                     >
@@ -1864,7 +1892,6 @@ onBeforeUnmount(() => {
                         <Button
                             type="button"
                             variant="transparent"
-                            disable-animation
                             @click="completeSelectedSession"
                         >
                             Non, valider la séance
@@ -1970,7 +1997,6 @@ onBeforeUnmount(() => {
                             v-if="wantsPerformanceEntry"
                             type="button"
                             variant="transparent"
-                            disable-animation
                             @click="wantsPerformanceEntry = false"
                         >
                             Valider sans performances
