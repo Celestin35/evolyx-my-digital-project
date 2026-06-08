@@ -358,9 +358,6 @@ onBeforeUnmount(() => {
                         <p v-if="flashSuccessMessage" class="mt-4 text-sm text-emerald-700">
                             {{ flashSuccessMessage }}
                         </p>
-                        <p class="mt-4 text-sm text-neutral-600">
-                            Ces valeurs viennent directement de votre objectif actif.
-                        </p>
                     </div>
 
                     <template #locked-preview>
@@ -386,10 +383,6 @@ onBeforeUnmount(() => {
                                     <p class="mt-2 text-2xl font-semibold">-- g</p>
                                 </div>
                             </div>
-
-                            <p class="mt-4 text-sm text-neutral-600">
-                                Ces valeurs viennent directement de votre objectif actif.
-                            </p>
                         </div>
                     </template>
                 </PremiumFeatureGate>

@@ -46,12 +46,12 @@ type PerformanceEntry = {
     metric_values: Record<string, number>;
     exercise_id: number;
     exercise_name: string;
-    sport_id: number | null;
+    sport_id: number | string | null;
     sport_name: string | null;
 };
 
 type SportOption = {
-    id: number;
+    id: number | string;
     name: string;
 };
 
@@ -83,9 +83,10 @@ const progressTabs = [
         label: 'Performances',
     },
 ] as const;
-const selectedSportId = ref<number | 'all'>('all');
+const selectedSportId = ref<number | string | 'all'>('all');
 const selectedExerciseId = ref<number | null>(null);
 const selectedMetric = ref<PerformanceMetric>('');
+const normalizeId = (id: number | string) => Number(id);
 const rangeOptions: Array<{ value: ProgressRange; label: string }> = [
     { value: '1m', label: '1M' },
     { value: '3m', label: '3M' },
@@ -148,7 +149,7 @@ const filteredWeightEntries = computed(() => {
 
 const selectableSports = computed(() => {
     const sports = new Map<number, string>(
-        props.sports.map((sport) => [sport.id, sport.name]),
+        props.sports.map((sport) => [normalizeId(sport.id), sport.name]),
     );
 
     props.performances.forEach((performance) => {
@@ -156,7 +157,7 @@ const selectableSports = computed(() => {
             return;
         }
 
-        sports.set(performance.sport_id, performance.sport_name);
+        sports.set(normalizeId(performance.sport_id), performance.sport_name);
     });
 
     return [...sports.entries()]
@@ -172,7 +173,10 @@ const performancesForSelectedSport = computed(() => {
     }
 
     return props.performances.filter(
-        (performance) => performance.sport_id === selectedSportId.value,
+        (performance) =>
+            performance.sport_id !== null &&
+            normalizeId(performance.sport_id) ===
+                normalizeId(selectedSportId.value),
     );
 });
 
