@@ -103,10 +103,10 @@ onBeforeUnmount(() => {
     @mouseenter="playHover"
     @mouseleave="reverseHover"
   >
-    <span v-if="isAnimationDisabled" class="relative z-10 flex items-center justify-center gap-2">
+    <span v-if="isAnimationDisabled" class="relative z-10 flex items-center justify-center gap-2 shrink-0">
       <slot />
     </span>
-    <span v-else class="relative z-10 grid overflow-hidden">
+    <span v-else class="relative z-10 grid overflow-hidden shrink-0">
       <span class="invisible flex items-center justify-center gap-2">
         <slot />
       </span>

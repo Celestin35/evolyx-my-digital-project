@@ -199,12 +199,15 @@ const sortedWorkoutSessions = computed(() =>
     ),
 );
 
+const normalizeId = (id: number | string) => Number(id);
+
 const exerciseGroups = computed(() =>
     props.sports
         .map((sport) => ({
             sport,
             exercises: sortedAvailableExercises.value.filter(
-                (exercise) => exercise.sport_id === sport.id,
+                (exercise) =>
+                    normalizeId(exercise.sport_id) === normalizeId(sport.id),
             ),
         }))
         .filter((group) => group.exercises.length > 0),
@@ -589,7 +592,7 @@ const duplicateWorkoutSession = (session: WorkoutSession) => {
 };
 
 const deleteWorkoutSession = (session: WorkoutSession) => {
-    if (!window.confirm(`Supprimer la séance type "${session.name}" ?`)) {
+    if (!window.confirm(`Supprimer la séance "${session.name}" ?`)) {
         return;
     }
 
@@ -809,7 +812,7 @@ onBeforeUnmount(() => {
                 </h2>
                 <p
                     v-if="selectedCalendarDateLabel"
-                    class="mt-2 text-sm text-neutral-600"
+                    class="mt-2 text-sm font-medium text-neutral-600"
                 >
                     Jour sélectionné depuis le calendrier :
                     {{ selectedCalendarDateLabel }}
@@ -821,7 +824,7 @@ onBeforeUnmount(() => {
                             for="performed_workout_session"
                             class="block font-medium"
                         >
-                            Séance type
+                            Séance
                         </label>
                         <select
                             id="performed_workout_session"
@@ -915,7 +918,7 @@ onBeforeUnmount(() => {
                             type="button"
                             @click="openWorkoutSessionModal"
                         >
-                            Créer une séance type
+                            Créer une séance
                         </Button>
                         <Button
                             v-else
@@ -1057,7 +1060,7 @@ onBeforeUnmount(() => {
                         </div>
                     </div>
                     <p v-else class="text-sm text-neutral-600">
-                        Aucune séance type créée pour le moment.
+                        Aucune séance créée pour le moment.
                     </p>
                 </div>
 
@@ -1227,7 +1230,7 @@ onBeforeUnmount(() => {
             >
                 <div class="flex items-start justify-between gap-4">
                     <h2 class="text-lg font-semibold">
-                        Modifier la séance type
+                        Modifier la séance
                     </h2>
                     <Button
                         type="button"
@@ -1281,6 +1284,12 @@ onBeforeUnmount(() => {
                         <div
                             class="max-h-64 space-y-3 overflow-y-auto rounded-lg border border-neutral-200 p-3"
                         >
+                            <p
+                                v-if="exerciseGroups.length === 0"
+                                class="text-sm text-neutral-500"
+                            >
+                                Aucun exercice disponible pour vos sports.
+                            </p>
                             <div
                                 v-for="group in exerciseGroups"
                                 :key="group.sport.id"
@@ -1467,7 +1476,7 @@ onBeforeUnmount(() => {
                 class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
-                    <h2 class="text-lg font-semibold">Créer une séance type</h2>
+                    <h2 class="text-lg font-semibold">Créer une séance</h2>
                     <Button
                         type="button"
                         variant="transparent"
@@ -1577,7 +1586,7 @@ onBeforeUnmount(() => {
                         {{
                             workoutSessionForm.processing
                                 ? 'Création...'
-                                : 'Créer la séance type'
+                                : 'Créer la séance'
                         }}
                     </Button>
                 </div>
@@ -1901,8 +1910,8 @@ onBeforeUnmount(() => {
                         v-if="!selectedWorkoutSessionHasExercises"
                         class="text-sm text-red-600"
                     >
-                        Cette séance type ne contient aucun exercice. Ajoutez
-                        des exercices à la séance type pour pouvoir renseigner
+                        Cette séance ne contient aucun exercice. Ajoutez
+                        des exercices à la séance pour pouvoir renseigner
                         des performances.
                     </p>
                 </div>

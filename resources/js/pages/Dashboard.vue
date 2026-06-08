@@ -245,7 +245,7 @@ const formatCommunityPostDate = (date: string | null) => {
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold">Feed communautaire</h2>
-                        <p class="mt-1 text-sm text-neutral-600">
+                        <p class="hidden lg:block mt-1 text-sm text-neutral-600">
                             Les dernières publications des membres que vous
                             suivez.
                         </p>
