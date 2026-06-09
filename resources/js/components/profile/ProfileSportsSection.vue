@@ -29,7 +29,7 @@ const sportsForm = useForm({
 
 const selectedSportsLabel = computed(() => {
     if (!props.user.sports.length) {
-        return 'Aucun sport selectionne.';
+        return 'Aucun sport sélectionné.';
     }
 
     return props.user.sports.map((sport) => sport.name).join(', ');

@@ -195,7 +195,7 @@ function validateProfileFields() {
     const weight = Number(form.weight);
 
     if (!['male', 'female', 'other'].includes(form.sex)) {
-        form.setError('sex', 'Selectionne ton sexe.');
+        form.setError('sex', 'Sélectionne ton sexe.');
     }
 
     if (form.height === '' || !Number.isInteger(height) || height < 50 || height > 300) {

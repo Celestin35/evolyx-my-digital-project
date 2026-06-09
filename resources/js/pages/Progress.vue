@@ -76,7 +76,7 @@ const activeProgressTab = ref<'weight' | 'performance'>('weight');
 const progressTabs = [
     {
         value: 'weight',
-        label: 'Evolution du poids',
+        label: 'Évolution du poids',
     },
     {
         value: 'performance',
@@ -491,7 +491,7 @@ const submitWeightEntry = () => {
                 <HorizontalTabs
                     v-model="activeProgressTab"
                     :tabs="progressTabs"
-                    aria-label="Fenetres d'evolution"
+                    aria-label="Fenêtres d’évolution"
                 />
             </section>
 

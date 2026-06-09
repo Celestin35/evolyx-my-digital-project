@@ -661,7 +661,13 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                         <p
                                             class="text-sm font-semibold text-evo-black"
                                         >
-                                            Séance partagée
+                                            Séance effectuée le
+                                            {{
+                                                formatDate(
+                                                    post.performed_session
+                                                        .completed_at,
+                                                )
+                                            }}
                                         </p>
                                         <h3 class="sr-only">
                                             {{
@@ -670,17 +676,6 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                                 'Séance'
                                             }}
                                         </h3>
-                                        <p
-                                            class="mt-0.5 text-xs text-neutral-600"
-                                        >
-                                            Effectuée le
-                                            {{
-                                                formatDate(
-                                                    post.performed_session
-                                                        .completed_at,
-                                                )
-                                            }}
-                                        </p>
                                     </div>
                                     <div
                                         class="rounded-lg border border-evo-orange bg-evo-white px-3 py-1 text-xs font-semibold text-evo-black"

@@ -83,7 +83,7 @@ const savePersonalInfo = () => {
     const height = Number(personalInfoForm.height);
 
     if (!['male', 'female', 'other'].includes(personalInfoForm.sex)) {
-        personalInfoForm.setError('sex', 'Selectionne ton sexe.');
+        personalInfoForm.setError('sex', 'Sélectionne ton sexe.');
 
         return;
     }
@@ -96,7 +96,7 @@ const savePersonalInfo = () => {
     ) {
         personalInfoForm.setError(
             'height',
-            'La taille doit etre un nombre entier entre 50 et 300 cm.',
+            'La taille doit être un nombre entier entre 50 et 300 cm.',
         );
 
         return;
@@ -109,7 +109,7 @@ const savePersonalInfo = () => {
     ) {
         personalInfoForm.setError(
             'activity_level',
-            "Selectionne un niveau d'activite.",
+            "Sélectionne un niveau d'activité.",
         );
 
         return;
@@ -127,7 +127,7 @@ const savePersonalInfo = () => {
     if (personalInfoForm.birth_date > todayDate.value) {
         personalInfoForm.setError(
             'birth_date',
-            'La date de naissance ne peut pas etre dans le futur.',
+            'La date de naissance ne peut pas être dans le futur.',
         );
 
         return;
@@ -162,7 +162,7 @@ const savePersonalInfo = () => {
                         v-if="user.first_name"
                         class="flex items-center gap-1"
                     >
-                        <p class="font-medium">Prenom :</p>
+                        <p class="font-medium">Prénom :</p>
                         <p>{{ user.first_name }}</p>
                     </div>
                     <div v-if="formattedSex" class="flex items-center gap-1">
@@ -184,11 +184,11 @@ const savePersonalInfo = () => {
                         v-if="formattedActivityLevel"
                         class="flex items-center gap-1"
                     >
-                        <p class="font-medium">Niveau d'activite :</p>
+                        <p class="font-medium">Niveau d'activité :</p>
                         <p>{{ formattedActivityLevel }}</p>
                     </div>
                     <div v-if="user.age" class="flex items-center gap-1">
-                        <p class="font-medium">Age :</p>
+                        <p class="font-medium">Âge :</p>
                         <p>{{ user.age }}</p>
                     </div>
                     <div
@@ -206,7 +206,7 @@ const savePersonalInfo = () => {
             <div v-else class="space-y-4">
                 <div class="space-y-2">
                     <label for="personal_first_name" class="block font-medium"
-                        >Prenom</label
+                        >Prénom</label
                     >
                     <input
                         id="personal_first_name"
@@ -291,7 +291,7 @@ const savePersonalInfo = () => {
                         for="personal_activity_level"
                         class="block font-medium"
                     >
-                        Niveau d'activite
+                        Niveau d'activité
                     </label>
                     <select
                         id="personal_activity_level"
@@ -318,11 +318,11 @@ const savePersonalInfo = () => {
                     class="rounded-lg border border-dashed border-neutral-300 p-4"
                 >
                     <p class="text-sm text-neutral-600">
-                        Pour modifier ou ajouter une entree de poids,
-                        rendez-vous sur votre suivi d'evolution.
+                        Pour modifier ou ajouter une entrée de poids,
+                        rendez-vous sur votre suivi d'évolution.
                     </p>
                     <Button :as="Link" :href="progress()" class="mt-3">
-                        Gerer mes entrees de poids
+                        Gérer mes entrées de poids
                     </Button>
                 </div>
 

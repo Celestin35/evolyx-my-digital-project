@@ -1732,7 +1732,7 @@ onBeforeUnmount(() => {
                         <h2 class="mt-1 text-lg font-semibold">
                             {{
                                 selectedShareSession.workout_session_name ??
-                                'Seance'
+                                'Séance'
                             }}
                         </h2>
                         <p

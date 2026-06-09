@@ -36,7 +36,7 @@ class SubscriptionController extends Controller
         if ($currentSubscription?->subscriptionPlan?->name === $selectedPlan->name) {
             return to_route('profile.edit')->with(
                 'success',
-                'Cet abonnement est deja actif.',
+                'Cet abonnement est déjà actif.',
             );
         }
 

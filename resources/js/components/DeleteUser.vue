@@ -63,7 +63,7 @@ const passwordInput = useTemplateRef('passwordInput');
                                 >Confirmer la suppression du compte</DialogTitle
                             >
                             <DialogDescription>
-                                Une fois votre compte supprime, toutes vos
+                                Une fois votre compte supprimé, toutes vos
                                 données seront également supprimées de façon
                                 définitive. Saisissez votre mot de passe pour
                                 confirmer cette action.

@@ -77,16 +77,16 @@ trait ProfileValidationRules
     {
         return [
             'first_name.required' => 'Le nom est requis.',
-            'first_name.max' => 'Le nom ne peut pas depasser 50 caracteres.',
+            'first_name.max' => 'Le nom ne peut pas dépasser 50 caractères.',
             'pseudo.required' => 'Le pseudo est requis.',
-            'pseudo.min' => 'Le pseudo doit contenir au moins 3 caracteres.',
-            'pseudo.max' => 'Le pseudo ne peut pas depasser 30 caracteres.',
+            'pseudo.min' => 'Le pseudo doit contenir au moins 3 caractères.',
+            'pseudo.max' => 'Le pseudo ne peut pas dépasser 30 caractères.',
             'pseudo.regex' => 'Le pseudo ne peut contenir que des lettres, des chiffres et des underscores.',
-            'pseudo.unique' => 'Ce pseudo est deja utilise.',
+            'pseudo.unique' => 'Ce pseudo est déjà utilisé.',
             'email.required' => 'L\'email est requis.',
-            'email.email' => 'L\'email doit etre une adresse valide.',
-            'email.max' => 'L\'email ne peut pas depasser 255 caracteres.',
-            'email.unique' => 'Un compte existe deja avec cet email.',
+            'email.email' => 'L\'email doit être une adresse valide.',
+            'email.max' => 'L\'email ne peut pas dépasser 255 caractères.',
+            'email.unique' => 'Un compte existe déjà avec cet email.',
         ];
     }
 }

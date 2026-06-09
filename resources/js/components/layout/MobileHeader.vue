@@ -29,7 +29,7 @@ const isProfileActive = computed(() => isCurrentOrParentUrl(profile()));
         <Link
                 :href="editProfile()"
                 class="flex w-8 flex-col items-center gap-0.5 text-[9px] leading-none font-bold text-black"
-                aria-label="Parametres"
+                aria-label="Paramètres"
             >
                 <span
                     :class="[

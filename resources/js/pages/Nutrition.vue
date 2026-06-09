@@ -208,7 +208,7 @@ onBeforeUnmount(() => {
                                 {{ caloriesOverview.target_calories }}
                             </p>
                             <p class="mt-2 text-base text-neutral-600">
-                                kcal a consommer aujourd'hui
+                                kcal à consommer aujourd'hui
                             </p>
                             </div>
                             
@@ -400,8 +400,8 @@ onBeforeUnmount(() => {
                         Saisie des repas
                     </h2>
                     <p class="mt-1 max-w-xl text-sm leading-4 text-neutral-500">
-                        Cette colonne montre simplement a quoi pourrait ressembler l'ajout manuel de
-                        calories plus tard, sans logique metier pour le moment.
+                        Cette colonne montre simplement à quoi pourrait ressembler l'ajout manuel de
+                        calories plus tard, sans logique métier pour le moment.
                     </p>
                 </div>
 

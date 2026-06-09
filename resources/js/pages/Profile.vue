@@ -78,7 +78,7 @@ const profileTabs = [
                 <HorizontalTabs
                     v-model="activeProfileTab"
                     :tabs="profileTabs"
-                    aria-label="Fenetres du profil"
+                    aria-label="Fenêtres du profil"
                 />
             </section>
 

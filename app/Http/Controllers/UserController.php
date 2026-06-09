@@ -79,20 +79,20 @@ class UserController extends Controller
             'sport_ids.*' => ['integer', Rule::exists('sports', 'id')],
         ], [
             'first_name.required' => 'Le nom est requis.',
-            'first_name.max' => 'Le nom ne peut pas depasser 50 caracteres.',
+            'first_name.max' => 'Le nom ne peut pas dépasser 50 caractères.',
             'sex.required' => 'Le sexe est requis.',
-            'sex.in' => 'Le sexe selectionne est invalide.',
+            'sex.in' => 'Le sexe sélectionné est invalide.',
             'height.required' => 'La taille est requise.',
-            'height.integer' => 'La taille doit etre un nombre entier en centimetres.',
-            'height.min' => 'La taille doit etre comprise entre 50 et 300 cm.',
-            'height.max' => 'La taille doit etre comprise entre 50 et 300 cm.',
-            'activity_level.required' => 'Le niveau d\'activite est requis.',
-            'activity_level.in' => 'Le niveau d\'activite selectionne est invalide.',
+            'height.integer' => 'La taille doit être un nombre entier en centimètres.',
+            'height.min' => 'La taille doit être comprise entre 50 et 300 cm.',
+            'height.max' => 'La taille doit être comprise entre 50 et 300 cm.',
+            'activity_level.required' => 'Le niveau d\'activité est requis.',
+            'activity_level.in' => 'Le niveau d\'activité sélectionné est invalide.',
             'birth_date.required' => 'La date de naissance est requise.',
-            'birth_date.date' => 'La date de naissance doit etre une date valide.',
+            'birth_date.date' => 'La date de naissance doit être une date valide.',
             'birth_date.before_or_equal' => 'Tu dois avoir au moins 15 ans pour utiliser l\'application.',
-            'sport_ids.array' => 'La selection de sports est invalide.',
-            'sport_ids.*.exists' => 'Un sport selectionne est invalide.',
+            'sport_ids.array' => 'La sélection de sports est invalide.',
+            'sport_ids.*.exists' => 'Un sport sélectionné est invalide.',
         ]);
 
         $user = $request->user();
@@ -121,9 +121,9 @@ class UserController extends Controller
             'sport_ids' => ['present', 'array'],
             'sport_ids.*' => ['integer', Rule::exists('sports', 'id')],
         ], [
-            'sport_ids.present' => 'La selection de sports est requise.',
-            'sport_ids.array' => 'La selection de sports est invalide.',
-            'sport_ids.*.exists' => 'Un sport selectionne est invalide.',
+            'sport_ids.present' => 'La sélection de sports est requise.',
+            'sport_ids.array' => 'La sélection de sports est invalide.',
+            'sport_ids.*.exists' => 'Un sport sélectionné est invalide.',
         ]);
 
         $request->user()->sports()->sync(

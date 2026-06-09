@@ -92,7 +92,7 @@ class CaloriesController extends Controller
 
         if (! $user->hasPremiumFeatures()) {
             return to_route('nutrition')->withErrors([
-                'macros' => 'Cette fonctionnalite est reservee a l abonnement Premium.',
+                'macros' => 'Cette fonctionnalité est réservée à l’abonnement Premium.',
             ]);
         }
 
@@ -100,7 +100,7 @@ class CaloriesController extends Controller
 
         if (! $activeGoal || ! $activeGoal->macronutrient) {
             return to_route('nutrition')->withErrors([
-                'macros' => 'Aucun objectif actif avec macros n est disponible.',
+                'macros' => 'Aucun objectif actif avec macros n’est disponible.',
             ]);
         }
 
@@ -132,7 +132,7 @@ class CaloriesController extends Controller
 
         if (! $user->current_weight) {
             return response()->json([
-                'message' => 'Aucune entree de poids disponible pour cet utilisateur.',
+                'message' => 'Aucune entrée de poids disponible pour cet utilisateur.',
             ], 422);
         }
 

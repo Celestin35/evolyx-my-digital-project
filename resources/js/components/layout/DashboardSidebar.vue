@@ -43,7 +43,7 @@ const navItems = computed(() => [
         active: isCurrentOrParentUrl(dashboard()),
     },
     {
-        label: 'Seances',
+        label: 'Séances',
         href: sessions(),
         icon: sessionsSvg,
         active: isCurrentOrParentUrl(sessions()),
@@ -55,13 +55,13 @@ const navItems = computed(() => [
         active: isCurrentOrParentUrl(nutrition()),
     },
     {
-        label: 'Evolution',
+        label: 'Évolution',
         href: progress(),
         icon: evolutionSvg,
         active: isCurrentOrParentUrl(progress()),
     },
     {
-        label: 'Communaute',
+        label: 'Communauté',
         href: community(),
         icon: communitySvg,
         active: isCurrentOrParentUrl(community()),
@@ -117,7 +117,7 @@ const navItems = computed(() => [
                     ]"
                     v-html="settingsSvg"
                 />
-                <span>Parametres</span>
+                <span>Paramètres</span>
             </Link>
             <Link
                 :href="logout()"

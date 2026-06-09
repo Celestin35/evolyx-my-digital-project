@@ -17,7 +17,7 @@ class GoalController extends Controller
 
         if (! $user->current_weight) {
             return response()->json([
-                'message' => 'Aucune entree de poids disponible pour cet utilisateur.',
+                'message' => 'Aucune entrée de poids disponible pour cet utilisateur.',
             ], 422);
         }
 
@@ -32,7 +32,7 @@ class GoalController extends Controller
                     $allowedValues = [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0];
 
                     if (! in_array((float) $value, $allowedValues, true)) {
-                        $fail('Le rythme hebdomadaire doit correspondre a une option disponible.');
+                        $fail('Le rythme hebdomadaire doit correspondre à une option disponible.');
                     }
                 },
             ],
@@ -55,7 +55,7 @@ class GoalController extends Controller
 
         if (! $goalType) {
             return response()->json([
-                'message' => 'Le type d objectif correspondant est introuvable.',
+                'message' => 'Le type d’objectif correspondant est introuvable.',
             ], 422);
         }
 
@@ -121,19 +121,19 @@ class GoalController extends Controller
     ): void {
         if ($targetWeight === $currentWeight && $weeklyWeightGoal !== 0.0) {
             throw ValidationException::withMessages([
-                'weekly_weight_goal' => 'Le rythme hebdomadaire doit etre a 0 pour un maintien.',
+                'weekly_weight_goal' => 'Le rythme hebdomadaire doit être à 0 pour un maintien.',
             ]);
         }
 
         if ($targetWeight > $currentWeight && $weeklyWeightGoal <= 0.0) {
             throw ValidationException::withMessages([
-                'weekly_weight_goal' => 'Le rythme hebdomadaire doit etre positif pour une prise de poids.',
+                'weekly_weight_goal' => 'Le rythme hebdomadaire doit être positif pour une prise de poids.',
             ]);
         }
 
         if ($targetWeight < $currentWeight && $weeklyWeightGoal >= 0.0) {
             throw ValidationException::withMessages([
-                'weekly_weight_goal' => 'Le rythme hebdomadaire doit etre negatif pour une perte de poids.',
+                'weekly_weight_goal' => 'Le rythme hebdomadaire doit être négatif pour une perte de poids.',
             ]);
         }
     }

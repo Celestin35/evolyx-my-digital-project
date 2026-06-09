@@ -45,7 +45,7 @@ const settingsTabs = computed(() =>
         <section class="rounded-lg bg-evo-white p-4 dark:bg-neutral-900">
             <HorizontalTabs
                 :tabs="settingsTabs"
-                aria-label="Parametres"
+                aria-label="Paramètres"
                 :spaced="false"
             />
         </section>

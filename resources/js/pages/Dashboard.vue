@@ -232,7 +232,7 @@ const formatCommunityPostDate = (date: string | null) => {
                 </div>
 
                 <p v-else class="mt-4 text-sm text-neutral-600">
-                    Aucune performance recente.
+                    Aucune performance récente.
                 </p>
             </div>
 
@@ -345,10 +345,9 @@ const formatCommunityPostDate = (date: string | null) => {
                 </div>
 
                 <p v-else class="mt-4 text-sm text-neutral-600">
-                    Aucune seance recente.
+                    Aucune séance récente.
                 </p>
             </div>
         </section>
     </AppLayout>
 </template>
-

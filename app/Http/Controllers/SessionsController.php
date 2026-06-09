@@ -158,7 +158,7 @@ class SessionsController extends Controller
 
         if (! $belongsToUserSports) {
             return back()->withErrors([
-                'exercise_ids' => 'Certains exercices ne correspondent pas a vos sports.',
+                'exercise_ids' => 'Certains exercices ne correspondent pas à vos sports.',
             ]);
         }
 
@@ -417,7 +417,7 @@ class SessionsController extends Controller
 
         if ($performedSession->performed_at->copy()->startOfDay()->isAfter(today())) {
             return back()->withErrors([
-                'performed_session_id' => 'Vous pouvez valider uniquement une seance prevue aujourd hui ou avant.',
+                'performed_session_id' => 'Vous pouvez valider uniquement une séance prévue aujourd’hui ou avant.',
             ]);
         }
 
@@ -458,7 +458,7 @@ class SessionsController extends Controller
 
         if ($invalidExercise) {
             return back()->withErrors([
-                'performances' => 'Certains exercices ne font pas partie de cette seance.',
+                'performances' => 'Certains exercices ne font pas partie de cette séance.',
             ]);
         }
 
@@ -476,7 +476,7 @@ class SessionsController extends Controller
 
             if ($metrics->isNotEmpty() && $submittedMetricKeys->diff($metricKeys)->isNotEmpty()) {
                 return back()->withErrors([
-                    'performances' => 'Certaines metriques ne correspondent pas a cet exercice.',
+                    'performances' => 'Certaines métriques ne correspondent pas à cet exercice.',
                 ]);
             }
 
@@ -490,7 +490,7 @@ class SessionsController extends Controller
 
             if ($missingRequiredMetric) {
                 return back()->withErrors([
-                    'performances' => 'Certaines metriques obligatoires sont manquantes.',
+                    'performances' => 'Certaines métriques obligatoires sont manquantes.',
                 ]);
             }
         }

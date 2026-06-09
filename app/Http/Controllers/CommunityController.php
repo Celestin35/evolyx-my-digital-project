@@ -97,7 +97,7 @@ class CommunityController extends Controller
 
         if (! $user->hasPremiumFeatures()) {
             return to_route('community')->withErrors([
-                'community' => 'Le feed communautaire est reserve aux abonnements Premium.',
+                'community' => 'Le feed communautaire est réservé aux abonnements Premium.',
             ]);
         }
 
@@ -120,13 +120,13 @@ class CommunityController extends Controller
 
         if ($performedSession->completed_at === null) {
             return back()->withErrors([
-                'community' => 'Vous pouvez partager uniquement une seance validee.',
+                'community' => 'Vous pouvez partager uniquement une séance validée.',
             ]);
         }
 
         if ($performedSession->communityPost !== null) {
             return back()->withErrors([
-                'community' => 'Cette seance est deja partagee.',
+                'community' => 'Cette séance est déjà partagée.',
             ]);
         }
 
@@ -256,13 +256,13 @@ class CommunityController extends Controller
 
         if (! $currentUser->hasPremiumFeatures()) {
             return to_route('community')->withErrors([
-                'community' => 'Le suivi de membres est reserve aux abonnements Premium.',
+                'community' => 'Le suivi de membres est réservé aux abonnements Premium.',
             ]);
         }
 
         if ($currentUser->id === $user->id) {
             return back()->withErrors([
-                'community' => 'Vous ne pouvez pas vous suivre vous-meme.',
+                'community' => 'Vous ne pouvez pas vous suivre vous-même.',
             ]);
         }
 
@@ -275,7 +275,7 @@ class CommunityController extends Controller
     {
         $request->user()->following()->detach($user->id);
 
-        return back()->with('success', 'Membre retire de vos abonnements.');
+        return back()->with('success', 'Membre retiré de vos abonnements.');
     }
 
     private function activeSubscriptionPlanName($user): ?string
