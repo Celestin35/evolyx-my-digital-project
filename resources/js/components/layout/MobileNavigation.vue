@@ -52,9 +52,9 @@ const navItems = computed(() => [
 </script>
 
 <template>
-    <div class="pointer-events-none fixed inset-4 z-40 lg:hidden">
+    <div class="pointer-events-none fixed right-4 bottom-4 left-4 z-40 lg:hidden">
         <nav
-            class="pointer-events-auto absolute right-0 bottom-0 left-0 rounded-full bg-evo-white px-4 py-2 shadow-sm"
+            class="pointer-events-auto rounded-full bg-evo-white px-4 py-2 shadow-sm"
             aria-label="Navigation principale"
         >
             <div class="grid grid-cols-5 items-end gap-1">

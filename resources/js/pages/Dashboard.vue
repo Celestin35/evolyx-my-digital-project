@@ -182,7 +182,7 @@ const formatCommunityPostDate = (date: string | null) => {
         title="Tableau de bord"
         subtitle="Bienvenue sur votre tableau de bord personnel !"
     >
-        <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <section class="grid grid-cols-1 gap-4 lg:grid-cols-2 max-lg:pb-23">
             <div class="order-3 flex min-h-90 flex-col rounded-lg bg-evo-white p-4">
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Suivi du poids</h2>

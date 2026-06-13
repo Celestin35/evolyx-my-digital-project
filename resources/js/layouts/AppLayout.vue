@@ -16,13 +16,13 @@ const ads = useAds();
 
 <template>
     <div
-        class="fixed inset-0 flex overflow-hidden bg-gray-200 p-4 text-evo-black transition-colors dark:bg-neutral-950 dark:text-evo-white pb-24 lg:p-4"
+        class="fixed inset-0 flex overflow-hidden bg-gray-200 pt-4 px-4 text-evo-black transition-colors dark:bg-neutral-950 dark:text-evo-white lg:p-4"
     >
         <DashboardSidebar />
         <MobileNavigation />
 
         <div
-            class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)] lg:pr-4"
+            class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pb-20 [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)] lg:pr-4 lg:pb-0"
         >
             <MobileHeader />
             <DashboardHeader :title="title" :subtitle="subtitle" />
