@@ -41,7 +41,7 @@ const settingsTabs = computed(() =>
 </script>
 
 <template>
-    <div class="space-y-4">
+    <div class="space-y-4 max-lg:pb-23">
         <section class="rounded-lg bg-evo-white p-4 dark:bg-neutral-900">
             <HorizontalTabs
                 :tabs="settingsTabs"

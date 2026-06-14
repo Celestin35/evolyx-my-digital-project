@@ -776,7 +776,7 @@ onBeforeUnmount(() => {
             </p>
         </section>
 
-        <div class="space-y-4">
+        <div class="space-y-4 max-lg:pb-23">
             <section class="rounded-lg bg-evo-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-lg font-semibold">

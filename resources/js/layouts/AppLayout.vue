@@ -22,7 +22,7 @@ const ads = useAds();
         <MobileNavigation />
 
         <div
-            class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pb-20 [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)] lg:pr-4 lg:pb-0"
+            class="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto [scrollbar-gutter:stable] lg:ml-[calc(20%+1.5rem)] lg:pr-4"
         >
             <MobileHeader />
             <DashboardHeader :title="title" :subtitle="subtitle" />

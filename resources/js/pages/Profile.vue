@@ -66,7 +66,7 @@ const profileTabs = [
     <Head title="Profil" />
 
     <AppLayout title="Profil" subtitle="Gérez vos informations personnelles.">
-        <div class="space-y-4">
+        <div class="space-y-4 max-lg:pb-23">
             <section class="rounded-lg bg-evo-white p-4">
                 <div>
                     <h2 class="text-lg font-semibold">Fenêtres du profil</h2>

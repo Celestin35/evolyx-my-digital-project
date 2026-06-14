@@ -195,7 +195,10 @@ onBeforeUnmount(() => {
         title="Nutrition"
         subtitle="Visualisez directement vos calories cibles à partir de votre objectif."
     >
-        <div v-if="caloriesOverview.target_calories" class="space-y-4">
+        <div
+            v-if="caloriesOverview.target_calories"
+            class="space-y-4 max-lg:pb-23"
+        >
             <div class="grid gap-4 xl:grid-cols-2">
                 <section class="rounded-lg bg-evo-white p-4">
                     <div class="flex h-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

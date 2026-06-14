@@ -474,7 +474,7 @@ const submitWeightEntry = () => {
         title="Progression"
         subtitle="Suivez votre poids et ajoutez vos nouvelles mesures."
     >
-        <div class="space-y-4">
+        <div class="space-y-4 max-lg:pb-23">
             <section class="rounded-lg bg-evo-white p-4">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>

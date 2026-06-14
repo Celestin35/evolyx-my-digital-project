@@ -348,7 +348,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
             plain-when-unlocked
             description="Suivez des membres Premium et consultez les séances qu'ils partagent."
         >
-            <div class="space-y-4">
+            <div class="space-y-4 max-lg:pb-23">
                 <section class="rounded-lg bg-evo-white p-4">
                     <div
                         class="flex flex-wrap items-start justify-between gap-3"
@@ -794,7 +794,7 @@ const deleteCommunityPost = (post: CommunityPost) => {
             </div>
 
             <template #locked-preview>
-                <div class="space-y-4">
+                <div class="space-y-4 max-lg:pb-23">
                     <section class="rounded-lg bg-evo-white p-4 opacity-60">
                         <h2 class="text-lg font-semibold">
                             Espace communautaire
