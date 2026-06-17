@@ -24,7 +24,6 @@ type MetricOption = {
     label: string;
     unit: string;
     value_type?: 'decimal' | 'integer';
-    is_primary?: boolean;
     sort_order?: number;
 };
 
@@ -40,7 +39,6 @@ type PerformanceEntry = {
         label: string;
         unit: string | null;
         value_type: 'decimal' | 'integer';
-        is_primary: boolean;
         sort_order: number;
     }>;
     metric_values: Record<string, number>;
@@ -256,7 +254,6 @@ const availableMetricOptions = computed<MetricOption[]>(() => {
                     label: metric.label,
                     unit: metric.unit ?? '',
                     value_type: metric.value_type,
-                    is_primary: metric.is_primary,
                     sort_order: metric.sort_order,
                 });
             });
@@ -283,15 +280,11 @@ const availableMetricOptions = computed<MetricOption[]>(() => {
         options.set('volume', { value: 'volume', label: 'Volume', unit: 'kg' });
     }
 
-    return [...options.values()].sort((firstMetric, secondMetric) => {
-        if (firstMetric.is_primary !== secondMetric.is_primary) {
-            return firstMetric.is_primary ? -1 : 1;
-        }
-
-        return (
-            (firstMetric.sort_order ?? 999) - (secondMetric.sort_order ?? 999)
-        );
-    });
+    return [...options.values()].sort(
+        (firstMetric, secondMetric) =>
+            (firstMetric.sort_order ?? 999) -
+            (secondMetric.sort_order ?? 999),
+    );
 });
 
 const activeMetric = computed(() => {
@@ -407,7 +400,6 @@ const visibleRecentMetricOptions = (performance: PerformanceEntry) => {
             label: metric.label,
             unit: metric.unit ?? '',
             value_type: metric.value_type,
-            is_primary: metric.is_primary,
             sort_order: metric.sort_order,
         }));
 
@@ -419,16 +411,11 @@ const visibleRecentMetricOptions = (performance: PerformanceEntry) => {
     );
 
     return [...dynamicMetricOptions, ...fallbackOptions]
-        .sort((firstMetric, secondMetric) => {
-            if (firstMetric.is_primary !== secondMetric.is_primary) {
-                return firstMetric.is_primary ? -1 : 1;
-            }
-
-            return (
+        .sort(
+            (firstMetric, secondMetric) =>
                 (firstMetric.sort_order ?? 999) -
-                (secondMetric.sort_order ?? 999)
-            );
-        })
+                (secondMetric.sort_order ?? 999),
+        )
         .slice(0, 4);
 };
 

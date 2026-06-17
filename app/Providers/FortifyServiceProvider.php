@@ -69,6 +69,7 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::registerView(fn () => Inertia::render('auth/Register', [
             'availableSports' => Sport::query()
+                ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get(['id', 'name'])
                 ->map(fn ($sport) => [

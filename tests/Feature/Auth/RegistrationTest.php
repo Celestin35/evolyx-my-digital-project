@@ -1,9 +1,9 @@
 <?php
 
 use Laravel\Fortify\Features;
-use Database\Seeders\RolesSeeder;
-use Database\Seeders\SportsSeeder;
-use Database\Seeders\SubscriptionPlansSeeder;
+use Database\Seeders\Base\RolesSeeder;
+use Database\Seeders\Base\SubscriptionPlansSeeder;
+use Database\Seeders\Sports\SportsSeeder;
 
 beforeEach(function () {
     $this->skipUnlessFortifyFeature(Features::registration());

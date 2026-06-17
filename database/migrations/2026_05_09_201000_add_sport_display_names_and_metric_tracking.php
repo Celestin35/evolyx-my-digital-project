@@ -31,8 +31,6 @@ return new class extends Migration
                 ->constrained('metrics')
                 ->cascadeOnDelete();
 
-            $table->boolean('is_required')->default(false);
-            $table->boolean('is_primary')->default(false);
             $table->unsignedInteger('sort_order')->default(0);
 
             $table->primary(['exercise_id', 'metric_id']);

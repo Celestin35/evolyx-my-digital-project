@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
 
 class Exercise extends Model
 {
@@ -32,15 +32,10 @@ class Exercise extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function equipment(): BelongsToMany
-    {
-        return $this->belongsToMany(Equipment::class, 'exercise_equipment');
-    }
-
     public function metrics(): BelongsToMany
     {
         return $this->belongsToMany(Metric::class, 'exercise_metric')
-            ->withPivot(['is_required', 'is_primary', 'sort_order'])
+            ->withPivot(['sort_order'])
             ->orderBy('exercise_metric.sort_order');
     }
 

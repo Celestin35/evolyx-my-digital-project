@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Base;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +15,6 @@ class GoalTypesSeeder extends Seeder
             ['name' => 'Perte de poids', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'Maintien', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'Prise de masse', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Recomposition corporelle', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Bien-etre', 'created_at' => $now, 'updated_at' => $now],
         ], ['name'], ['updated_at']);
     }
 }

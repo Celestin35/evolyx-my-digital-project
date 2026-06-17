@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Exercise;
 use App\Models\ExerciseCategory;
 use App\Models\Metric;
-use App\Models\PerformedSession;
 use App\Models\Performance;
+use App\Models\PerformedSession;
 use App\Models\Sport;
 use App\Models\WorkoutSession;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -26,6 +26,7 @@ class SessionsController extends Controller
 
         $sports = Sport::query()
             ->whereIn('id', $userSportIds)
+            ->orderBy('sort_order')
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -189,7 +190,7 @@ class SessionsController extends Controller
     public function updateWorkoutSession(Request $request, WorkoutSession $workoutSession): RedirectResponse
     {
         if ($workoutSession->user_id !== $request->user()->id) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         $userSportIds = $request->user()->sports()->pluck('sports.id');
@@ -244,7 +245,7 @@ class SessionsController extends Controller
     public function destroyWorkoutSession(Request $request, WorkoutSession $workoutSession): RedirectResponse
     {
         if ($workoutSession->user_id !== $request->user()->id) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         if ($workoutSession->performedSessions()->exists()) {
@@ -296,7 +297,7 @@ class SessionsController extends Controller
     public function updateExercise(Request $request, Exercise $exercise): RedirectResponse
     {
         if ($exercise->user_id !== $request->user()->id) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         $userSportIds = $request->user()->sports()->pluck('sports.id');
@@ -328,7 +329,7 @@ class SessionsController extends Controller
     public function destroyExercise(Request $request, Exercise $exercise): RedirectResponse
     {
         if ($exercise->user_id !== $request->user()->id) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         if ($exercise->performances()->exists() || $exercise->workoutSessions()->exists()) {
@@ -339,7 +340,6 @@ class SessionsController extends Controller
 
         DB::transaction(function () use ($exercise) {
             $exercise->metrics()->detach();
-            $exercise->equipment()->detach();
             $exercise->delete();
         });
 
@@ -375,7 +375,7 @@ class SessionsController extends Controller
             $workoutSession->user_id !== $request->user()->id &&
             $workoutSession->user_id !== null
         ) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         if (
@@ -406,7 +406,7 @@ class SessionsController extends Controller
     public function completePerformedSession(Request $request, PerformedSession $performedSession): RedirectResponse
     {
         if ($performedSession->user_id !== $request->user()->id) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         if ($performedSession->completed_at !== null) {
@@ -451,6 +451,12 @@ class SessionsController extends Controller
             })
             ->values();
 
+        if (($validatedData['performances'] ?? []) !== [] && $submittedPerformances->isEmpty()) {
+            return back()->withErrors([
+                'performances' => 'Renseignez au moins une performance ou validez la séance sans performances.',
+            ]);
+        }
+
         $invalidExercise = $submittedPerformances
             ->pluck('exercise_id')
             ->diff($workoutExerciseIds)
@@ -480,19 +486,6 @@ class SessionsController extends Controller
                 ]);
             }
 
-            $missingRequiredMetric = $metrics
-                ->filter(fn ($metric) => (bool) $metric->pivot->is_required)
-                ->contains(function ($metric) use ($performanceData) {
-                    $value = $performanceData['metrics'][$metric->key] ?? null;
-
-                    return $value === null || $value === '';
-                });
-
-            if ($missingRequiredMetric) {
-                return back()->withErrors([
-                    'performances' => 'Certaines métriques obligatoires sont manquantes.',
-                ]);
-            }
         }
 
         $metricIdsByKey = Metric::query()->pluck('id', 'key');
@@ -549,8 +542,6 @@ class SessionsController extends Controller
                 'label' => $metric->label,
                 'unit' => $metric->unit,
                 'value_type' => $metric->value_type,
-                'is_required' => (bool) $metric->pivot->is_required,
-                'is_primary' => (bool) $metric->pivot->is_primary,
                 'sort_order' => $metric->pivot->sort_order,
             ])
             ->values()
@@ -570,11 +561,6 @@ class SessionsController extends Controller
             default => ['duration_minutes', 'perceived_effort'],
         };
 
-        $requiredMetricKeys = match ($category) {
-            'Force' => ['sets', 'repetitions'],
-            default => ['duration_minutes'],
-        };
-
         $metricIds = Metric::query()
             ->whereIn('key', $metricKeys)
             ->pluck('id', 'key');
@@ -587,8 +573,6 @@ class SessionsController extends Controller
             }
 
             $syncData[$metricIds[$metricKey]] = [
-                'is_required' => in_array($metricKey, $requiredMetricKeys, true),
-                'is_primary' => $index === 0,
                 'sort_order' => $index + 1,
             ];
         }

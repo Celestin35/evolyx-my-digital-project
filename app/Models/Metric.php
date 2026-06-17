@@ -19,7 +19,7 @@ class Metric extends Model
     public function exercises(): BelongsToMany
     {
         return $this->belongsToMany(Exercise::class, 'exercise_metric')
-            ->withPivot(['is_required', 'is_primary', 'sort_order']);
+            ->withPivot(['sort_order']);
     }
 
     public function performanceValues(): HasMany

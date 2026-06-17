@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Demo\MainUser;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +16,8 @@ class WeightEntriesSeeder extends Seeder
         if (! $demoUserId) {
             return;
         }
+
+        DB::table('weight_entries')->where('user_id', $demoUserId)->delete();
 
         mt_srand(20260415);
 
