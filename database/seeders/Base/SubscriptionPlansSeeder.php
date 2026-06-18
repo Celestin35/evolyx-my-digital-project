@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Base;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -21,8 +21,8 @@ class SubscriptionPlansSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Essential',
-                'price' => 3.99,
+                'name' => 'Plus',
+                'price' => 4.99,
                 'ads_enabled' => false,
                 'premium_features' => false,
                 'created_at' => $now,
@@ -30,7 +30,7 @@ class SubscriptionPlansSeeder extends Seeder
             ],
             [
                 'name' => 'Premium',
-                'price' => 14.99,
+                'price' => 9.99,
                 'ads_enabled' => false,
                 'premium_features' => true,
                 'created_at' => $now,

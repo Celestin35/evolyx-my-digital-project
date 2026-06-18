@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('equipment', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 50)->unique();
-            $table->timestamps();
+        Schema::table('sports', function (Blueprint $table) {
+            $table->unsignedInteger('sort_order')->default(0)->after('display_name');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('equipment');
+        Schema::table('sports', function (Blueprint $table) {
+            $table->dropColumn('sort_order');
+        });
     }
 };

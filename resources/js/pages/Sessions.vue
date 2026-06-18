@@ -23,8 +23,6 @@ type ExerciseMetric = {
     label: string;
     unit: string | null;
     value_type: 'decimal' | 'integer';
-    is_required: boolean;
-    is_primary: boolean;
     sort_order: number;
 };
 
@@ -1962,11 +1960,6 @@ onBeforeUnmount(() => {
                                         {{ metric.label }}
                                         <span v-if="metric.unit"
                                             >({{ metric.unit }})</span
-                                        >
-                                        <span
-                                            v-if="metric.is_required"
-                                            class="text-red-600"
-                                            >*</span
                                         >
                                     </label>
                                     <input

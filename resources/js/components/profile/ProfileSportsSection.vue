@@ -80,13 +80,13 @@ const saveSports = () => {
                     <label
                         v-for="sport in availableSports"
                         :key="sport.id"
-                        class="flex items-center gap-2 text-sm"
+                        class="flex items-center gap-2 text-sm hover:cursor-pointer"
                     >
                         <input
                             v-model="sportsForm.sport_ids"
                             type="checkbox"
                             :value="sport.id"
-                            class="h-4 w-4 accent-evo-black"
+                            class="h-4 w-4 accent-evo-black hover:cursor-pointer"
                         />
                         <span>{{ sport.name }}</span>
                     </label>

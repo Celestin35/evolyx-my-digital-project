@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Base;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +22,10 @@ class MetricsSeeder extends Seeder
             ['key' => 'elevation_gain_meters', 'label' => 'Dénivelé positif', 'unit' => 'm', 'value_type' => 'decimal'],
             ['key' => 'heart_rate_bpm', 'label' => 'Fréquence cardiaque', 'unit' => 'bpm', 'value_type' => 'integer'],
             ['key' => 'perceived_effort', 'label' => 'Effort ressenti', 'unit' => '/10', 'value_type' => 'integer'],
+            ['key' => 'cadence_rpm', 'label' => 'Cadence de pédalage', 'unit' => 'rpm', 'value_type' => 'integer'],
+            ['key' => 'power_watts', 'label' => 'Puissance', 'unit' => 'W', 'value_type' => 'integer'],
+            ['key' => 'stroke_count', 'label' => 'Nombre de mouvements', 'unit' => 'mouvements', 'value_type' => 'integer'],
+            ['key' => 'pool_length_seconds', 'label' => 'Temps par longueur', 'unit' => 'secondes', 'value_type' => 'decimal'],
             ['key' => 'successful_attempts', 'label' => 'Réussites', 'unit' => null, 'value_type' => 'integer'],
             ['key' => 'total_attempts', 'label' => 'Tentatives', 'unit' => null, 'value_type' => 'integer'],
         ];

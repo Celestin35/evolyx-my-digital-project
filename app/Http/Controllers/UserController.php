@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sport;
 use App\Concerns\ProfileValidationRules;
+use App\Models\Sport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -49,6 +49,7 @@ class UserController extends Controller
                 ])->values(),
             ],
             'availableSports' => Sport::query()
+                ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get(['id', 'name'])
                 ->map(fn ($sport) => [

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Demo;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -25,21 +25,6 @@ class AdminUserSeeder extends Seeder
                 'activity_level' => 'active',
                 'birth_date' => '1990-01-15',
                 'role_id' => $roles['admin'],
-                'created_at' => $now,
-                'updated_at' => $now,
-                'deleted_at' => null,
-            ],
-            [
-                'email' => 'demo@evolyx.local',
-                'email_verified_at' => $now,
-                'pseudo' => 'lina',
-                'password' => Hash::make('password'),
-                'first_name' => 'Lina',
-                'sex' => 'female',
-                'height' => 168,
-                'activity_level' => 'moderate',
-                'birth_date' => '1996-05-22',
-                'role_id' => $roles['user'],
                 'created_at' => $now,
                 'updated_at' => $now,
                 'deleted_at' => null,

@@ -37,6 +37,7 @@ class ProgressController extends Controller
             'weightEntries' => $weightEntriesService->getForUser($request->user()),
             'sports' => $request->user()
                 ->sports()
+                ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get(['sports.id', 'sports.name'])
                 ->map(fn ($sport) => [
@@ -64,7 +65,6 @@ class ProgressController extends Controller
                         'label' => $metric->label,
                         'unit' => $metric->unit,
                         'value_type' => $metric->value_type,
-                        'is_primary' => (bool) $metric->pivot->is_primary,
                         'sort_order' => $metric->pivot->sort_order,
                     ])
                     ->values() ?? [],
