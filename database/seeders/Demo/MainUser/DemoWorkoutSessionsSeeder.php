@@ -33,35 +33,20 @@ class DemoWorkoutSessionsSeeder extends Seeder
     {
         $exerciseIds = $this->exerciseIdsBySport();
         $templates = [
-            'Musculation - Push force' => [
-                'description' => 'Pectoraux, épaules et triceps.',
+            'Développé couché progression' => [
+                'description' => 'Séance de suivi sur le développé couché.',
                 'sport' => 'Fitness / musculation',
-                'exercises' => ['Développé couché', 'Développé militaire', 'Extension triceps'],
+                'exercise' => 'Développé couché',
             ],
-            'Musculation - Jambes force' => [
-                'description' => 'Jambes et chaîne postérieure.',
+            'Squat progression' => [
+                'description' => 'Séance de suivi sur le squat.',
                 'sport' => 'Fitness / musculation',
-                'exercises' => ['Squat', 'Soulevé de terre', 'Presse à cuisses'],
+                'exercise' => 'Squat',
             ],
-            'Musculation - Tirage' => [
-                'description' => 'Dos et biceps.',
-                'sport' => 'Fitness / musculation',
-                'exercises' => ['Tractions', 'Rowing barre', 'Curl biceps'],
-            ],
-            'Course - Endurance' => [
-                'description' => 'Sortie régulière en endurance fondamentale.',
+            'Course endurance progression' => [
+                'description' => 'Sortie de suivi en endurance fondamentale.',
                 'sport' => 'Course à pied / running',
-                'exercises' => ['Course en endurance fondamentale'],
-            ],
-            'Course - Tempo' => [
-                'description' => 'Sortie soutenue pour travailler l’allure.',
-                'sport' => 'Course à pied / running',
-                'exercises' => ['Course tempo'],
-            ],
-            'Course - Fractionné' => [
-                'description' => 'Travail de vitesse avec répétitions.',
-                'sport' => 'Course à pied / running',
-                'exercises' => ['Fractionné court'],
+                'exercise' => 'Course en endurance fondamentale',
             ],
         ];
 
@@ -76,18 +61,14 @@ class DemoWorkoutSessionsSeeder extends Seeder
                 'updated_at' => $now,
             ]);
 
-            foreach ($template['exercises'] as $position => $exerciseName) {
-                $exerciseId = $exerciseIds[$template['sport'].'|'.$exerciseName] ?? null;
+            $exerciseId = $exerciseIds[$template['sport'].'|'.$template['exercise']] ?? null;
 
-                if (! $exerciseId) {
-                    continue;
-                }
-
+            if ($exerciseId) {
                 DB::table('workout_session_exercise')->insert([
                     'workout_session_id' => $workoutSessionId,
                     'exercise_id' => $exerciseId,
                     'rest_time' => null,
-                    'position' => $position + 1,
+                    'position' => 1,
                 ]);
             }
 
@@ -100,79 +81,33 @@ class DemoWorkoutSessionsSeeder extends Seeder
     private function createPerformedSessions(int $userId, array $templateIds, $now): void
     {
         $sessions = [
-            ['Course - Endurance', -55, 48, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 42, 'distance_meters' => 6800, 'pace_min_per_km' => 6.18, 'heart_rate_bpm' => 146, 'perceived_effort' => 5],
-            ]],
-            ['Musculation - Push force', -52, 62, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 42.5, 'perceived_effort' => 7],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé militaire', 'sets' => 3, 'repetitions' => 8, 'weight' => 24, 'perceived_effort' => 7],
-            ]],
-            ['Course - Tempo', -49, 45, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Course tempo', 'duration_minutes' => 28, 'distance_meters' => 5000, 'pace_min_per_km' => 5.60, 'heart_rate_bpm' => 158, 'perceived_effort' => 7],
-            ]],
-            ['Musculation - Jambes force', -46, 68, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 58, 'perceived_effort' => 7],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Soulevé de terre', 'sets' => 3, 'repetitions' => 6, 'weight' => 66, 'perceived_effort' => 8],
-            ]],
-            ['Course - Fractionné', -43, 38, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Fractionné court', 'sets' => 8, 'distance_meters' => 3200, 'pace_min_per_km' => 5.20, 'heart_rate_bpm' => 166, 'perceived_effort' => 8],
-            ]],
-            ['Musculation - Tirage', -40, 58, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Tractions', 'sets' => 4, 'repetitions' => 6, 'weight' => 0, 'perceived_effort' => 8],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Rowing barre', 'sets' => 4, 'repetitions' => 9, 'weight' => 38, 'perceived_effort' => 7],
-            ]],
-            ['Course - Endurance', -37, 52, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 45, 'distance_meters' => 7400, 'pace_min_per_km' => 6.08, 'heart_rate_bpm' => 144, 'perceived_effort' => 5],
-            ]],
-            ['Musculation - Push force', -34, 64, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 45, 'perceived_effort' => 7],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé militaire', 'sets' => 3, 'repetitions' => 8, 'weight' => 25, 'perceived_effort' => 7],
-            ]],
-            ['Course - Tempo', -31, 47, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Course tempo', 'duration_minutes' => 30, 'distance_meters' => 5450, 'pace_min_per_km' => 5.50, 'heart_rate_bpm' => 157, 'perceived_effort' => 7],
-            ]],
-            ['Musculation - Jambes force', -28, 70, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 61, 'perceived_effort' => 7],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Soulevé de terre', 'sets' => 3, 'repetitions' => 6, 'weight' => 70, 'perceived_effort' => 8],
-            ]],
-            ['Course - Endurance', -25, 55, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 48, 'distance_meters' => 8000, 'pace_min_per_km' => 6.00, 'heart_rate_bpm' => 143, 'perceived_effort' => 5],
-            ]],
-            ['Musculation - Tirage', -22, 60, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Tractions', 'sets' => 4, 'repetitions' => 7, 'weight' => 0, 'perceived_effort' => 8],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Rowing barre', 'sets' => 4, 'repetitions' => 9, 'weight' => 41, 'perceived_effort' => 7],
-            ]],
-            ['Course - Fractionné', -19, 40, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Fractionné court', 'sets' => 9, 'distance_meters' => 3600, 'pace_min_per_km' => 5.08, 'heart_rate_bpm' => 168, 'perceived_effort' => 8],
-            ]],
-            ['Musculation - Push force', -16, 65, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 47.5, 'perceived_effort' => 8],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé militaire', 'sets' => 3, 'repetitions' => 8, 'weight' => 26, 'perceived_effort' => 7],
-            ]],
-            ['Course - Tempo', -13, 48, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Course tempo', 'duration_minutes' => 32, 'distance_meters' => 5950, 'pace_min_per_km' => 5.38, 'heart_rate_bpm' => 156, 'perceived_effort' => 7],
-            ]],
-            ['Musculation - Jambes force', -11, 72, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 64, 'perceived_effort' => 8],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Soulevé de terre', 'sets' => 3, 'repetitions' => 6, 'weight' => 74, 'perceived_effort' => 8],
-            ]],
-            ['Course - Endurance', -9, 58, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 50, 'distance_meters' => 8500, 'pace_min_per_km' => 5.88, 'heart_rate_bpm' => 142, 'perceived_effort' => 5],
-            ]],
-            ['Musculation - Tirage', -7, 62, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Tractions', 'sets' => 4, 'repetitions' => 8, 'weight' => 0, 'perceived_effort' => 8],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Rowing barre', 'sets' => 4, 'repetitions' => 9, 'weight' => 44, 'perceived_effort' => 7],
-            ]],
-            ['Course - Fractionné', -5, 42, [
-                ['sport' => 'Course à pied / running', 'exercise' => 'Fractionné court', 'sets' => 10, 'distance_meters' => 4000, 'pace_min_per_km' => 4.98, 'heart_rate_bpm' => 169, 'perceived_effort' => 8],
-            ]],
-            ['Musculation - Push force', -4, 66, [
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 50, 'perceived_effort' => 8],
-                ['sport' => 'Fitness / musculation', 'exercise' => 'Développé militaire', 'sets' => 3, 'repetitions' => 8, 'weight' => 27.5, 'perceived_effort' => 8],
-            ]],
+            ['Course endurance progression', -57, 45, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 42, 'distance_meters' => 6600, 'pace_min_per_km' => 6.36, 'heart_rate_bpm' => 148, 'perceived_effort' => 5]],
+            ['Développé couché progression', -54, 55, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 42.5, 'perceived_effort' => 7]],
+            ['Squat progression', -51, 62, ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 57.5, 'perceived_effort' => 7]],
+            ['Course endurance progression', -49, 48, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 44, 'distance_meters' => 7000, 'pace_min_per_km' => 6.29, 'heart_rate_bpm' => 146, 'perceived_effort' => 5]],
+            ['Développé couché progression', -46, 56, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 45, 'perceived_effort' => 7]],
+            ['Squat progression', -43, 63, ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 60, 'perceived_effort' => 7]],
+            ['Course endurance progression', -41, 50, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 46, 'distance_meters' => 7350, 'pace_min_per_km' => 6.26, 'heart_rate_bpm' => 145, 'perceived_effort' => 5]],
+            ['Développé couché progression', -38, 57, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 44, 'perceived_effort' => 8]],
+            ['Course endurance progression', -35, 52, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 47, 'distance_meters' => 7600, 'pace_min_per_km' => 6.18, 'heart_rate_bpm' => 144, 'perceived_effort' => 5]],
+            ['Squat progression', -33, 64, ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 62.5, 'perceived_effort' => 8]],
+            ['Développé couché progression', -30, 58, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 47.5, 'perceived_effort' => 7]],
+            ['Course endurance progression', -28, 53, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 48, 'distance_meters' => 7900, 'pace_min_per_km' => 6.08, 'heart_rate_bpm' => 143, 'perceived_effort' => 5]],
+            ['Développé couché progression', -25, 58, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 46.5, 'perceived_effort' => 8]],
+            ['Squat progression', -23, 65, ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 61, 'perceived_effort' => 8]],
+            ['Course endurance progression', -21, 54, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 49, 'distance_meters' => 8150, 'pace_min_per_km' => 6.01, 'heart_rate_bpm' => 143, 'perceived_effort' => 5]],
+            ['Développé couché progression', -18, 59, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 49, 'perceived_effort' => 8]],
+            ['Squat progression', -16, 66, ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 64, 'perceived_effort' => 8]],
+            ['Course endurance progression', -14, 56, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 50, 'distance_meters' => 8400, 'pace_min_per_km' => 5.95, 'heart_rate_bpm' => 142, 'perceived_effort' => 5]],
+            ['Développé couché progression', -12, 58, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 48, 'perceived_effort' => 8]],
+            ['Course endurance progression', -10, 57, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 51, 'distance_meters' => 8550, 'pace_min_per_km' => 5.96, 'heart_rate_bpm' => 144, 'perceived_effort' => 6]],
+            ['Squat progression', -8, 67, ['sport' => 'Fitness / musculation', 'exercise' => 'Squat', 'sets' => 4, 'repetitions' => 8, 'weight' => 66, 'perceived_effort' => 8]],
+            ['Développé couché progression', -6, 60, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 50, 'perceived_effort' => 8]],
+            ['Course endurance progression', -5, 58, ['sport' => 'Course à pied / running', 'exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 52, 'distance_meters' => 8800, 'pace_min_per_km' => 5.91, 'heart_rate_bpm' => 142, 'perceived_effort' => 5]],
+            ['Développé couché progression', -4, 60, ['sport' => 'Fitness / musculation', 'exercise' => 'Développé couché', 'sets' => 4, 'repetitions' => 8, 'weight' => 51, 'perceived_effort' => 9]],
         ];
 
-        foreach ($sessions as [$templateName, $dayOffset, $durationMinutes, $performances]) {
+        foreach ($sessions as [$templateName, $dayOffset, $durationMinutes, $performance]) {
             $performedAt = $now->copy()->addDays($dayOffset)->setTime(18, 0);
             $performedSessionId = DB::table('performed_sessions')->insertGetId([
                 'user_id' => $userId,
@@ -184,9 +119,7 @@ class DemoWorkoutSessionsSeeder extends Seeder
                 'updated_at' => $now,
             ]);
 
-            foreach ($performances as $performance) {
-                $this->createPerformance($userId, $performedSessionId, $performedAt, $performance, $now);
-            }
+            $this->createPerformance($userId, $performedSessionId, $performedAt, $performance, $now);
         }
     }
 
