@@ -83,7 +83,8 @@ class ProgressController extends Controller
                     $metricValue->metric?->key => (float) $metricValue->value,
                 ]),
             ]),
-            'canViewPerformanceCharts' => (bool) $activeSubscription?->subscriptionPlan?->premium_features,
+            'canViewPerformanceCharts' => $activeSubscription?->subscriptionPlan?->name === 'Plus'
+                || (bool) $activeSubscription?->subscriptionPlan?->premium_features,
             'currentSubscriptionPlanName' => $activeSubscription?->subscriptionPlan?->name,
         ]);
     }

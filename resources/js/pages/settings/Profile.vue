@@ -67,6 +67,7 @@ const subscriptionPlanContent = {
         summary: 'Une formule légère sans publicités.',
         features: [
             'Suppression des publicités',
+            'Graphique de performance',
         ],
     },
     Premium: {
