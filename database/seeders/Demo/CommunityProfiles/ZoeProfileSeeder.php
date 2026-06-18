@@ -14,7 +14,7 @@ class ZoeProfileSeeder extends CommunityProfileSeeder
             'height' => 170,
             'activity_level' => 'moderate',
             'birth_date' => '1997-11-18',
-            'sports' => ['Fitness / musculation', 'Yoga'],
+            'sports' => ['Fitness / musculation', 'Yoga', 'Marche / randonnée'],
         ];
     }
 
@@ -31,21 +31,21 @@ class ZoeProfileSeeder extends CommunityProfileSeeder
                 'performances' => [
                     ['exercise' => 'Tractions', 'weight' => 0.00, 'repetitions' => 9],
                     ['exercise' => 'Développé militaire', 'weight' => 29.00, 'repetitions' => 7],
-                    ['exercise' => 'Gainage', 'duration_minutes' => 3],
+                    ['exercise' => 'Gainage planche', 'duration_minutes' => 3],
                 ],
             ],
             [
-                'session' => 'Yoga mobilite partage',
-                'description' => 'Respiration et mobilite.',
+                'session' => 'Yoga récupération partage',
+                'description' => 'Respiration, mobilité et relâchement.',
                 'day' => 15,
                 'hour' => 8,
                 'duration_minutes' => 38,
                 'post_title' => 'Mobilite du matin',
-                'post_content' => 'Session douce avant la journee.',
+                'post_content' => 'Session douce avant la journée.',
                 'performances' => [
-                    ['exercise' => 'Hatha yoga', 'duration_minutes' => 20],
-                    ['exercise' => 'Respiration pranayama', 'duration_minutes' => 8],
-                    ['exercise' => 'Mobilité yoga', 'duration_minutes' => 10],
+                    ['exercise' => 'Respiration contrôlée', 'duration_minutes' => 8],
+                    ['exercise' => 'Posture du pigeon', 'duration_minutes' => 10],
+                    ['exercise' => 'Relaxation finale', 'duration_minutes' => 8],
                 ],
             ],
         ];

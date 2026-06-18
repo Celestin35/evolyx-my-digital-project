@@ -17,14 +17,16 @@ class WorkoutSessionsSeeder extends Seeder
             ->get(['id', 'name', 'sport_id'])
             ->keyBy(fn (object $exercise) => $exercise->sport_id.'|'.$exercise->name)
             ->all();
-        $catalogSessionNames = collect($catalog)
-            ->flatMap(fn (array $sportTemplate) => collect($sportTemplate['sessions'])->pluck('name'))
-            ->values();
+        $catalogSessionKeys = collect($catalog)
+            ->flatMap(function (array $sportTemplate) use ($sports) {
+                $sportId = $sports[$sportTemplate['sport']] ?? null;
 
-        DB::table('workout_sessions')
-            ->whereNull('user_id')
-            ->whereNotIn('name', $catalogSessionNames)
-            ->delete();
+                return collect($sportTemplate['sessions'])
+                    ->map(fn (array $sessionTemplate) => $sportId.'|'.$sessionTemplate['name']);
+            })
+            ->flip();
+
+        $this->deleteStaleSystemSessions($catalogSessionKeys);
 
         foreach ($catalog as $sportTemplate) {
             $sportId = $sports[$sportTemplate['sport']] ?? null;
@@ -92,6 +94,36 @@ class WorkoutSessionsSeeder extends Seeder
                     ->delete();
 
                 DB::table('workout_session_exercise')->insert($pivotRows);
+            }
+        }
+
+        $this->deleteStaleSystemSessions($catalogSessionKeys);
+    }
+
+    private function deleteStaleSystemSessions($catalogSessionKeys): void
+    {
+        $sessions = DB::table('workout_sessions')
+            ->whereNull('user_id')
+            ->get(['id', 'name']);
+
+        foreach ($sessions as $session) {
+            $sportIds = DB::table('workout_session_exercise')
+                ->join('exercises', 'workout_session_exercise.exercise_id', '=', 'exercises.id')
+                ->where('workout_session_exercise.workout_session_id', $session->id)
+                ->distinct()
+                ->pluck('exercises.sport_id');
+
+            if ($sportIds->isEmpty()) {
+                DB::table('workout_sessions')->where('id', $session->id)->delete();
+
+                continue;
+            }
+
+            $isCurrentCatalogSession = $sportIds
+                ->contains(fn ($sportId) => $catalogSessionKeys->has($sportId.'|'.$session->name));
+
+            if (! $isCurrentCatalogSession) {
+                DB::table('workout_sessions')->where('id', $session->id)->delete();
             }
         }
     }

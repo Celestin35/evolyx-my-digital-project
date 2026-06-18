@@ -14,7 +14,7 @@ class NoahProfileSeeder extends CommunityProfileSeeder
             'height' => 181,
             'activity_level' => 'active',
             'birth_date' => '1994-09-04',
-            'sports' => ['Course à pied / running', 'Vélo / cyclisme'],
+            'sports' => ['Course à pied / running', 'Vélo / cyclisme', 'Trail'],
         ];
     }
 
@@ -28,23 +28,36 @@ class NoahProfileSeeder extends CommunityProfileSeeder
                 'hour' => 7,
                 'duration_minutes' => 48,
                 'post_title' => 'Footing propre',
-                'post_content' => 'Allure reguliere, bonnes sensations cardio.',
+                'post_content' => 'Allure régulière, bonnes sensations cardio.',
                 'performances' => [
-                    ['exercise' => 'Footing endurance', 'duration_minutes' => 42, 'distance_meters' => 7200],
-                    ['exercise' => 'Récupération active running', 'duration_minutes' => 6, 'distance_meters' => 800],
+                    ['exercise' => 'Course en endurance fondamentale', 'duration_minutes' => 42, 'distance_meters' => 7200],
+                    ['exercise' => 'Course de récupération', 'duration_minutes' => 6, 'distance_meters' => 800],
                 ],
             ],
             [
-                'session' => 'Velo intensite partage',
-                'description' => 'Intervalles courts et retour au calme.',
+                'session' => 'Velo endurance partage',
+                'description' => 'Sortie vélo régulière avec quelques relances.',
                 'day' => 13,
                 'hour' => 18,
                 'duration_minutes' => 62,
-                'post_title' => 'Bonne intensite velo',
+                'post_title' => 'Bonne sortie vélo',
                 'post_content' => null,
                 'performances' => [
-                    ['exercise' => 'Fractionné vélo', 'duration_minutes' => 28, 'distance_meters' => 13500],
-                    ['exercise' => 'Vélo récupération', 'duration_minutes' => 20, 'distance_meters' => 6200],
+                    ['exercise' => 'Sortie endurance', 'duration_minutes' => 45, 'distance_meters' => 21000],
+                    ['exercise' => 'Relance', 'duration_minutes' => 8],
+                ],
+            ],
+            [
+                'session' => 'Trail cotes partage',
+                'description' => 'Petite séance de dénivelé sur sentiers.',
+                'day' => 19,
+                'hour' => 8,
+                'duration_minutes' => 55,
+                'post_title' => 'Cotes en trail',
+                'post_content' => 'Bon travail de puissance en montee.',
+                'performances' => [
+                    ['exercise' => 'Répétitions en côte', 'distance_meters' => 1200],
+                    ['exercise' => 'Foulées bondissantes en côte', 'distance_meters' => 300],
                 ],
             ],
         ];

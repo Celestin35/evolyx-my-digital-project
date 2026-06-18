@@ -14,7 +14,7 @@ class MayaProfileSeeder extends CommunityProfileSeeder
             'height' => 164,
             'activity_level' => 'active',
             'birth_date' => '1998-03-12',
-            'sports' => ['Fitness / musculation', 'Pilates'],
+            'sports' => ['Fitness / musculation', 'Pilates', 'Natation'],
         ];
     }
 
@@ -22,7 +22,7 @@ class MayaProfileSeeder extends CommunityProfileSeeder
     {
         return [
             [
-                'session' => 'Full body controle',
+                'session' => 'Full body contrôle',
                 'description' => 'Travail propre sur les mouvements de base.',
                 'day' => 5,
                 'hour' => 18,
@@ -35,17 +35,31 @@ class MayaProfileSeeder extends CommunityProfileSeeder
                 ],
             ],
             [
-                'session' => 'Pilates renforcement',
-                'description' => 'Controle et gainage avec accessoires.',
+                'session' => 'Pilates centre partage',
+                'description' => 'Controle du centre et stabilité.',
                 'day' => 11,
                 'hour' => 12,
                 'minute' => 30,
                 'post_title' => 'Core plus stable',
-                'post_content' => 'Seance courte mais propre.',
+                'post_content' => 'Séance courte mais propre.',
                 'performances' => [
-                    ['exercise' => 'Hundred', 'repetitions' => 40],
-                    ['exercise' => 'Pont de hanches', 'repetitions' => 15],
-                    ['exercise' => 'Pilates avec élastique', 'duration_minutes' => 18],
+                    ['exercise' => 'The Hundred', 'duration_minutes' => 3],
+                    ['exercise' => 'Plank Pilates', 'duration_minutes' => 2],
+                    ['exercise' => 'Teaser', 'duration_minutes' => 2],
+                ],
+            ],
+            [
+                'session' => 'Natation technique partage',
+                'description' => 'Travail technique tranquille en bassin.',
+                'day' => 17,
+                'hour' => 7,
+                'duration_minutes' => 45,
+                'post_title' => 'Technique en bassin',
+                'post_content' => 'Crawl plus fluide sur la fin.',
+                'performances' => [
+                    ['exercise' => 'Éducatif crawl', 'distance_meters' => 600],
+                    ['exercise' => 'Battements de jambes', 'distance_meters' => 400],
+                    ['exercise' => 'Crawl', 'duration_minutes' => 18, 'distance_meters' => 900],
                 ],
             ],
         ];

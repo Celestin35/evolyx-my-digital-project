@@ -62,6 +62,8 @@ abstract class CommunityProfileSeeder extends Seeder
             ],
         );
 
+        DB::table('sport_user')->where('user_id', $userId)->delete();
+
         foreach ($profile['sports'] as $sportName) {
             $sportId = $sports[$sportName] ?? null;
 
@@ -88,7 +90,7 @@ abstract class CommunityProfileSeeder extends Seeder
         $this->clearExistingSharedData($userId);
 
         foreach ($this->sharedSessions() as $sharedSession) {
-            $this->seedSharedSession($userId, $sharedSession, $now);
+            $this->seedSharedSession($userId, $sharedSession, $now, $profile['sports']);
         }
     }
 
@@ -100,9 +102,17 @@ abstract class CommunityProfileSeeder extends Seeder
         DB::table('workout_sessions')->where('user_id', $userId)->delete();
     }
 
-    private function seedSharedSession(int $userId, array $sharedSession, $now): void
+    private function seedSharedSession(int $userId, array $sharedSession, $now, array $profileSports): void
     {
-        $exerciseIds = DB::table('exercises')->pluck('id', 'name');
+        $sports = DB::table('sports')->pluck('id', 'name');
+        $profileSportIds = collect($profileSports)
+            ->map(fn (string $sportName) => $sports[$sportName] ?? null)
+            ->filter()
+            ->values();
+        $exerciseIds = DB::table('exercises')
+            ->whereNull('user_id')
+            ->get(['id', 'name', 'sport_id'])
+            ->keyBy(fn (object $exercise) => $exercise->sport_id.'|'.$exercise->name);
 
         DB::table('workout_sessions')->updateOrInsert(
             ['user_id' => $userId, 'name' => $sharedSession['session']],
@@ -119,7 +129,7 @@ abstract class CommunityProfileSeeder extends Seeder
             ->value('id');
 
         foreach ($sharedSession['performances'] as $position => $performance) {
-            $exerciseId = $exerciseIds[$performance['exercise']] ?? null;
+            $exerciseId = $this->resolveExerciseId($exerciseIds, $profileSportIds, $performance);
 
             if (! $exerciseId) {
                 continue;
@@ -163,7 +173,7 @@ abstract class CommunityProfileSeeder extends Seeder
             ->value('id');
 
         foreach ($sharedSession['performances'] as $performance) {
-            $exerciseId = $exerciseIds[$performance['exercise']] ?? null;
+            $exerciseId = $this->resolveExerciseId($exerciseIds, $profileSportIds, $performance);
 
             if (! $exerciseId) {
                 continue;
@@ -200,5 +210,25 @@ abstract class CommunityProfileSeeder extends Seeder
                 'updated_at' => $now,
             ],
         );
+    }
+
+    private function resolveExerciseId($exerciseIds, $profileSportIds, array $performance): ?int
+    {
+        if (isset($performance['sport'])) {
+            $sportId = DB::table('sports')->where('name', $performance['sport'])->value('id');
+            $exercise = $exerciseIds[$sportId.'|'.$performance['exercise']] ?? null;
+
+            return $exercise?->id;
+        }
+
+        foreach ($profileSportIds as $sportId) {
+            $exercise = $exerciseIds[$sportId.'|'.$performance['exercise']] ?? null;
+
+            if ($exercise) {
+                return $exercise->id;
+            }
+        }
+
+        return null;
     }
 }
