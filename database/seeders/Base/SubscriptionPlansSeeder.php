@@ -13,7 +13,7 @@ class SubscriptionPlansSeeder extends Seeder
 
         DB::table('subscription_plans')->upsert([
             [
-                'name' => 'Free',
+                'name' => 'Gratuit',
                 'price' => 0.00,
                 'ads_enabled' => true,
                 'premium_features' => false,
@@ -37,5 +37,29 @@ class SubscriptionPlansSeeder extends Seeder
                 'updated_at' => $now,
             ],
         ], ['name'], ['price', 'ads_enabled', 'premium_features', 'updated_at']);
+
+        $this->replaceLegacyPlan('Free', 'Gratuit', $now);
+        $this->replaceLegacyPlan('Essential', 'Plus', $now);
+    }
+
+    private function replaceLegacyPlan(string $legacyName, string $targetName, $now): void
+    {
+        $legacyPlanId = DB::table('subscription_plans')->where('name', $legacyName)->value('id');
+        $targetPlanId = DB::table('subscription_plans')->where('name', $targetName)->value('id');
+
+        if (! $legacyPlanId || ! $targetPlanId) {
+            return;
+        }
+
+        DB::table('subscriptions')
+            ->where('subscription_plan_id', $legacyPlanId)
+            ->update([
+                'subscription_plan_id' => $targetPlanId,
+                'updated_at' => $now,
+            ]);
+
+        DB::table('subscription_plans')
+            ->where('id', $legacyPlanId)
+            ->delete();
     }
 }

@@ -56,6 +56,7 @@ type PerformedSession = {
     id: number;
     workout_session_id: number;
     workout_session_name: string | null;
+    workout_session: WorkoutSession | null;
     performed_at: string | null;
     completed_at: string | null;
     community_post_id: number | null;
@@ -273,11 +274,17 @@ const selectedWorkoutSession = computed(() => {
         return null;
     }
 
+    if (selectedPerformedSession.value.workout_session) {
+        return selectedPerformedSession.value.workout_session;
+    }
+
     return (
         props.workoutSessions.find(
             (session) =>
-                session.id ===
-                selectedPerformedSession.value?.workout_session_id,
+                normalizeId(session.id) ===
+                normalizeId(
+                    selectedPerformedSession.value?.workout_session_id ?? 0,
+                ),
         ) ?? null
     );
 });
@@ -440,11 +447,12 @@ const onCalendarEventClick = (payload: unknown) => {
     completeSessionForm.clearErrors();
     completeSessionForm.notes = session.notes ?? '';
     completeSessionForm.performances =
-        props.workoutSessions
-            .find(
+        (session.workout_session ??
+            props.workoutSessions.find(
                 (workoutSession) =>
-                    workoutSession.id === session.workout_session_id,
-            )
+                    normalizeId(workoutSession.id) ===
+                    normalizeId(session.workout_session_id),
+            ))
             ?.exercises.map((exercise) => {
                 const existingPerformance = session.performances.find(
                     (performance) => performance.exercise_id === exercise.id,

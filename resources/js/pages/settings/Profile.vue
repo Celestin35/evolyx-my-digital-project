@@ -56,28 +56,27 @@ const selectedSubscriptionPlanName = ref<string | null>(null);
 const isSubscriptionModalOpen = ref(false);
 
 const subscriptionPlanContent = {
-    Free: {
+    Gratuit: {
         summary: 'Pour commencer simplement.',
         features: [
             "Accès aux fonctions de base de l'application",
-            'Suivi du poids et consultation du profil',
             'Publicités actives',
         ],
     },
-    Essential: {
+    Plus: {
         summary: 'Une formule légère sans publicités.',
         features: [
             'Suppression des publicités',
-            'Confort de navigation amélioré',
-            'Base idéale pour une utilisation régulière',
         ],
     },
     Premium: {
         summary: 'Le plan le plus complet pour aller plus loin.',
         features: [
+            'Suppression des publicités',
             "Calcul des macronutriments selon l'objectif",
-            'Modification plus poussée des objectifs',
-            'Fonctions communautaires à venir',
+            'Modification des objectifs nutritionnels avancés',
+            'Accès au feed communautaire',
+            'Partage de séances réalisées',
         ],
     },
 } satisfies Record<string, { summary: string; features: string[] }>;

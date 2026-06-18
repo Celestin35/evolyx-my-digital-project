@@ -14,6 +14,17 @@ class ProgressController extends Controller
 {
     public function show(Request $request, WeightEntriesService $weightEntriesService): Response
     {
+        $activeSubscription = $request->user()
+            ->subscriptions()
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>', now());
+            })
+            ->with('subscriptionPlan:id,name,premium_features')
+            ->latest('start_date')
+            ->first();
+
         $performances = Performance::query()
             ->where('user_id', $request->user()->id)
             ->with([
@@ -72,6 +83,8 @@ class ProgressController extends Controller
                     $metricValue->metric?->key => (float) $metricValue->value,
                 ]),
             ]),
+            'canViewPerformanceCharts' => (bool) $activeSubscription?->subscriptionPlan?->premium_features,
+            'currentSubscriptionPlanName' => $activeSubscription?->subscriptionPlan?->name,
         ]);
     }
 

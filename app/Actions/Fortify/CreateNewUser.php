@@ -82,7 +82,7 @@ class CreateNewUser implements CreatesNewUsers
             }
 
             $freePlanId = SubscriptionPlan::query()
-                ->where('name', 'Free')
+                ->where('name', 'Gratuit')
                 ->value('id');
 
             if ($freePlanId) {

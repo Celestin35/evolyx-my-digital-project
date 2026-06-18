@@ -5,6 +5,7 @@ import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import HorizontalTabs from '@/components/HorizontalTabs.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PerformanceChart from '@/components/PerformanceChart.vue';
+import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
 import WeightChart from '@/components/WeightChart.vue';
 import { Button } from '@/components/ui/button';
 import { useAds } from '@/composables/useAds';
@@ -63,6 +64,8 @@ const props = defineProps<{
     weightEntries: WeightEntry[];
     sports: SportOption[];
     performances: PerformanceEntry[];
+    canViewPerformanceCharts: boolean;
+    currentSubscriptionPlanName: string | null;
 }>();
 
 const page = usePage<ProgressPageProps>();
@@ -631,136 +634,162 @@ const submitWeightEntry = () => {
             </template>
 
             <template v-else>
-                <section class="rounded-lg bg-evo-white p-4">
-                    <div
-                        class="flex flex-wrap items-start justify-between gap-3"
-                    >
-                        <div>
+                <PremiumFeatureGate
+                    :locked="!canViewPerformanceCharts"
+                    feature-name="Graphique de performance"
+                    :current-plan="currentSubscriptionPlanName"
+                    description="Passez Premium pour visualiser l'évolution détaillée de vos performances."
+                    plain-when-unlocked
+                >
+                    <section class="rounded-lg bg-evo-white p-4">
+                        <div
+                            class="flex flex-wrap items-start justify-between gap-3"
+                        >
+                            <div>
+                                <h2 class="text-lg font-semibold">
+                                    Graphique de performance
+                                </h2>
+                                <p class="mt-1 text-sm text-neutral-600">
+                                    Les métriques disponibles dépendent de
+                                    l'exercice.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 grid gap-4 md:grid-cols-2">
+                            <div class="space-y-2">
+                                <label
+                                    for="performance_sport"
+                                    class="block font-medium"
+                                >
+                                    Sport
+                                </label>
+                                <select
+                                    id="performance_sport"
+                                    v-model="selectedSportId"
+                                    class="evo-input"
+                                    @change="onSportChange"
+                                >
+                                    <option value="all">Tous les sports</option>
+                                    <option
+                                        v-for="sport in selectableSports"
+                                        :key="sport.id"
+                                        :value="sport.id"
+                                    >
+                                        {{ sport.name }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    for="performance_exercise"
+                                    class="block font-medium"
+                                >
+                                    Exercice
+                                </label>
+                                <select
+                                    id="performance_exercise"
+                                    v-model="selectedExerciseId"
+                                    class="evo-input"
+                                    @change="onExerciseChange"
+                                >
+                                    <option :value="null">
+                                        Premier exercice disponible
+                                    </option>
+                                    <option
+                                        v-for="exercise in exercisesWithPerformances"
+                                        :key="exercise.id"
+                                        :value="exercise.id"
+                                    >
+                                        {{ exercise.name }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    for="performance_metric"
+                                    class="block font-medium"
+                                >
+                                    Performance
+                                </label>
+                                <select
+                                    id="performance_metric"
+                                    v-model="selectedMetric"
+                                    class="evo-input"
+                                >
+                                    <option
+                                        v-for="metric in availableMetricOptions"
+                                        :key="metric.value"
+                                        :value="metric.value"
+                                    >
+                                        {{ metric.label }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <p class="font-medium">Période</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button
+                                        v-for="option in rangeOptions"
+                                        :key="option.value"
+                                        type="button"
+                                        class="rounded-xl border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
+                                        :class="
+                                            selectedPerformanceRange ===
+                                            option.value
+                                                ? 'border-neutral-300 bg-evo-orange text-evo-white'
+                                                : 'border-neutral-300 bg-evo-purple text-evo-white'
+                                        "
+                                        @click="
+                                            selectedPerformanceRange =
+                                                option.value
+                                        "
+                                    >
+                                        {{ option.label }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 h-80">
+                            <PerformanceChart
+                                v-if="chartPerformanceEntries.length > 0"
+                                :key="performanceChartKey"
+                                :performances="chartPerformanceEntries"
+                                :metric="activeMetric.value"
+                                :metric-label="activeMetric.label"
+                                :metric-unit="activeMetric.unit"
+                            />
+
+                            <div
+                                v-else
+                                class="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-300 px-4 text-center text-sm text-neutral-500"
+                            >
+                                Aucune performance disponible avec ces filtres.
+                            </div>
+                        </div>
+                    </section>
+
+                    <template #locked-preview>
+                        <div class="min-h-80 rounded-lg bg-evo-white p-4">
                             <h2 class="text-lg font-semibold">
                                 Graphique de performance
                             </h2>
                             <p class="mt-1 text-sm text-neutral-600">
-                                Les métriques disponibles dépendent de
-                                l'exercice.
+                                Visualisez l'évolution de vos performances par
+                                exercice, métrique et période.
                             </p>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 grid gap-4 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <label
-                                for="performance_sport"
-                                class="block font-medium"
+                            <div
+                                class="mt-4 flex h-56 items-center justify-center rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-500"
                             >
-                                Sport
-                            </label>
-                            <select
-                                id="performance_sport"
-                                v-model="selectedSportId"
-                                class="evo-input"
-                                @change="onSportChange"
-                            >
-                                <option value="all">Tous les sports</option>
-                                <option
-                                    v-for="sport in selectableSports"
-                                    :key="sport.id"
-                                    :value="sport.id"
-                                >
-                                    {{ sport.name }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="performance_exercise"
-                                class="block font-medium"
-                            >
-                                Exercice
-                            </label>
-                            <select
-                                id="performance_exercise"
-                                v-model="selectedExerciseId"
-                                class="evo-input"
-                                @change="onExerciseChange"
-                            >
-                                <option :value="null">
-                                    Premier exercice disponible
-                                </option>
-                                <option
-                                    v-for="exercise in exercisesWithPerformances"
-                                    :key="exercise.id"
-                                    :value="exercise.id"
-                                >
-                                    {{ exercise.name }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label
-                                for="performance_metric"
-                                class="block font-medium"
-                            >
-                                Performance
-                            </label>
-                            <select
-                                id="performance_metric"
-                                v-model="selectedMetric"
-                                class="evo-input"
-                            >
-                                <option
-                                    v-for="metric in availableMetricOptions"
-                                    :key="metric.value"
-                                    :value="metric.value"
-                                >
-                                    {{ metric.label }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <p class="font-medium">Période</p>
-                            <div class="flex flex-wrap gap-2">
-                                <button
-                                    v-for="option in rangeOptions"
-                                    :key="option.value"
-                                    type="button"
-                                    class="rounded-xl border px-3 py-1.5 text-sm font-medium transition hover:cursor-pointer"
-                                    :class="
-                                        selectedPerformanceRange ===
-                                        option.value
-                                            ? 'border-neutral-300 bg-evo-orange text-evo-white'
-                                            : 'border-neutral-300 bg-evo-purple text-evo-white'
-                                    "
-                                    @click="
-                                        selectedPerformanceRange = option.value
-                                    "
-                                >
-                                    {{ option.label }}
-                                </button>
+                                Aperçu réservé au Premium
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-4 h-80">
-                        <PerformanceChart
-                            v-if="chartPerformanceEntries.length > 0"
-                            :key="performanceChartKey"
-                            :performances="chartPerformanceEntries"
-                            :metric="activeMetric.value"
-                            :metric-label="activeMetric.label"
-                            :metric-unit="activeMetric.unit"
-                        />
-
-                        <div
-                            v-else
-                            class="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-300 px-4 text-center text-sm text-neutral-500"
-                        >
-                            Aucune performance disponible avec ces filtres.
-                        </div>
-                    </div>
-                </section>
+                    </template>
+                </PremiumFeatureGate>
 
                 <AdInlineSlot :enabled="ads.enabled" />
 

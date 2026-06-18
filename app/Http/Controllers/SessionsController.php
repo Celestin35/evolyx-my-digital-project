@@ -66,7 +66,11 @@ class SessionsController extends Controller
         $performedSessions = PerformedSession::query()
             ->where('user_id', $user->id)
             ->with([
-                'workoutSession:id,name',
+                'workoutSession:id,name,description,user_id,created_at',
+                'workoutSession.exercises' => fn ($query) => $query
+                    ->select(['exercises.id', 'exercises.name', 'sport_id', 'exercise_category_id'])
+                    ->with(['sport:id,name', 'metrics:id,key,label,unit,value_type'])
+                    ->orderBy('workout_session_exercise.position'),
                 'performances:id,performed_session_id,exercise_id,weight,repetitions,duration_minutes,distance_meters',
                 'performances.metricValues.metric:id,key,label,unit,value_type',
                 'communityPost:id,performed_session_id',
@@ -111,6 +115,20 @@ class SessionsController extends Controller
                 'id' => $performedSession->id,
                 'workout_session_id' => $performedSession->workout_session_id,
                 'workout_session_name' => $performedSession->workoutSession?->name,
+                'workout_session' => $performedSession->workoutSession ? [
+                    'id' => $performedSession->workoutSession->id,
+                    'name' => $performedSession->workoutSession->name,
+                    'description' => $performedSession->workoutSession->description,
+                    'created_at' => $performedSession->workoutSession->created_at?->toISOString(),
+                    'is_system' => $performedSession->workoutSession->user_id === null,
+                    'exercises' => $performedSession->workoutSession->exercises->map(fn ($exercise) => [
+                        'id' => $exercise->id,
+                        'name' => $exercise->name,
+                        'sport_id' => $exercise->sport_id,
+                        'sport_name' => $exercise->sport?->name,
+                        'metrics' => $this->formatExerciseMetrics($exercise),
+                    ])->values(),
+                ] : null,
                 'performed_at' => $performedSession->performed_at?->toISOString(),
                 'completed_at' => $performedSession->completed_at?->toISOString(),
                 'community_post_id' => $performedSession->communityPost?->id,
