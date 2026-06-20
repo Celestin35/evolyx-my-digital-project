@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Services\FeatureAccessService;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -135,16 +136,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasPremiumFeatures(): bool
     {
-        return $this->subscriptions()
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('end_date')
-                    ->orWhere('end_date', '>', now());
-            })
-            ->whereHas('subscriptionPlan', function ($query) {
-                $query->where('premium_features', true);
-            })
-            ->exists();
+        return app(FeatureAccessService::class)->hasPremiumFeatures($this);
     }
 
     protected function age(): Attribute

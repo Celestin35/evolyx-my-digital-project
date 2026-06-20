@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
@@ -32,5 +33,20 @@ class Subscription extends Model
     public function subscriptionPlan(): BelongsTo
     {
         return $this->belongsTo(SubscriptionPlan::class);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeCurrent(Builder $query): Builder
+    {
+        return $query
+            ->active()
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>', now());
+            });
     }
 }

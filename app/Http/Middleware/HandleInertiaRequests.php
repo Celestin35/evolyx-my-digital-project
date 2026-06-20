@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\FeatureAccessService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -45,23 +46,27 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'ads' => function () use ($request) {
-                $activeSubscription = $request->user()
-                    ?->subscriptions()
-                    ->where('is_active', true)
-                    ->where(function ($query) {
-                        $query->whereNull('end_date')
-                            ->orWhere('end_date', '>', now());
-                    })
-                    ->with('subscriptionPlan:id,name,ads_enabled')
-                    ->latest('start_date')
-                    ->first();
+                $user = $request->user();
 
                 return [
-                    'enabled' => (bool) $activeSubscription?->subscriptionPlan?->ads_enabled,
+                    'enabled' => $user
+                        ? app(FeatureAccessService::class)->shouldDisplayAds($user)
+                        : false,
+                    'has_ad_free_experience' => $user
+                        ? app(FeatureAccessService::class)->hasAdFreeExperience($user)
+                        : true,
                     'popup_interval_minutes' => 5,
                     'close_delay_seconds' => 3,
                 ];
             },
+            'features' => fn () => $request->user()
+                ? app(FeatureAccessService::class)->featureFlags($request->user())
+                : null,
+            'subscription' => fn () => [
+                'active_plan_name' => $request->user()
+                    ? app(FeatureAccessService::class)->activePlanName($request->user())
+                    : null,
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

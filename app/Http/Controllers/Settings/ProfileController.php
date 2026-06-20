@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Models\SubscriptionPlan;
+use App\Services\SubscriptionService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,17 +19,9 @@ class ProfileController extends Controller
     /**
      * Show the user's profile settings page.
      */
-    public function edit(Request $request): Response
+    public function edit(Request $request, SubscriptionService $subscriptionService): Response
     {
-        $user = $request->user()->load([
-            'subscriptions' => fn ($query) => $query
-                ->where('is_active', true)
-                ->with('subscriptionPlan')
-                ->latest()
-                ->limit(1),
-        ]);
-
-        $activeSubscription = $user->subscriptions->first();
+        $activeSubscription = $subscriptionService->activeSubscription($request->user());
         $subscriptionPlans = SubscriptionPlan::query()
             ->orderBy('price')
             ->get();

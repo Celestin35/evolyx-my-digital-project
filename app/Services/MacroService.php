@@ -9,6 +9,7 @@ class MacroService
 {
     public function __construct(
         private readonly CaloriesCalculationService $caloriesCalculationService,
+        private readonly FeatureAccessService $featureAccessService,
     ) {}
 
     public function nutritionDataFor(User $user): array
@@ -20,16 +21,10 @@ class MacroService
                 ->with(['goalType', 'macronutrient'])
                 ->latest()
                 ->limit(1),
-            'subscriptions' => fn ($query) => $query
-                ->where('is_active', true)
-                ->with('subscriptionPlan')
-                ->latest()
-                ->limit(1),
         ]);
 
         $activeGoal = $user->goals->first();
-        $activeSubscription = $user->subscriptions->first();
-        $hasPremiumFeatures = $user->hasPremiumFeatures();
+        $canEditMacros = $this->featureAccessService->canEditMacros($user);
 
         $goalPlan = $activeGoal
             ? $this->caloriesCalculationService->calculateGoalPlan([
@@ -52,7 +47,7 @@ class MacroService
                 'goal_type' => $activeGoal?->goalType?->name,
                 'goal_end_date' => $activeGoal?->goal_end_date?->toDateString(),
                 'target_weight' => $activeGoal?->target_weight,
-                'macros' => $hasPremiumFeatures && $activeGoal?->macronutrient ? [
+                'macros' => $canEditMacros && $activeGoal?->macronutrient ? [
                     'protein' => $activeGoal->macronutrient->protein,
                     'fats' => $activeGoal->macronutrient->fats,
                     'carbs' => $activeGoal->macronutrient->carbs,
@@ -61,19 +56,14 @@ class MacroService
                     ? (int) round($activeGoal->daily_calories * 0.42)
                     : null,
             ],
-            'can_edit_macros' => $hasPremiumFeatures,
-            'active_subscription_plan' => $activeSubscription?->subscriptionPlan?->name,
+            'can_edit_macros' => $canEditMacros,
+            'active_subscription_plan' => $this->featureAccessService->activePlanName($user),
         ];
     }
 
     public function update(User $user, array $data): ?array
     {
         $user->load([
-            'subscriptions' => fn ($query) => $query
-                ->where('is_active', true)
-                ->with('subscriptionPlan')
-                ->latest()
-                ->limit(1),
             'goals' => fn ($query) => $query
                 ->where('is_active', true)
                 ->with('macronutrient')
@@ -81,7 +71,7 @@ class MacroService
                 ->limit(1),
         ]);
 
-        if (! $user->hasPremiumFeatures()) {
+        if (! $this->featureAccessService->canEditMacros($user)) {
             return ['macros' => 'Cette fonctionnalité est réservée à l’abonnement Premium.'];
         }
 

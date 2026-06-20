@@ -9,12 +9,12 @@ use Illuminate\Support\Collection;
 class CommunityFeedService
 {
     public function __construct(
-        private readonly SubscriptionService $subscriptionService,
+        private readonly FeatureAccessService $featureAccessService,
     ) {}
 
     public function pageDataFor(User $user): array
     {
-        $canAccessCommunity = $user->hasPremiumFeatures();
+        $canAccessCommunity = $this->featureAccessService->canAccessCommunity($user);
         $followingIds = $canAccessCommunity
             ? $user->following()->pluck('users.id')
             : collect();
@@ -30,7 +30,7 @@ class CommunityFeedService
 
         return [
             'canAccessCommunity' => $canAccessCommunity,
-            'activeSubscriptionPlan' => $this->subscriptionService->activePlanName($user),
+            'activeSubscriptionPlan' => $this->featureAccessService->activePlanName($user),
             'followingFeed' => $followingFeed,
             'ownPosts' => $canAccessCommunity
                 ? $this->postsQuery()

@@ -10,7 +10,7 @@ class ProgressDataService
 {
     public function __construct(
         private readonly WeightEntriesService $weightEntriesService,
-        private readonly SubscriptionService $subscriptionService,
+        private readonly FeatureAccessService $featureAccessService,
     ) {}
 
     public function getForUser(User $user): array
@@ -73,8 +73,8 @@ class ProgressDataService
                     $metricValue->metric?->key => (float) $metricValue->value,
                 ]),
             ]),
-            'canViewPerformanceCharts' => $this->subscriptionService->canViewPerformanceCharts($user),
-            'currentSubscriptionPlanName' => $this->subscriptionService->activePlanName($user),
+            'canViewPerformanceCharts' => $this->featureAccessService->canViewPerformanceCharts($user),
+            'currentSubscriptionPlanName' => $this->featureAccessService->activePlanName($user),
         ];
     }
 

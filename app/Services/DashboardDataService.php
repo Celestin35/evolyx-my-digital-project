@@ -11,11 +11,12 @@ class DashboardDataService
 {
     public function __construct(
         private readonly WeightEntriesService $weightEntriesService,
+        private readonly FeatureAccessService $featureAccessService,
     ) {}
 
     public function getForUser(User $user): array
     {
-        $canAccessCommunity = $user->hasPremiumFeatures();
+        $canAccessCommunity = $this->featureAccessService->canAccessCommunity($user);
 
         $recentPerformedSessions = PerformedSession::query()
             ->where('user_id', $user->id)

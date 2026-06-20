@@ -12,11 +12,7 @@ class SubscriptionService
     public function activeSubscription(User $user, array $with = ['subscriptionPlan']): ?Subscription
     {
         return $user->subscriptions()
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('end_date')
-                    ->orWhere('end_date', '>', now());
-            })
+            ->current()
             ->with($with)
             ->latest('start_date')
             ->first();
@@ -29,19 +25,11 @@ class SubscriptionService
             ?->name;
     }
 
-    public function canViewPerformanceCharts(User $user): bool
-    {
-        $activeSubscription = $this->activeSubscription($user, ['subscriptionPlan:id,name,premium_features']);
-
-        return $activeSubscription?->subscriptionPlan?->name === 'Plus'
-            || (bool) $activeSubscription?->subscriptionPlan?->premium_features;
-    }
-
     public function changePlan(User $user, string $planName): bool
     {
         $currentSubscription = $user->load([
             'subscriptions' => fn ($query) => $query
-                ->where('is_active', true)
+                ->active()
                 ->with('subscriptionPlan')
                 ->latest()
                 ->limit(1),
@@ -57,7 +45,7 @@ class SubscriptionService
 
         DB::transaction(function () use ($user, $selectedPlan) {
             $user->subscriptions()
-                ->where('is_active', true)
+                ->active()
                 ->update([
                     'is_active' => false,
                     'end_date' => now(),

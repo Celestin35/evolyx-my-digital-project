@@ -9,6 +9,7 @@ use App\Models\PerformedSession;
 use App\Models\User;
 use App\Services\CommunityFeedService;
 use App\Services\CommunityPostService;
+use App\Services\FeatureAccessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,11 +24,14 @@ class CommunityController extends Controller
         return Inertia::render('Community', $communityFeedService->pageDataFor($request->user()));
     }
 
-    public function store(StoreCommunityPostRequest $request, CommunityPostService $communityPostService): RedirectResponse
-    {
+    public function store(
+        StoreCommunityPostRequest $request,
+        CommunityPostService $communityPostService,
+        FeatureAccessService $featureAccessService,
+    ): RedirectResponse {
         $user = $request->user();
 
-        if (! $user->hasPremiumFeatures()) {
+        if (! $featureAccessService->canShareCommunityPost($user)) {
             return to_route('community')->withErrors([
                 'community' => 'Le feed communautaire est réservé aux abonnements Premium.',
             ]);
@@ -39,7 +43,7 @@ class CommunityController extends Controller
 
         if (Gate::denies('share', $performedSession)) {
             return back()->withErrors([
-                'community' => 'Cette sÃ©ance ne peut pas Ãªtre partagÃ©e depuis votre compte.',
+                'community' => 'Cette séance ne peut pas être partagée depuis votre compte.',
             ]);
         }
 
@@ -86,11 +90,14 @@ class CommunityController extends Controller
         return back()->with('success', 'Publication supprimée du feed communautaire.');
     }
 
-    public function searchUsers(Request $request, CommunityFeedService $communityFeedService): JsonResponse
-    {
+    public function searchUsers(
+        Request $request,
+        CommunityFeedService $communityFeedService,
+        FeatureAccessService $featureAccessService,
+    ): JsonResponse {
         $user = $request->user();
 
-        if (! $user->hasPremiumFeatures()) {
+        if (! $featureAccessService->canAccessCommunity($user)) {
             abort(403);
         }
 
@@ -102,11 +109,15 @@ class CommunityController extends Controller
         ]);
     }
 
-    public function showUser(Request $request, User $user, CommunityFeedService $communityFeedService): JsonResponse
-    {
+    public function showUser(
+        Request $request,
+        User $user,
+        CommunityFeedService $communityFeedService,
+        FeatureAccessService $featureAccessService,
+    ): JsonResponse {
         $currentUser = $request->user();
 
-        if (! $currentUser->hasPremiumFeatures()) {
+        if (! $featureAccessService->canAccessCommunity($currentUser)) {
             abort(403);
         }
 
@@ -119,10 +130,11 @@ class CommunityController extends Controller
         Request $request,
         User $user,
         CommunityPostService $communityPostService,
+        FeatureAccessService $featureAccessService,
     ): RedirectResponse {
         $currentUser = $request->user();
 
-        if (! $currentUser->hasPremiumFeatures()) {
+        if (! $featureAccessService->canAccessCommunity($currentUser)) {
             return to_route('community')->withErrors([
                 'community' => 'Le suivi de membres est réservé aux abonnements Premium.',
             ]);

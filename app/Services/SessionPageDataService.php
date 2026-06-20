@@ -11,6 +11,10 @@ use App\Models\WorkoutSession;
 
 class SessionPageDataService
 {
+    public function __construct(
+        private readonly FeatureAccessService $featureAccessService,
+    ) {}
+
     public function getForUser(User $user): array
     {
         $userSportIds = $user->sports()->pluck('sports.id');
@@ -139,7 +143,7 @@ class SessionPageDataService
                     ]),
                 ])->values(),
             ]),
-            'canShareToCommunity' => $user->hasPremiumFeatures(),
+            'canShareToCommunity' => $this->featureAccessService->canShareCommunityPost($user),
         ];
     }
 
