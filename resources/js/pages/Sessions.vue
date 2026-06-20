@@ -1,10 +1,11 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { useAds } from '@/composables/useAds';
+import { useSessionsCalendar } from '@/composables/useSessionsCalendar';
 import VueCal from 'vue-cal';
 import 'vue-cal/dist/vuecal.css';
 
@@ -123,12 +124,6 @@ const activeLibraryTab = ref<'workout-sessions' | 'exercises'>(
 const editingWorkoutSession = ref<WorkoutSession | null>(null);
 const editingExercise = ref<AvailableExercise | null>(null);
 const selectedShareSession = ref<PerformedSession | null>(null);
-const isMobileCalendar = ref(false);
-const mobileCalendarMediaQuery = '(max-width: 767px)';
-
-let mobileCalendarQuery: MediaQueryList | null = null;
-let onMobileCalendarChange: ((event: MediaQueryListEvent) => void) | null =
-    null;
 
 const completeSessionForm = useForm({
     notes: '',
@@ -163,7 +158,7 @@ const shareSessionForm = useForm({
     content: '',
 });
 
-const sortUserContentFirst = <T>(
+const sortUserContentFirst = <T,>(
     firstItem: T,
     secondItem: T,
     isUserContent: (item: T) => boolean,
@@ -226,38 +221,13 @@ const communityErrorMessage = computed(
     () => page.props.errors?.community ?? null,
 );
 
-const calendarEvents = computed(() =>
-    props.performedSessions
-        .filter((session) => session.performed_at)
-        .map((session) => {
-            const startDate = new Date(session.performed_at as string);
-            const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-
-            return {
-                start: startDate,
-                end: endDate,
-                title: session.workout_session_name ?? 'Séance',
-                content: session.notes ?? '',
-                class: session.completed_at
-                    ? 'evolyx-session-event evolyx-session-event--completed'
-                    : 'evolyx-session-event evolyx-session-event--planned',
-                performedSessionId: session.id,
-            };
-        }),
-);
-const calendarActiveView = computed(() =>
-    isMobileCalendar.value ? 'day' : 'week',
-);
-const calendarDisabledViews = computed(() =>
-    isMobileCalendar.value ? ['years', 'year', 'month'] : ['years', 'year'],
-);
-const calendarHeight = computed(() =>
-    isMobileCalendar.value ? '430px' : '500px',
-);
-const calendarKey = computed(() =>
-    isMobileCalendar.value ? 'sessions-calendar-mobile' : 'sessions-calendar',
-);
-
+const {
+    calendarEvents,
+    calendarActiveView,
+    calendarDisabledViews,
+    calendarHeight,
+    calendarKey,
+} = useSessionsCalendar(() => props.performedSessions);
 const recentCompletedSessions = computed(() =>
     [...props.performedSessions]
         .filter((session) => session.completed_at)
@@ -447,37 +417,34 @@ const onCalendarEventClick = (payload: unknown) => {
     completeSessionForm.clearErrors();
     completeSessionForm.notes = session.notes ?? '';
     completeSessionForm.performances =
-        (session.workout_session ??
+        (
+            session.workout_session ??
             props.workoutSessions.find(
                 (workoutSession) =>
                     normalizeId(workoutSession.id) ===
                     normalizeId(session.workout_session_id),
-            ))
-            ?.exercises.map((exercise) => {
-                const existingPerformance = session.performances.find(
-                    (performance) => performance.exercise_id === exercise.id,
-                );
+            )
+        )?.exercises.map((exercise) => {
+            const existingPerformance = session.performances.find(
+                (performance) => performance.exercise_id === exercise.id,
+            );
 
-                return {
-                    exercise_id: exercise.id,
-                    weight: existingPerformance?.weight?.toString() ?? '',
-                    repetitions:
-                        existingPerformance?.repetitions?.toString() ?? '',
-                    duration_minutes:
-                        existingPerformance?.duration_minutes?.toString() ?? '',
-                    distance_meters:
-                        existingPerformance?.distance_meters?.toString() ?? '',
-                    metrics: Object.fromEntries(
-                        exercise.metrics.map((metric) => [
-                            metric.key,
-                            getExistingMetricValue(
-                                existingPerformance,
-                                metric.key,
-                            ),
-                        ]),
-                    ),
-                };
-            }) ?? [];
+            return {
+                exercise_id: exercise.id,
+                weight: existingPerformance?.weight?.toString() ?? '',
+                repetitions: existingPerformance?.repetitions?.toString() ?? '',
+                duration_minutes:
+                    existingPerformance?.duration_minutes?.toString() ?? '',
+                distance_meters:
+                    existingPerformance?.distance_meters?.toString() ?? '',
+                metrics: Object.fromEntries(
+                    exercise.metrics.map((metric) => [
+                        metric.key,
+                        getExistingMetricValue(existingPerformance, metric.key),
+                    ]),
+                ),
+            };
+        }) ?? [];
 };
 
 const closeCompleteSessionModal = () => {
@@ -741,25 +708,6 @@ const sharePerformedSession = () => {
         onSuccess: closeShareSessionModal,
     });
 };
-
-onMounted(() => {
-    mobileCalendarQuery = window.matchMedia(mobileCalendarMediaQuery);
-    isMobileCalendar.value = mobileCalendarQuery.matches;
-
-    onMobileCalendarChange = (event) => {
-        isMobileCalendar.value = event.matches;
-    };
-
-    mobileCalendarQuery.addEventListener('change', onMobileCalendarChange);
-});
-
-onBeforeUnmount(() => {
-    if (!mobileCalendarQuery || !onMobileCalendarChange) {
-        return;
-    }
-
-    mobileCalendarQuery.removeEventListener('change', onMobileCalendarChange);
-});
 </script>
 
 <template>
@@ -1235,9 +1183,7 @@ onBeforeUnmount(() => {
                 class="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg bg-evo-white p-4 shadow-xl"
             >
                 <div class="flex items-start justify-between gap-4">
-                    <h2 class="text-lg font-semibold">
-                        Modifier la séance
-                    </h2>
+                    <h2 class="text-lg font-semibold">Modifier la séance</h2>
                     <Button
                         type="button"
                         variant="transparent"
@@ -1916,9 +1862,9 @@ onBeforeUnmount(() => {
                         v-if="!selectedWorkoutSessionHasExercises"
                         class="text-sm text-red-600"
                     >
-                        Cette séance ne contient aucun exercice. Ajoutez
-                        des exercices à la séance pour pouvoir renseigner
-                        des performances.
+                        Cette séance ne contient aucun exercice. Ajoutez des
+                        exercices à la séance pour pouvoir renseigner des
+                        performances.
                     </p>
                 </div>
 

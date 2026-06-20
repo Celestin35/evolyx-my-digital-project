@@ -1,60 +1,14 @@
-<script setup lang="ts">
-import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+﻿<script setup lang="ts">
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 import HorizontalTabs from '@/components/HorizontalTabs.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
 import { Button } from '@/components/ui/button';
-
-type CommunityPerformanceMetric = {
-    key: string;
-    label: string;
-    unit: string | null;
-    value: number;
-};
-
-type CommunityPerformance = {
-    exercise_name: string | null;
-    sport_name: string | null;
-    category_name: string | null;
-    weight: number | null;
-    repetitions: number | null;
-    duration_minutes: number | null;
-    distance_meters: number | null;
-    metric_values: CommunityPerformanceMetric[];
-};
-
-type CommunityPost = {
-    id: number;
-    author_name: string | null;
-    is_own_post: boolean;
-    title: string | null;
-    content: string | null;
-    published_at: string | null;
-    performed_session: {
-        id: number;
-        workout_session_name: string | null;
-        performed_at: string | null;
-        completed_at: string | null;
-        performances: CommunityPerformance[];
-    };
-};
-
-type CommunityUser = {
-    id: number;
-    pseudo: string | null;
-    display_name: string;
-    initial: string;
-    avatar_color: string;
-    is_following: boolean;
-};
-
-type CommunityProfile = CommunityUser & {
-    followers_count: number;
-    following_count: number;
-    posts_count: number;
-    posts: CommunityPost[];
-};
+import { useCommunityFormatting } from '@/composables/useCommunityFormatting';
+import { useCommunityPosts } from '@/composables/useCommunityPosts';
+import { useCommunitySearch } from '@/composables/useCommunitySearch';
+import type { CommunityPost, CommunityUser } from '@/types/community';
 
 type CommunityPageProps = {
     flash?: {
@@ -73,12 +27,6 @@ const props = defineProps<{
 }>();
 
 const page = usePage<CommunityPageProps>();
-const deletePostForm = useForm({});
-const editPostForm = useForm({
-    title: '',
-    content: '',
-});
-
 const activeTab = ref<'feed' | 'relations' | 'mine'>('feed');
 const communityTabs = [
     {
@@ -94,13 +42,6 @@ const communityTabs = [
         label: 'Mes posts',
     },
 ] as const;
-const searchQuery = ref('');
-const searchResults = ref<CommunityUser[]>([]);
-const isSearching = ref(false);
-const selectedProfile = ref<CommunityProfile | null>(null);
-const editingPost = ref<CommunityPost | null>(null);
-const isProfileLoading = ref(false);
-let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const flashSuccessMessage = computed(() => page.props.flash?.success);
 const communityErrorMessage = computed(
@@ -110,228 +51,35 @@ const activePosts = computed(() =>
     activeTab.value === 'mine' ? props.ownPosts : props.followingFeed,
 );
 
-watch(searchQuery, (query) => {
-    if (searchTimeout) {
-        clearTimeout(searchTimeout);
-    }
+const {
+    searchQuery,
+    searchResults,
+    isSearching,
+    selectedProfile,
+    isProfileLoading,
+    followUser,
+    unfollowUser,
+    openProfile,
+    closeProfile,
+} = useCommunitySearch();
 
-    const trimmedQuery = query.trim();
-    if (trimmedQuery.length < 2) {
-        searchResults.value = [];
-        isSearching.value = false;
-        return;
-    }
+const {
+    deletePostForm,
+    editPostForm,
+    editingPost,
+    openPostEditor,
+    closePostEditor,
+    updateCommunityPost,
+    deleteCommunityPost,
+} = useCommunityPosts();
 
-    isSearching.value = true;
-    searchTimeout = setTimeout(async () => {
-        const response = await fetch(
-            `/community/users/search?q=${encodeURIComponent(trimmedQuery)}`,
-            {
-                headers: {
-                    Accept: 'application/json',
-                },
-            },
-        );
-
-        if (!response.ok) {
-            searchResults.value = [];
-            isSearching.value = false;
-            return;
-        }
-
-        const data = (await response.json()) as { users: CommunityUser[] };
-        searchResults.value = data.users;
-        isSearching.value = false;
-    }, 250);
-});
-
-const formatDate = (date: string | null) => {
-    if (!date) {
-        return '-';
-    }
-
-    return new Intl.DateTimeFormat('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    }).format(new Date(date));
-};
-
-const formatPublishedAt = (date: string | null) => {
-    if (!date) {
-        return '';
-    }
-
-    return new Intl.DateTimeFormat('fr-FR', {
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(new Date(date));
-};
-
-const formatPerformanceDetails = (performance: CommunityPerformance) => {
-    const details: string[] = [];
-
-    if (performance.metric_values.length > 0) {
-        performance.metric_values.forEach((metricValue) => {
-            details.push(
-                `${metricValue.label}: ${metricValue.value}${metricValue.unit ? ` ${metricValue.unit}` : ''}`,
-            );
-        });
-    } else {
-        if (performance.weight !== null) {
-            details.push(`${performance.weight.toFixed(2)} kg`);
-        }
-
-        if (performance.repetitions !== null) {
-            details.push(`${performance.repetitions} rep`);
-        }
-
-        if (performance.duration_minutes !== null) {
-            details.push(`${performance.duration_minutes.toFixed(2)} min`);
-        }
-
-        if (performance.distance_meters !== null) {
-            details.push(`${performance.distance_meters.toFixed(0)} m`);
-        }
-    }
-
-    return details.length > 0 ? details.join(' - ') : 'Séance validée';
-};
-
-const performanceDetailItems = (performance: CommunityPerformance) => {
-    if (performance.metric_values.length > 0) {
-        return performance.metric_values.map((metricValue) => ({
-            label: metricValue.label,
-            value: `${metricValue.value}${metricValue.unit ? ` ${metricValue.unit}` : ''}`,
-        }));
-    }
-
-    const details: Array<{ label: string; value: string }> = [];
-
-    if (performance.weight !== null) {
-        details.push({
-            label: 'Charge',
-            value: `${performance.weight.toFixed(2)} kg`,
-        });
-    }
-
-    if (performance.repetitions !== null) {
-        details.push({
-            label: 'Répétitions',
-            value: `${performance.repetitions} rep`,
-        });
-    }
-
-    if (performance.duration_minutes !== null) {
-        details.push({
-            label: 'Temps',
-            value: `${performance.duration_minutes.toFixed(2)} min`,
-        });
-    }
-
-    if (performance.distance_meters !== null) {
-        details.push({
-            label: 'Distance',
-            value: `${performance.distance_meters.toFixed(0)} m`,
-        });
-    }
-
-    return details;
-};
-
-const authorInitial = (post: CommunityPost) => {
-    return (post.author_name ?? 'E').slice(0, 1).toUpperCase();
-};
-
-const followUser = (user: CommunityUser) => {
-    router.post(
-        `/community/users/${user.id}/follow`,
-        {},
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                user.is_following = true;
-            },
-        },
-    );
-};
-
-const unfollowUser = (user: CommunityUser) => {
-    router.delete(`/community/users/${user.id}/follow`, {
-        preserveScroll: true,
-        onSuccess: () => {
-            user.is_following = false;
-        },
-    });
-};
-
-const openProfile = async (user: CommunityUser) => {
-    isProfileLoading.value = true;
-    selectedProfile.value = null;
-
-    const response = await fetch(`/community/users/${user.id}`, {
-        headers: {
-            Accept: 'application/json',
-        },
-    });
-
-    if (response.ok) {
-        const data = (await response.json()) as { user: CommunityProfile };
-        selectedProfile.value = data.user;
-    }
-
-    isProfileLoading.value = false;
-};
-
-const closeProfile = () => {
-    selectedProfile.value = null;
-    isProfileLoading.value = false;
-};
-
-const openPostEditor = (post: CommunityPost) => {
-    if (!post.is_own_post) {
-        return;
-    }
-
-    editingPost.value = post;
-    editPostForm.defaults({
-        title: post.title ?? '',
-        content: post.content ?? '',
-    });
-    editPostForm.reset();
-    editPostForm.clearErrors();
-};
-
-const closePostEditor = () => {
-    editingPost.value = null;
-    editPostForm.reset();
-    editPostForm.clearErrors();
-};
-
-const updateCommunityPost = () => {
-    if (!editingPost.value) {
-        return;
-    }
-
-    editPostForm.patch(`/community/posts/${editingPost.value.id}`, {
-        preserveScroll: true,
-        onSuccess: closePostEditor,
-    });
-};
-
-const deleteCommunityPost = (post: CommunityPost) => {
-    if (
-        !window.confirm('Supprimer cette publication du feed communautaire ?')
-    ) {
-        return;
-    }
-
-    deletePostForm.delete(`/community/posts/${post.id}`, {
-        preserveScroll: true,
-    });
-};
+const {
+    formatDate,
+    formatPublishedAt,
+    formatPerformanceDetails,
+    performanceDetailItems,
+    authorInitial,
+} = useCommunityFormatting();
 </script>
 
 <template>
@@ -653,7 +401,9 @@ const deleteCommunityPost = (post: CommunityPost) => {
                                 {{ post.content }}
                             </p>
 
-                            <div class="mt-5 rounded-xl border bg-white border-evo-orange p-4">
+                            <div
+                                class="mt-5 rounded-xl border border-evo-orange bg-white p-4"
+                            >
                                 <div
                                     class="flex flex-wrap items-start justify-between gap-3"
                                 >
