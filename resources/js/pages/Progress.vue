@@ -3,13 +3,11 @@ import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
 import HorizontalTabs from '@/components/HorizontalTabs.vue';
-import MetricSelector from '@/components/progress/MetricSelector.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import PerformanceChart from '@/components/PerformanceChart.vue';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
-import WeightChart from '@/components/WeightChart.vue';
+import MetricSelector from '@/components/progress/MetricSelector.vue';
 import WeightEntryForm from '@/components/progress/WeightEntryForm.vue';
-import { Button } from '@/components/ui/button';
+import WeightChart from '@/components/WeightChart.vue';
 import { useAds } from '@/composables/useAds';
 import { usePerformanceFilters } from '@/composables/usePerformanceFilters';
 import {
@@ -17,6 +15,7 @@ import {
     rangeOptions,
     useProgressRanges,
 } from '@/composables/useProgressRanges';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type {
     PerformanceEntry,
     SportOption,
@@ -175,6 +174,9 @@ const submitWeightEntry = () => {
                     :form="weightEntryForm"
                     :today-date="todayDate"
                     :flash-success-message="flashSuccessMessage"
+                    @update-weight="weightEntryForm.weight = $event"
+                    @update-body-fat="weightEntryForm.body_fat = $event"
+                    @update-entry-date="weightEntryForm.entry_date = $event"
                     @submit="submitWeightEntry"
                 />
             </template>

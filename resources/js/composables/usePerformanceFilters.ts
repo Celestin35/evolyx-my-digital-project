@@ -1,4 +1,5 @@
-import { computed, ref, toValue, watch, type MaybeRefOrGetter } from 'vue';
+import { computed, ref, toValue, watch } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 import { getRangeCutoffDate } from '@/composables/useProgressRanges';
 import type {
     MetricOption,

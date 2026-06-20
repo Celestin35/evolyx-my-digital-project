@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { UrlMethodPair } from '@inertiajs/core';
 import { Link } from '@inertiajs/vue3';
 
 type TabItem = {
     value: string;
     label: string;
-    href?: unknown;
+    href?: string | UrlMethodPair;
     active?: boolean;
 };
 
@@ -12,10 +13,11 @@ withDefaults(
     defineProps<{
         tabs: readonly TabItem[];
         modelValue?: string;
-        ariaLabel: string;
+        ariaLabel?: string;
         spaced?: boolean;
     }>(),
     {
+        ariaLabel: '',
         spaced: true,
     },
 );

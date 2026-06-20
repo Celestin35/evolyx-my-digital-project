@@ -25,7 +25,7 @@ class StoreGoalRequest extends FormRequest
                     $allowedValues = [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0];
 
                     if (! in_array((float) $value, $allowedValues, true)) {
-                        $fail('Le rythme hebdomadaire doit correspondre Ã  une option disponible.');
+                        $fail('Le rythme hebdomadaire doit correspondre à une option disponible.');
                     }
                 },
             ],

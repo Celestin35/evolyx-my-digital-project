@@ -20,6 +20,9 @@ defineProps<{
 
 const emit = defineEmits<{
     submit: [];
+    updateWeight: [value: string];
+    updateBodyFat: [value: string];
+    updateEntryDate: [value: string];
 }>();
 </script>
 
@@ -38,12 +41,18 @@ const emit = defineEmits<{
                 </label>
                 <input
                     id="entry_weight"
-                    v-model="form.weight"
+                    :value="form.weight"
                     type="number"
                     min="20"
                     max="500"
                     step="0.01"
                     class="evo-input"
+                    @input="
+                        emit(
+                            'updateWeight',
+                            ($event.target as HTMLInputElement).value,
+                        )
+                    "
                 />
                 <p v-if="form.errors.weight" class="text-sm text-red-600">
                     {{ form.errors.weight }}
@@ -56,10 +65,16 @@ const emit = defineEmits<{
                 </label>
                 <input
                     id="entry_date"
-                    v-model="form.entry_date"
+                    :value="form.entry_date"
                     type="date"
                     :max="todayDate"
                     class="evo-input"
+                    @input="
+                        emit(
+                            'updateEntryDate',
+                            ($event.target as HTMLInputElement).value,
+                        )
+                    "
                 />
                 <p v-if="form.errors.entry_date" class="text-sm text-red-600">
                     {{ form.errors.entry_date }}
@@ -72,12 +87,18 @@ const emit = defineEmits<{
                 </label>
                 <input
                     id="entry_body_fat"
-                    v-model="form.body_fat"
+                    :value="form.body_fat"
                     type="number"
                     min="2"
                     max="75"
                     step="0.01"
                     class="evo-input"
+                    @input="
+                        emit(
+                            'updateBodyFat',
+                            ($event.target as HTMLInputElement).value,
+                        )
+                    "
                 />
                 <p v-if="form.errors.body_fat" class="text-sm text-red-600">
                     {{ form.errors.body_fat }}

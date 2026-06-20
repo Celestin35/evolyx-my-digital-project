@@ -40,7 +40,7 @@ class ExerciseService
     public function delete(User $user, Exercise $exercise): ?array
     {
         if ($exercise->performances()->exists() || $exercise->workoutSessions()->exists()) {
-            return ['exercise' => 'Cet exercice est dÃ©jÃ  utilisÃ© dans une sÃ©ance.'];
+            return ['exercise' => 'Cet exercice est déjà utilisé dans une séance.'];
         }
 
         DB::transaction(function () use ($exercise) {

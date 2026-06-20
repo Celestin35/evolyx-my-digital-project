@@ -2,12 +2,12 @@
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import HorizontalTabs from '@/components/HorizontalTabs.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate.vue';
 import { Button } from '@/components/ui/button';
 import { useCommunityFormatting } from '@/composables/useCommunityFormatting';
 import { useCommunityPosts } from '@/composables/useCommunityPosts';
 import { useCommunitySearch } from '@/composables/useCommunitySearch';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type { CommunityPost, CommunityUser } from '@/types/community';
 
 type CommunityPageProps = {

@@ -23,9 +23,9 @@ class UpdateSportsRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'sport_ids.present' => 'La sÃ©lection de sports est requise.',
-            'sport_ids.array' => 'La sÃ©lection de sports est invalide.',
-            'sport_ids.*.exists' => 'Un sport sÃ©lectionnÃ© est invalide.',
+            'sport_ids.present' => 'La sélection de sports est requise.',
+            'sport_ids.array' => 'La sélection de sports est invalide.',
+            'sport_ids.*.exists' => 'Un sport sélectionné est invalide.',
         ];
     }
 }

@@ -1,12 +1,12 @@
 ﻿<script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import VueCal from 'vue-cal';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { useAds } from '@/composables/useAds';
 import { useSessionsCalendar } from '@/composables/useSessionsCalendar';
-import VueCal from 'vue-cal';
+import AppLayout from '@/layouts/AppLayout.vue';
 import 'vue-cal/dist/vuecal.css';
 
 type Sport = {
@@ -205,10 +205,6 @@ const exerciseGroups = computed(() =>
             ),
         }))
         .filter((group) => group.exercises.length > 0),
-);
-
-const customExercises = computed(() =>
-    sortedAvailableExercises.value.filter((exercise) => exercise.is_custom),
 );
 
 const libraryErrorMessage = computed(

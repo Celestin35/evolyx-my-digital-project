@@ -1,11 +1,5 @@
-import {
-    computed,
-    onBeforeUnmount,
-    onMounted,
-    ref,
-    toValue,
-    type MaybeRefOrGetter,
-} from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, toValue } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 type CalendarPerformedSession = {
     id: number;

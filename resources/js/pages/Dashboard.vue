@@ -2,10 +2,10 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AdInlineSlot from '@/components/ads/AdInlineSlot.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
-import WeightChart from '@/components/WeightChart.vue';
 import { Button } from '@/components/ui/button';
+import WeightChart from '@/components/WeightChart.vue';
 import { useAds } from '@/composables/useAds';
+import AppLayout from '@/layouts/AppLayout.vue';
 
 type WeightEntry = {
     id: number;
@@ -182,11 +182,17 @@ const formatCommunityPostDate = (date: string | null) => {
         title="Tableau de bord"
         subtitle="Bienvenue sur votre tableau de bord personnel !"
     >
-        <section class="grid grid-cols-1 gap-4 lg:grid-cols-2 max-lg:pb-23">
-            <div class="order-3 flex min-h-90 flex-col rounded-lg bg-evo-white p-4">
+        <section class="grid grid-cols-1 gap-4 max-lg:pb-23 lg:grid-cols-2">
+            <div
+                class="order-3 flex min-h-90 flex-col rounded-lg bg-evo-white p-4"
+            >
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Suivi du poids</h2>
-                    <Button :as="Link" href="/progress" class="px-3 py-1.5 text-sm">
+                    <Button
+                        :as="Link"
+                        href="/progress"
+                        class="px-3 py-1.5 text-sm"
+                    >
                         Mon poids
                     </Button>
                 </div>
@@ -198,7 +204,11 @@ const formatCommunityPostDate = (date: string | null) => {
             <div class="order-3 min-h-90 rounded-lg bg-evo-white p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-xl font-bold">Dernieres performances</h2>
-                    <Button :as="Link" href="/progress" class="px-3 py-1.5 text-sm">
+                    <Button
+                        :as="Link"
+                        href="/progress"
+                        class="px-3 py-1.5 text-sm"
+                    >
                         Mes performances
                     </Button>
                 </div>
@@ -245,7 +255,9 @@ const formatCommunityPostDate = (date: string | null) => {
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <h2 class="text-xl font-bold">Feed communautaire</h2>
-                        <p class="hidden lg:block mt-1 text-sm text-neutral-600">
+                        <p
+                            class="mt-1 hidden text-sm text-neutral-600 lg:block"
+                        >
                             Les dernières publications des membres que vous
                             suivez.
                         </p>
@@ -266,7 +278,8 @@ const formatCommunityPostDate = (date: string | null) => {
                         <p class="text-xs text-neutral-600">
                             {{ post.author_name }}
                             <span v-if="post.published_at">
-                                | {{ formatCommunityPostDate(post.published_at) }}
+                                |
+                                {{ formatCommunityPostDate(post.published_at) }}
                             </span>
                         </p>
                         <h3 class="mt-2 font-semibold">
@@ -304,7 +317,11 @@ const formatCommunityPostDate = (date: string | null) => {
                     <div>
                         <h2 class="text-xl font-bold">Dernières séances</h2>
                     </div>
-                    <Button :as="Link" href="/sessions" class="px-3 py-1.5 text-sm">
+                    <Button
+                        :as="Link"
+                        href="/sessions"
+                        class="px-3 py-1.5 text-sm"
+                    >
                         Mes séances
                     </Button>
                 </div>

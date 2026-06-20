@@ -11,11 +11,11 @@ class CommunityPostService
     public function share(User $user, PerformedSession $performedSession, array $data, bool $hasTitle, bool $hasContent): ?array
     {
         if ($performedSession->completed_at === null) {
-            return ['community' => 'Vous pouvez partager uniquement une sÃ©ance validÃ©e.'];
+            return ['community' => 'Vous pouvez partager uniquement une séance validée.'];
         }
 
         if ($performedSession->communityPost !== null) {
-            return ['community' => 'Cette sÃ©ance est dÃ©jÃ  partagÃ©e.'];
+            return ['community' => 'Cette séance est déjà partagée.'];
         }
 
         CommunityPost::query()->create([
@@ -45,7 +45,7 @@ class CommunityPostService
     public function follow(User $currentUser, User $user): ?array
     {
         if ($currentUser->id === $user->id) {
-            return ['community' => 'Vous ne pouvez pas vous suivre vous-mÃªme.'];
+            return ['community' => 'Vous ne pouvez pas vous suivre vous-même.'];
         }
 
         $currentUser->following()->syncWithoutDetaching([$user->id]);

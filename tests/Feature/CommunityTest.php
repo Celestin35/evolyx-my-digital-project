@@ -13,7 +13,7 @@ function makeCommunityUser(bool $premium = false): User
     $user = User::factory()->create();
 
     $plan = SubscriptionPlan::query()->firstOrCreate(
-        ['name' => $premium ? 'Premium' : 'Free'],
+        ['name' => $premium ? 'Premium' : 'Gratuit'],
         [
             'price' => $premium ? 9.99 : 0,
             'ads_enabled' => ! $premium,
@@ -60,6 +60,29 @@ function makeCommunityPostFor(User $user, ?string $title = null): CommunityPost
         'published_at' => now(),
     ]);
 }
+
+test('community access flag is reserved to premium users', function () {
+    $freeUser = makeCommunityUser();
+    $premiumUser = makeCommunityUser(premium: true);
+
+    $this
+        ->actingAs($freeUser)
+        ->get(route('community'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Community')
+            ->where('canAccessCommunity', false),
+        );
+
+    $this
+        ->actingAs($premiumUser)
+        ->get(route('community'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Community')
+            ->where('canAccessCommunity', true),
+        );
+});
 
 test('a non premium user cannot share a performed session', function () {
     $user = makeCommunityUser();

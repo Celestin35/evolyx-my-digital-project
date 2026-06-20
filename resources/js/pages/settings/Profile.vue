@@ -30,6 +30,18 @@ type Props = {
     }>;
 };
 
+type SettingsProfilePageProps = {
+    auth: {
+        user: {
+            pseudo?: string | null;
+            email?: string | null;
+        };
+    };
+    flash?: {
+        success?: string;
+    };
+};
+
 const props = defineProps<Props>();
 
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -39,7 +51,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
     },
 ];
 
-const page = usePage();
+const page = usePage<SettingsProfilePageProps>();
 const user = computed(() => page.props.auth.user);
 const successMessage = computed(() => page.props.flash?.success ?? null);
 
@@ -55,7 +67,10 @@ const subscriptionForm = useForm({
 const selectedSubscriptionPlanName = ref<string | null>(null);
 const isSubscriptionModalOpen = ref(false);
 
-const subscriptionPlanContent = {
+const subscriptionPlanContent: Record<
+    string,
+    { summary: string; features: string[] }
+> = {
     Gratuit: {
         summary: 'Pour commencer simplement.',
         features: [
@@ -65,10 +80,7 @@ const subscriptionPlanContent = {
     },
     Plus: {
         summary: 'Une formule légère sans publicités.',
-        features: [
-            'Suppression des publicités',
-            'Graphique de performance',
-        ],
+        features: ['Suppression des publicités'],
     },
     Premium: {
         summary: 'Le plan le plus complet pour aller plus loin.',
@@ -80,7 +92,7 @@ const subscriptionPlanContent = {
             'Partage de séances réalisées',
         ],
     },
-} satisfies Record<string, { summary: string; features: string[] }>;
+};
 
 const formattedActiveSubscriptionEndDate = computed(() => {
     if (!props.activeSubscription?.end_date) {
@@ -119,9 +131,11 @@ const selectedSubscriptionPlan = computed(() => {
         return null;
     }
 
-    return formattedSubscriptionPlans.value.find(
-        (plan) => plan.name === selectedSubscriptionPlanName.value,
-    ) ?? null;
+    return (
+        formattedSubscriptionPlans.value.find(
+            (plan) => plan.name === selectedSubscriptionPlanName.value,
+        ) ?? null
+    );
 });
 
 const subscriptionActionLabel = computed(() => {
@@ -167,7 +181,8 @@ const confirmSubscriptionChange = () => {
         return;
     }
 
-    subscriptionForm.subscription_plan_name = selectedSubscriptionPlan.value.name;
+    subscriptionForm.subscription_plan_name =
+        selectedSubscriptionPlan.value.name;
     subscriptionForm.post('/subscriptions', {
         preserveScroll: true,
         onSuccess: () => {
@@ -249,7 +264,8 @@ const confirmSubscriptionChange = () => {
                                     as="button"
                                     class="font-medium text-evo-black underline underline-offset-4"
                                 >
-                                    Cliquez ici pour renvoyer l'email de vérification.
+                                    Cliquez ici pour renvoyer l'email de
+                                    vérification.
                                 </Link>
                             </p>
 
@@ -302,14 +318,17 @@ const confirmSubscriptionChange = () => {
 
                     <div
                         v-if="activeSubscription"
-                        class="rounded-lg border border-neutral-200 p-4 bg-white"
+                        class="rounded-lg border border-neutral-200 bg-white p-4"
                     >
                         <p class="font-medium">Abonnement actuel</p>
                         <div class="mt-2 space-y-2 text-sm text-neutral-700">
                             <p>
                                 Plan :
                                 <span class="font-semibold text-evo-black">
-                                    {{ activeSubscription.plan_name ?? 'Non défini' }}
+                                    {{
+                                        activeSubscription.plan_name ??
+                                        'Non défini'
+                                    }}
                                 </span>
                             </p>
                             <p v-if="formattedActiveSubscriptionEndDate">
@@ -337,7 +356,9 @@ const confirmSubscriptionChange = () => {
                             <div class="flex items-start justify-between gap-4">
                                 <div class="space-y-1">
                                     <div class="flex items-center gap-2">
-                                        <p class="font-medium">{{ plan.name }}</p>
+                                        <p class="font-medium">
+                                            {{ plan.name }}
+                                        </p>
                                         <span
                                             v-if="plan.isCurrent"
                                             class="rounded-full bg-evo-black px-2 py-1 text-xs font-medium text-evo-white"
@@ -354,7 +375,9 @@ const confirmSubscriptionChange = () => {
                                 </p>
                             </div>
 
-                            <div class="mt-3 space-y-2 text-sm text-neutral-700">
+                            <div
+                                class="mt-3 space-y-2 text-sm text-neutral-700"
+                            >
                                 <p
                                     v-for="feature in plan.features"
                                     :key="feature"
@@ -419,9 +442,13 @@ const confirmSubscriptionChange = () => {
                 v-if="isSubscriptionModalOpen && selectedSubscriptionPlan"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-evo-black/50 px-4"
             >
-                <div class="w-full max-w-md rounded-2xl bg-evo-white p-4 shadow-lg">
+                <div
+                    class="w-full max-w-md rounded-2xl bg-evo-white p-4 shadow-lg"
+                >
                     <div class="space-y-3">
-                        <h2 class="text-lg font-semibold">Changer d'abonnement</h2>
+                        <h2 class="text-lg font-semibold">
+                            Changer d'abonnement
+                        </h2>
                         <p class="text-sm text-neutral-600">
                             Vous allez passer sur l'abonnement
                             <span class="font-semibold text-evo-black">

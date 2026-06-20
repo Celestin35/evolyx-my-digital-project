@@ -1,4 +1,5 @@
-import { computed, ref, toValue, type MaybeRefOrGetter } from 'vue';
+import { computed, ref, toValue } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 import type { ProgressRange, WeightEntry } from '@/types/progress';
 
 export const rangeOptions: Array<{ value: ProgressRange; label: string }> = [

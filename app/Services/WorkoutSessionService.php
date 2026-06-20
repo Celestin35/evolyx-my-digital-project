@@ -12,7 +12,7 @@ class WorkoutSessionService
     public function create(User $user, array $data): ?array
     {
         if (! $this->exerciseIdsBelongToUserSports($user, $data['exercise_ids'])) {
-            return ['exercise_ids' => 'Certains exercices ne correspondent pas Ã  vos sports.'];
+            return ['exercise_ids' => 'Certains exercices ne correspondent pas à vos sports.'];
         }
 
         DB::transaction(function () use ($user, $data) {
@@ -31,7 +31,7 @@ class WorkoutSessionService
     public function update(User $user, WorkoutSession $workoutSession, array $data): ?array
     {
         if (! $this->exerciseIdsBelongToUserSports($user, $data['exercise_ids'])) {
-            return ['exercise_ids' => 'Certains exercices ne correspondent pas Ã  vos sports.'];
+            return ['exercise_ids' => 'Certains exercices ne correspondent pas à vos sports.'];
         }
 
         DB::transaction(function () use ($workoutSession, $data) {
@@ -49,7 +49,7 @@ class WorkoutSessionService
     public function delete(User $user, WorkoutSession $workoutSession): ?array
     {
         if ($workoutSession->performedSessions()->exists()) {
-            return ['workout_session' => 'Cette sÃ©ance type est dÃ©jÃ  utilisÃ©e dans le calendrier.'];
+            return ['workout_session' => 'Cette séance type est déjà utilisée dans le calendrier.'];
         }
 
         DB::transaction(function () use ($workoutSession) {

@@ -2,13 +2,13 @@
 import { Link, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { progress } from '@/routes';
 import {
     activityLevelOptions,
     formatActivityLevelLabel,
     formatSexLabel,
     sexOptions,
 } from '@/lib/profile';
+import { progress } from '@/routes';
 
 type ProfileUser = {
     first_name: string | null;
@@ -158,10 +158,7 @@ const savePersonalInfo = () => {
         <div id="profile-personal-info-content" class="space-y-4 pt-4">
             <div v-if="!isEditing" class="space-y-4">
                 <div class="space-y-2">
-                    <div
-                        v-if="user.first_name"
-                        class="flex items-center gap-1"
-                    >
+                    <div v-if="user.first_name" class="flex items-center gap-1">
                         <p class="font-medium">Prénom :</p>
                         <p>{{ user.first_name }}</p>
                     </div>
@@ -173,10 +170,7 @@ const savePersonalInfo = () => {
                         <p class="font-medium">Taille :</p>
                         <p>{{ user.height }} cm</p>
                     </div>
-                    <div
-                        v-if="user.birth_date"
-                        class="flex items-center gap-1"
-                    >
+                    <div v-if="user.birth_date" class="flex items-center gap-1">
                         <p class="font-medium">Date de naissance :</p>
                         <p>{{ user.birth_date }}</p>
                     </div>
