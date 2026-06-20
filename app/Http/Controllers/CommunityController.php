@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Community\StoreCommunityPostRequest;
 use App\Http\Requests\Community\UpdateCommunityPostRequest;
 use App\Models\CommunityPost;
+use App\Models\PerformedSession;
 use App\Models\User;
 use App\Services\CommunityFeedService;
 use App\Services\CommunityPostService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -31,8 +33,19 @@ class CommunityController extends Controller
             ]);
         }
 
+        $performedSession = PerformedSession::query()
+            ->with('communityPost')
+            ->findOrFail($request->validated('performed_session_id'));
+
+        if (Gate::denies('share', $performedSession)) {
+            return back()->withErrors([
+                'community' => 'Cette sÃ©ance ne peut pas Ãªtre partagÃ©e depuis votre compte.',
+            ]);
+        }
+
         if ($errors = $communityPostService->share(
             $user,
+            $performedSession,
             $request->validated(),
             $request->filled('title'),
             $request->filled('content'),
@@ -48,6 +61,8 @@ class CommunityController extends Controller
         CommunityPost $communityPost,
         CommunityPostService $communityPostService,
     ): RedirectResponse {
+        Gate::authorize('update', $communityPost);
+
         $communityPostService->update(
             $request->user(),
             $communityPost,
@@ -64,6 +79,8 @@ class CommunityController extends Controller
         CommunityPost $communityPost,
         CommunityPostService $communityPostService,
     ): RedirectResponse {
+        Gate::authorize('delete', $communityPost);
+
         $communityPostService->delete($request->user(), $communityPost);
 
         return back()->with('success', 'Publication supprimée du feed communautaire.');

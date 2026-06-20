@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Exercise;
 use App\Models\User;
 use App\Models\WorkoutSession;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
 class WorkoutSessionService
@@ -13,7 +12,7 @@ class WorkoutSessionService
     public function create(User $user, array $data): ?array
     {
         if (! $this->exerciseIdsBelongToUserSports($user, $data['exercise_ids'])) {
-            return ['exercise_ids' => 'Certains exercices ne correspondent pas à vos sports.'];
+            return ['exercise_ids' => 'Certains exercices ne correspondent pas Ã  vos sports.'];
         }
 
         DB::transaction(function () use ($user, $data) {
@@ -31,10 +30,8 @@ class WorkoutSessionService
 
     public function update(User $user, WorkoutSession $workoutSession, array $data): ?array
     {
-        $this->authorizeOwner($user, $workoutSession);
-
         if (! $this->exerciseIdsBelongToUserSports($user, $data['exercise_ids'])) {
-            return ['exercise_ids' => 'Certains exercices ne correspondent pas à vos sports.'];
+            return ['exercise_ids' => 'Certains exercices ne correspondent pas Ã  vos sports.'];
         }
 
         DB::transaction(function () use ($workoutSession, $data) {
@@ -51,10 +48,8 @@ class WorkoutSessionService
 
     public function delete(User $user, WorkoutSession $workoutSession): ?array
     {
-        $this->authorizeOwner($user, $workoutSession);
-
         if ($workoutSession->performedSessions()->exists()) {
-            return ['workout_session' => 'Cette séance type est déjà utilisée dans le calendrier.'];
+            return ['workout_session' => 'Cette sÃ©ance type est dÃ©jÃ  utilisÃ©e dans le calendrier.'];
         }
 
         DB::transaction(function () use ($workoutSession) {
@@ -63,13 +58,6 @@ class WorkoutSessionService
         });
 
         return null;
-    }
-
-    private function authorizeOwner(User $user, WorkoutSession $workoutSession): void
-    {
-        if ($workoutSession->user_id !== $user->id) {
-            throw new AuthorizationException;
-        }
     }
 
     private function exerciseIdsBelongToUserSports(User $user, array $exerciseIds): bool

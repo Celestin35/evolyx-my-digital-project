@@ -6,7 +6,6 @@ use App\Models\Exercise;
 use App\Models\PerformedSession;
 use App\Models\User;
 use App\Models\WorkoutSession;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
 class PerformedSessionCompletionService
@@ -22,15 +21,11 @@ class PerformedSessionCompletionService
             ->with('exercises:id,sport_id')
             ->findOrFail($data['workout_session_id']);
 
-        if ($workoutSession->user_id !== $user->id && $workoutSession->user_id !== null) {
-            throw new AuthorizationException;
-        }
-
         if (
             $workoutSession->user_id === null &&
             $workoutSession->exercises->pluck('sport_id')->diff($userSportIds)->isNotEmpty()
         ) {
-            return ['workout_session_id' => 'Cette séance type ne correspond pas à vos sports.'];
+            return ['workout_session_id' => 'Cette sÃ©ance type ne correspond pas Ã  vos sports.'];
         }
 
         PerformedSession::query()->create([
@@ -45,16 +40,12 @@ class PerformedSessionCompletionService
 
     public function complete(User $user, PerformedSession $performedSession, array $data): ?array
     {
-        if ($performedSession->user_id !== $user->id) {
-            throw new AuthorizationException;
-        }
-
         if ($performedSession->completed_at !== null) {
-            return ['performed_session_id' => 'Cette séance est déjà validée.'];
+            return ['performed_session_id' => 'Cette sÃ©ance est dÃ©jÃ  validÃ©e.'];
         }
 
         if ($performedSession->performed_at->copy()->startOfDay()->isAfter(today())) {
-            return ['performed_session_id' => 'Vous pouvez valider uniquement une séance prévue aujourd’hui ou avant.'];
+            return ['performed_session_id' => 'Vous pouvez valider uniquement une sÃ©ance prÃ©vue aujourdâ€™hui ou avant.'];
         }
 
         $workoutExerciseIds = $performedSession->workoutSession()
@@ -76,11 +67,11 @@ class PerformedSessionCompletionService
             ->values();
 
         if (($data['performances'] ?? []) !== [] && $submittedPerformances->isEmpty()) {
-            return ['performances' => 'Renseignez au moins une performance ou validez la séance sans performances.'];
+            return ['performances' => 'Renseignez au moins une performance ou validez la sÃ©ance sans performances.'];
         }
 
         if ($submittedPerformances->pluck('exercise_id')->diff($workoutExerciseIds)->isNotEmpty()) {
-            return ['performances' => 'Certains exercices ne font pas partie de cette séance.'];
+            return ['performances' => 'Certains exercices ne font pas partie de cette sÃ©ance.'];
         }
 
         $exerciseMetrics = Exercise::query()
@@ -96,7 +87,7 @@ class PerformedSessionCompletionService
             $submittedMetricKeys = collect($performanceData['metrics'] ?? [])->keys();
 
             if ($metrics->isNotEmpty() && $submittedMetricKeys->diff($metricKeys)->isNotEmpty()) {
-                return ['performances' => 'Certaines métriques ne correspondent pas à cet exercice.'];
+                return ['performances' => 'Certaines mÃ©triques ne correspondent pas Ã  cet exercice.'];
             }
         }
 

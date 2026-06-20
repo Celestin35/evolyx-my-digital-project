@@ -6,7 +6,6 @@ use App\Models\Exercise;
 use App\Models\ExerciseCategory;
 use App\Models\Metric;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
 class ExerciseService
@@ -28,8 +27,6 @@ class ExerciseService
 
     public function update(User $user, Exercise $exercise, array $data): void
     {
-        $this->authorizeOwner($user, $exercise);
-
         $exercise->update([
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
@@ -42,10 +39,8 @@ class ExerciseService
 
     public function delete(User $user, Exercise $exercise): ?array
     {
-        $this->authorizeOwner($user, $exercise);
-
         if ($exercise->performances()->exists() || $exercise->workoutSessions()->exists()) {
-            return ['exercise' => 'Cet exercice est déjà utilisé dans une séance.'];
+            return ['exercise' => 'Cet exercice est dÃ©jÃ  utilisÃ© dans une sÃ©ance.'];
         }
 
         DB::transaction(function () use ($exercise) {
@@ -54,13 +49,6 @@ class ExerciseService
         });
 
         return null;
-    }
-
-    private function authorizeOwner(User $user, Exercise $exercise): void
-    {
-        if ($exercise->user_id !== $user->id) {
-            throw new AuthorizationException;
-        }
     }
 
     private function attachDefaultMetrics(Exercise $exercise): void

@@ -17,6 +17,7 @@ use App\Services\SessionPageDataService;
 use App\Services\WorkoutSessionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -49,6 +50,8 @@ class SessionsController extends Controller
         WorkoutSession $workoutSession,
         WorkoutSessionService $workoutSessionService,
     ): RedirectResponse {
+        Gate::authorize('update', $workoutSession);
+
         $validatedData = $request->validated();
 
         if ($errors = $workoutSessionService->update($request->user(), $workoutSession, $validatedData)) {
@@ -66,6 +69,8 @@ class SessionsController extends Controller
         WorkoutSession $workoutSession,
         WorkoutSessionService $workoutSessionService,
     ): RedirectResponse {
+        Gate::authorize('delete', $workoutSession);
+
         if ($errors = $workoutSessionService->delete($request->user(), $workoutSession)) {
             return back()->withErrors($errors);
         }
@@ -93,6 +98,8 @@ class SessionsController extends Controller
         Exercise $exercise,
         ExerciseService $exerciseService,
     ): RedirectResponse {
+        Gate::authorize('update', $exercise);
+
         $validatedData = $request->validated();
 
         $exerciseService->update($request->user(), $exercise, $validatedData);
@@ -108,6 +115,8 @@ class SessionsController extends Controller
         Exercise $exercise,
         ExerciseService $exerciseService,
     ): RedirectResponse {
+        Gate::authorize('delete', $exercise);
+
         if ($errors = $exerciseService->delete($request->user(), $exercise)) {
             return back()->withErrors($errors);
         }
@@ -123,6 +132,9 @@ class SessionsController extends Controller
         PerformedSessionCompletionService $performedSessionService,
     ): RedirectResponse {
         $validatedData = $request->validated();
+        $workoutSession = WorkoutSession::query()->findOrFail($validatedData['workout_session_id']);
+
+        Gate::authorize('schedule', $workoutSession);
 
         if ($errors = $performedSessionService->create($request->user(), $validatedData)) {
             return back()->withErrors($errors);
@@ -139,6 +151,8 @@ class SessionsController extends Controller
         PerformedSession $performedSession,
         PerformedSessionCompletionService $performedSessionService,
     ): RedirectResponse {
+        Gate::authorize('complete', $performedSession);
+
         $validatedData = $request->validated();
 
         if ($errors = $performedSessionService->complete($request->user(), $performedSession, $validatedData)) {

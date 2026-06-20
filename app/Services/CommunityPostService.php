@@ -5,27 +5,17 @@ namespace App\Services;
 use App\Models\CommunityPost;
 use App\Models\PerformedSession;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 
 class CommunityPostService
 {
-    public function share(User $user, array $data, bool $hasTitle, bool $hasContent): ?array
+    public function share(User $user, PerformedSession $performedSession, array $data, bool $hasTitle, bool $hasContent): ?array
     {
-        $performedSession = PerformedSession::query()
-            ->with('communityPost')
-            ->where('user_id', $user->id)
-            ->find($data['performed_session_id']);
-
-        if (! $performedSession) {
-            return ['community' => 'Cette séance ne peut pas être partagée depuis votre compte.'];
-        }
-
         if ($performedSession->completed_at === null) {
-            return ['community' => 'Vous pouvez partager uniquement une séance validée.'];
+            return ['community' => 'Vous pouvez partager uniquement une sÃ©ance validÃ©e.'];
         }
 
         if ($performedSession->communityPost !== null) {
-            return ['community' => 'Cette séance est déjà partagée.'];
+            return ['community' => 'Cette sÃ©ance est dÃ©jÃ  partagÃ©e.'];
         }
 
         CommunityPost::query()->create([
@@ -41,8 +31,6 @@ class CommunityPostService
 
     public function update(User $user, CommunityPost $communityPost, array $data, bool $hasTitle, bool $hasContent): void
     {
-        $this->authorizeOwner($user, $communityPost);
-
         $communityPost->update([
             'title' => $hasTitle ? $data['title'] : null,
             'content' => $hasContent ? $data['content'] : null,
@@ -51,15 +39,13 @@ class CommunityPostService
 
     public function delete(User $user, CommunityPost $communityPost): void
     {
-        $this->authorizeOwner($user, $communityPost);
-
         $communityPost->delete();
     }
 
     public function follow(User $currentUser, User $user): ?array
     {
         if ($currentUser->id === $user->id) {
-            return ['community' => 'Vous ne pouvez pas vous suivre vous-même.'];
+            return ['community' => 'Vous ne pouvez pas vous suivre vous-mÃªme.'];
         }
 
         $currentUser->following()->syncWithoutDetaching([$user->id]);
@@ -70,12 +56,5 @@ class CommunityPostService
     public function unfollow(User $currentUser, User $user): void
     {
         $currentUser->following()->detach($user->id);
-    }
-
-    private function authorizeOwner(User $user, CommunityPost $communityPost): void
-    {
-        if ($communityPost->user_id !== $user->id) {
-            throw new AuthorizationException;
-        }
     }
 }
