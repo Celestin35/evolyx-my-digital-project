@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Community\StoreCommunityPostRequest;
+use App\Http\Requests\Community\UpdateCommunityPostRequest;
 use App\Models\CommunityPost;
 use App\Models\User;
 use App\Services\CommunityFeedService;
@@ -19,7 +21,7 @@ class CommunityController extends Controller
         return Inertia::render('Community', $communityFeedService->pageDataFor($request->user()));
     }
 
-    public function store(Request $request, CommunityPostService $communityPostService): RedirectResponse
+    public function store(StoreCommunityPostRequest $request, CommunityPostService $communityPostService): RedirectResponse
     {
         $user = $request->user();
 
@@ -29,15 +31,9 @@ class CommunityController extends Controller
             ]);
         }
 
-        $validatedData = $request->validate([
-            'performed_session_id' => ['required', 'integer', 'exists:performed_sessions,id'],
-            'title' => ['nullable', 'string', 'max:120'],
-            'content' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         if ($errors = $communityPostService->share(
             $user,
-            $validatedData,
+            $request->validated(),
             $request->filled('title'),
             $request->filled('content'),
         )) {
@@ -48,19 +44,14 @@ class CommunityController extends Controller
     }
 
     public function update(
-        Request $request,
+        UpdateCommunityPostRequest $request,
         CommunityPost $communityPost,
         CommunityPostService $communityPostService,
     ): RedirectResponse {
-        $validatedData = $request->validate([
-            'title' => ['nullable', 'string', 'max:120'],
-            'content' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         $communityPostService->update(
             $request->user(),
             $communityPost,
-            $validatedData,
+            $request->validated(),
             $request->filled('title'),
             $request->filled('content'),
         );

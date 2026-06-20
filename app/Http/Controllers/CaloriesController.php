@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Nutrition\UpdateMacrosRequest;
 use App\Services\CaloriesCalculationService;
 use App\Services\MacroService;
 use Illuminate\Http\RedirectResponse;
@@ -16,15 +17,9 @@ class CaloriesController extends Controller
         return Inertia::render('Nutrition', $macroService->nutritionDataFor($request->user()));
     }
 
-    public function updateMacros(Request $request, MacroService $macroService): RedirectResponse
+    public function updateMacros(UpdateMacrosRequest $request, MacroService $macroService): RedirectResponse
     {
-        $validatedData = $request->validate([
-            'protein' => ['required', 'integer', 'min:0', 'max:600'],
-            'carbs' => ['required', 'integer', 'min:0', 'max:900'],
-            'fats' => ['required', 'integer', 'min:0', 'max:300'],
-        ]);
-
-        if ($errors = $macroService->update($request->user(), $validatedData)) {
+        if ($errors = $macroService->update($request->user(), $request->validated())) {
             return to_route('nutrition')->withErrors($errors);
         }
 

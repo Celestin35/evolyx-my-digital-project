@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Sessions\CompletePerformedSessionRequest;
+use App\Http\Requests\Sessions\StoreExerciseRequest;
+use App\Http\Requests\Sessions\StorePerformedSessionRequest;
+use App\Http\Requests\Sessions\StoreWorkoutSessionRequest;
+use App\Http\Requests\Sessions\UpdateExerciseRequest;
+use App\Http\Requests\Sessions\UpdateWorkoutSessionRequest;
 use App\Models\Exercise;
 use App\Models\PerformedSession;
 use App\Models\WorkoutSession;
@@ -11,7 +17,6 @@ use App\Services\SessionPageDataService;
 use App\Services\WorkoutSessionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,23 +28,11 @@ class SessionsController extends Controller
     }
 
     public function storeWorkoutSession(
-        Request $request,
+        StoreWorkoutSessionRequest $request,
         WorkoutSessionService $workoutSessionService,
     ): RedirectResponse {
         $user = $request->user();
-
-        $validatedData = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'exercise_ids' => ['required', 'array', 'min:1'],
-            'exercise_ids.*' => [
-                'integer',
-                Rule::exists('exercises', 'id')->where(function ($query) use ($user) {
-                    $query->whereNull('user_id')
-                        ->orWhere('user_id', $user->id);
-                }),
-            ],
-        ]);
+        $validatedData = $request->validated();
 
         if ($errors = $workoutSessionService->create($user, $validatedData)) {
             return back()->withErrors($errors);
@@ -52,22 +45,11 @@ class SessionsController extends Controller
     }
 
     public function updateWorkoutSession(
-        Request $request,
+        UpdateWorkoutSessionRequest $request,
         WorkoutSession $workoutSession,
         WorkoutSessionService $workoutSessionService,
     ): RedirectResponse {
-        $validatedData = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'exercise_ids' => ['required', 'array', 'min:1'],
-            'exercise_ids.*' => [
-                'integer',
-                Rule::exists('exercises', 'id')->where(function ($query) use ($request) {
-                    $query->whereNull('user_id')
-                        ->orWhere('user_id', $request->user()->id);
-                }),
-            ],
-        ]);
+        $validatedData = $request->validated();
 
         if ($errors = $workoutSessionService->update($request->user(), $workoutSession, $validatedData)) {
             return back()->withErrors($errors);
@@ -94,18 +76,9 @@ class SessionsController extends Controller
         );
     }
 
-    public function storeExercise(Request $request, ExerciseService $exerciseService): RedirectResponse
+    public function storeExercise(StoreExerciseRequest $request, ExerciseService $exerciseService): RedirectResponse
     {
-        $userSportIds = $request->user()->sports()->pluck('sports.id');
-
-        $validatedData = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'sport_id' => ['required', 'integer', Rule::exists('sports', 'id')->where(
-                fn ($query) => $query->whereIn('id', $userSportIds),
-            )],
-            'exercise_category_id' => ['required', 'integer', Rule::exists('exercise_categories', 'id')],
-        ]);
+        $validatedData = $request->validated();
 
         $exerciseService->create($request->user(), $validatedData);
 
@@ -116,20 +89,11 @@ class SessionsController extends Controller
     }
 
     public function updateExercise(
-        Request $request,
+        UpdateExerciseRequest $request,
         Exercise $exercise,
         ExerciseService $exerciseService,
     ): RedirectResponse {
-        $userSportIds = $request->user()->sports()->pluck('sports.id');
-
-        $validatedData = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'sport_id' => ['required', 'integer', Rule::exists('sports', 'id')->where(
-                fn ($query) => $query->whereIn('id', $userSportIds),
-            )],
-            'exercise_category_id' => ['required', 'integer', Rule::exists('exercise_categories', 'id')],
-        ]);
+        $validatedData = $request->validated();
 
         $exerciseService->update($request->user(), $exercise, $validatedData);
 
@@ -155,22 +119,10 @@ class SessionsController extends Controller
     }
 
     public function storePerformedSession(
-        Request $request,
+        StorePerformedSessionRequest $request,
         PerformedSessionCompletionService $performedSessionService,
     ): RedirectResponse {
-        $validatedData = $request->validate([
-            'workout_session_id' => [
-                'required',
-                'integer',
-                Rule::exists('workout_sessions', 'id')->where(
-                    fn ($query) => $query
-                        ->where('user_id', $request->user()->id)
-                        ->orWhereNull('user_id'),
-                ),
-            ],
-            'performed_at' => ['required', 'date'],
-            'notes' => ['nullable', 'string', 'max:1000'],
-        ]);
+        $validatedData = $request->validated();
 
         if ($errors = $performedSessionService->create($request->user(), $validatedData)) {
             return back()->withErrors($errors);
@@ -183,21 +135,11 @@ class SessionsController extends Controller
     }
 
     public function completePerformedSession(
-        Request $request,
+        CompletePerformedSessionRequest $request,
         PerformedSession $performedSession,
         PerformedSessionCompletionService $performedSessionService,
     ): RedirectResponse {
-        $validatedData = $request->validate([
-            'notes' => ['nullable', 'string', 'max:1000'],
-            'performances' => ['nullable', 'array'],
-            'performances.*.exercise_id' => ['required', 'integer'],
-            'performances.*.weight' => ['nullable', 'numeric', 'min:0', 'max:999.99'],
-            'performances.*.repetitions' => ['nullable', 'integer', 'min:0', 'max:10000'],
-            'performances.*.duration_minutes' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
-            'performances.*.distance_meters' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
-            'performances.*.metrics' => ['nullable', 'array'],
-            'performances.*.metrics.*' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
-        ]);
+        $validatedData = $request->validated();
 
         if ($errors = $performedSessionService->complete($request->user(), $performedSession, $validatedData)) {
             return back()->withErrors($errors);
