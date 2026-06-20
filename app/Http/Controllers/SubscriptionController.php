@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SubscriptionPlan;
+use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class SubscriptionController extends Controller
 {
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, SubscriptionService $subscriptionService): RedirectResponse
     {
         $validatedData = $request->validate([
             'subscription_plan_name' => [
@@ -20,41 +19,17 @@ class SubscriptionController extends Controller
             ],
         ]);
 
-        $user = $request->user()->load([
-            'subscriptions' => fn ($query) => $query
-                ->where('is_active', true)
-                ->with('subscriptionPlan')
-                ->latest()
-                ->limit(1),
-        ]);
+        $changed = $subscriptionService->changePlan(
+            $request->user(),
+            $validatedData['subscription_plan_name'],
+        );
 
-        $currentSubscription = $user->subscriptions->first();
-        $selectedPlan = SubscriptionPlan::query()
-            ->where('name', $validatedData['subscription_plan_name'])
-            ->firstOrFail();
-
-        if ($currentSubscription?->subscriptionPlan?->name === $selectedPlan->name) {
+        if (! $changed) {
             return to_route('profile.edit')->with(
                 'success',
                 'Cet abonnement est déjà actif.',
             );
         }
-
-        DB::transaction(function () use ($user, $selectedPlan) {
-            $user->subscriptions()
-                ->where('is_active', true)
-                ->update([
-                    'is_active' => false,
-                    'end_date' => now(),
-                ]);
-
-            $user->subscriptions()->create([
-                'start_date' => now(),
-                'end_date' => now()->addMonth(),
-                'is_active' => true,
-                'subscription_plan_id' => $selectedPlan->id,
-            ]);
-        });
 
         return to_route('profile.edit')->with(
             'success',

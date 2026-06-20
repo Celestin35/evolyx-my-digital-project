@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\ProfileValidationRules;
-use App\Models\Sport;
+use App\Services\UserProfileService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,59 +14,15 @@ class UserController extends Controller
 {
     use ProfileValidationRules;
 
-    public function show(Request $request): Response
+    public function show(Request $request, UserProfileService $userProfileService): Response
     {
-        $user = $request->user()->load([
-            'role',
-            'sports',
-            'latestWeightEntry',
-            'goals' => fn ($query) => $query
-                ->where('is_active', true)
-                ->with('goalType')
-                ->latest()
-                ->limit(1),
-        ]);
-
-        $activeGoal = $user->goals->first();
-
-        return Inertia::render('Profile', [
-            'user' => [
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'pseudo' => $user->pseudo,
-                'email' => $user->email,
-                'sex' => $user->sex,
-                'height' => $user->height,
-                'birth_date' => $user->birth_date?->toDateString(),
-                'activity_level' => $user->activity_level,
-                'age' => $user->age,
-                'current_weight' => $user->current_weight,
-                'role' => $user->role?->name,
-                'sport_ids' => $user->sports->pluck('id')->values(),
-                'sports' => $user->sports->map(fn ($sport) => [
-                    'id' => $sport->id,
-                    'name' => $sport->name,
-                ])->values(),
-            ],
-            'availableSports' => Sport::query()
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->get(['id', 'name'])
-                ->map(fn ($sport) => [
-                    'id' => $sport->id,
-                    'name' => $sport->name,
-                ]),
-            'activeGoal' => $activeGoal ? [
-                'target_weight' => $activeGoal->target_weight,
-                'weekly_weight_goal' => $activeGoal->weekly_weight_goal,
-                'goal_end_date' => $activeGoal->goal_end_date?->toDateString(),
-                'goal_type' => $activeGoal->goalType?->name,
-            ] : null,
-        ]);
+        return Inertia::render('Profile', $userProfileService->profileDataFor($request->user()));
     }
 
-    public function updatePersonalInfo(Request $request): RedirectResponse
-    {
+    public function updatePersonalInfo(
+        Request $request,
+        UserProfileService $userProfileService,
+    ): RedirectResponse {
         $validatedData = $request->validate([
             'first_name' => ['required', 'string', 'max:50'],
             'sex' => ['required', Rule::in(['male', 'female', 'other'])],
@@ -96,19 +52,7 @@ class UserController extends Controller
             'sport_ids.*.exists' => 'Un sport sélectionné est invalide.',
         ]);
 
-        $user = $request->user();
-        $user->update([
-            'first_name' => $validatedData['first_name'],
-            'sex' => $validatedData['sex'],
-            'height' => $validatedData['height'],
-            'birth_date' => $validatedData['birth_date'],
-            'activity_level' => $validatedData['activity_level'],
-        ]);
-        if (array_key_exists('sport_ids', $validatedData)) {
-            $user->sports()->sync(
-                collect($validatedData['sport_ids'])->map(fn ($id) => (int) $id)->unique()->values()->all(),
-            );
-        }
+        $userProfileService->updatePersonalInfo($request->user(), $validatedData);
 
         return to_route('profile')->with(
             'success',
@@ -116,7 +60,7 @@ class UserController extends Controller
         );
     }
 
-    public function updateSports(Request $request): RedirectResponse
+    public function updateSports(Request $request, UserProfileService $userProfileService): RedirectResponse
     {
         $validatedData = $request->validate([
             'sport_ids' => ['present', 'array'],
@@ -127,9 +71,7 @@ class UserController extends Controller
             'sport_ids.*.exists' => 'Un sport sélectionné est invalide.',
         ]);
 
-        $request->user()->sports()->sync(
-            collect($validatedData['sport_ids'])->map(fn ($id) => (int) $id)->unique()->values()->all(),
-        );
+        $userProfileService->syncSports($request->user(), $validatedData['sport_ids']);
 
         return to_route('profile')->with(
             'success',
@@ -137,21 +79,16 @@ class UserController extends Controller
         );
     }
 
-    public function updateAccountInfo(Request $request): RedirectResponse
-    {
+    public function updateAccountInfo(
+        Request $request,
+        UserProfileService $userProfileService,
+    ): RedirectResponse {
         $validatedData = $request->validate([
             'pseudo' => $this->pseudoRules($request->user()->id),
             'email' => $this->emailRules($request->user()->id),
         ], $this->profileValidationMessages());
 
-        $user = $request->user();
-        $user->fill($validatedData);
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
+        $userProfileService->updateAccountInfo($request->user(), $validatedData);
 
         return to_route('profile')->with(
             'success',
