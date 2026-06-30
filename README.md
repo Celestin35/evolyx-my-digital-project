@@ -1,112 +1,300 @@
-# evolyx-my-digital-project
+# Evolyx
 
-Projet fictif MyDigitalProject - Dashboard sportif - Creation de seance de sport, d'exercices et de performances.
+Evolyx est une application web de suivi sportif permettant de créer des séances d’entraînement, enregistrer des performances, suivre son évolution physique et centraliser ses activités sportives.
 
-## Lancement avec Docker
+---
 
-Le projet a deux configurations Docker :
+## Table des matières
 
-- `docker-compose.yml` pour le local, avec SQLite.
-- `docker-compose.prod.yml` pour la production, avec MySQL.
+- [Evolyx](#evolyx)
+  - [Table des matières](#table-des-matières)
+  - [Stack technique](#stack-technique)
+    - [Backend](#backend)
+    - [Frontend](#frontend)
+    - [Base de données](#base-de-données)
+    - [Infrastructure](#infrastructure)
+  - [Fonctionnalités](#fonctionnalités)
+  - [Prérequis](#prérequis)
+- [Installation locale (Docker)](#installation-locale-docker)
+  - [1. Cloner le projet](#1-cloner-le-projet)
+  - [2. Créer le fichier d’environnement](#2-créer-le-fichier-denvironnement)
+  - [3. Première installation](#3-première-installation)
+- [Développement quotidien](#développement-quotidien)
+- [Commandes utiles](#commandes-utiles)
+- [Configuration base de données (local)](#configuration-base-de-données-local)
+- [Premier déploiement serveur](#premier-déploiement-serveur)
+  - [1. Créer le fichier `.env`](#1-créer-le-fichier-env)
+  - [2. Générer la clé Laravel](#2-générer-la-clé-laravel)
+  - [3. Lancer les migrations](#3-lancer-les-migrations)
+  - [4. Optimiser Laravel](#4-optimiser-laravel)
+- [Déploiement continu](#déploiement-continu)
+- [Licence](#licence)
 
-Les deux configurations chargent les variables depuis un fichier `.env`.
+---
 
-### Local
+## Stack technique
 
-Creer le fichier d'environnement si besoin :
+### Backend
+
+* PHP 8.4
+* Laravel 12
+* Inertia.js
+
+### Frontend
+
+* Vue 3
+* TypeScript
+* Vite
+* Tailwind CSS
+
+### Base de données
+
+* SQLite (développement)
+* MySQL (préproduction / production)
+
+### Infrastructure
+
+* Docker
+* GitHub Actions
+* FTPS (o2switch)
+
+---
+
+## Fonctionnalités
+
+* Création de séances personnalisées
+* Catalogue d’exercices multi-sports
+* Enregistrement de performances détaillées
+* Suivi de progression
+* Objectifs de poids et calories
+* Suivi des macronutriments
+* Gestion des abonnements
+* Système communautaire
+
+---
+
+## Prérequis
+
+Avant de lancer le projet, assurez-vous d’avoir installé :
+
+* Docker
+* Docker Compose
+* Node.js (version 22 recommandée)
+* npm
+
+Vérifier l’installation :
+
+```bash
+docker --version
+docker compose version
+node -v
+npm -v
+```
+
+---
+
+# Installation locale (Docker)
+
+## 1. Cloner le projet
+
+```bash
+git clone <url-du-repo>
+cd evolyx-my-digital-project
+```
+
+---
+
+## 2. Créer le fichier d’environnement
+
+Windows :
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Construire l'image Docker :
+Linux / macOS :
 
 ```bash
-docker compose build
+cp .env.example .env
 ```
 
-Installer les dependances dans le conteneur :
+---
+
+## 3. Première installation
 
 ```bash
-docker compose run --rm --no-deps app composer install
-docker compose run --rm --no-deps app npm install
-docker compose run --rm --no-deps app npm run build
+npm run docker:install
 ```
 
-Lancer les conteneurs :
+Cette commande :
+
+* construit l’image Docker
+* démarre le conteneur
+* installe Composer
+* installe npm
+* génère la clé Laravel
+* crée la base SQLite
+* lance les migrations
+* injecte les seeders
+
+---
+
+# Développement quotidien
+
+> Sur Windows, Docker Desktop doit être lancé avant toute commande Docker.
+
+Lancer l’environnement :
 
 ```bash
-docker compose up -d
+npm run dev:docker
 ```
 
-Initialiser Laravel et la base SQLite :
-
-```bash
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate
-docker compose exec app php artisan db:seed # Optionnel : a supprimer si tu veux une base vide
-```
-
-L'application est disponible sur :
+Application :
 
 ```text
 http://localhost:8000
 ```
 
-Pour lancer Vite en developpement :
+Serveur Vite :
 
-```bash
-docker compose exec app npm run dev -- --host 0.0.0.0
+```text
+http://localhost:5173
 ```
 
-Si le navigateur affiche une page blanche avec une erreur sur `localhost:5173` ou `[::1]:5173`, cela veut dire que Laravel cherche le serveur Vite de developpement. Relancer simplement l'application avec Docker supprime `public/hot` au demarrage et utilise le build genere dans `public/build`.
+Grâce au volume Docker, toutes les modifications locales sont automatiquement synchronisées dans le conteneur.
 
-Variables de base de donnees utilisees par Docker en local :
+---
+
+# Commandes utiles
+
+Démarrer Docker :
+
+```bash
+npm run docker:up
+```
+
+Arrêter Docker :
+
+```bash
+npm run docker:down
+```
+
+Reconstruire Docker :
+
+```bash
+npm run docker:build
+```
+
+Entrer dans le conteneur :
+
+```bash
+npm run docker:shell
+```
+
+Lancer les migrations :
+
+```bash
+npm run docker:migrate
+```
+
+Lancer les seeders :
+
+```bash
+npm run docker:seed
+```
+
+---
+
+# Configuration base de données (local)
+
+Variables :
 
 ```env
 DB_CONNECTION=sqlite
-# DB_DATABASE peut rester vide : Laravel utilisera database/database.sqlite
 ```
 
-### Production
+Fichier utilisé :
 
-Creer ou generer le fichier d'environnement de production sur le serveur :
+```text
+database/database.sqlite
+```
+
+---
+
+# Premier déploiement serveur
+
+Lors du premier déploiement sur préproduction ou production :
+
+## 1. Créer le fichier `.env`
 
 ```bash
-cp .env.production.example .env.production
+cp .env.example .env
 ```
 
-Adapter au minimum :
+Configurer :
 
 ```env
+APP_NAME=Evolyx
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://ton-domaine.fr
-APP_KEY=base64:...
+APP_URL=https://votre-domaine.fr
 
 DB_CONNECTION=mysql
-DB_HOST=mysql
+DB_HOST=...
 DB_PORT=3306
-DB_DATABASE=evolyx
-DB_USERNAME=evolyx
-DB_PASSWORD=mot-de-passe-solide
-MYSQL_ROOT_PASSWORD=autre-mot-de-passe-solide
+DB_DATABASE=...
+DB_USERNAME=...
+DB_PASSWORD=...
 ```
 
-Construire et lancer la production :
+---
+
+## 2. Générer la clé Laravel
 
 ```bash
-docker compose --env-file .env.production -f docker-compose.prod.yml build
-docker compose --env-file .env.production -f docker-compose.prod.yml up -d
+php artisan key:generate
 ```
 
-Initialiser Laravel et MySQL en production :
+---
+
+## 3. Lancer les migrations
 
 ```bash
-docker compose --env-file .env.production -f docker-compose.prod.yml exec app php artisan key:generate
-docker compose --env-file .env.production -f docker-compose.prod.yml exec app php artisan migrate --force
+php artisan migrate --force
 ```
 
-En production, le code est copie dans l'image via `Dockerfile.prod`. Il n'y a pas de volume `.:/var/www/html`, pas de serveur Vite expose, et la base MySQL est stockee dans un volume Docker persistant.
+---
 
-Si le deploiement passe par GitHub Actions, le workflow peut generer `.env.production` a partir des GitHub Secrets avant d'executer les commandes Docker Compose.
+## 4. Optimiser Laravel
+
+```bash
+php artisan optimize
+```
+
+---
+
+# Déploiement continu
+
+Le projet utilise GitHub Actions.
+
+À chaque push sur :
+
+```text
+develop
+```
+
+Le pipeline :
+
+* récupère le code
+* installe les dépendances PHP
+* installe les dépendances frontend
+* build les assets Vite
+* déploie automatiquement via FTPS sur o2switch
+
+Le fichier `.env` n’est jamais versionné ni écrasé.
+
+---
+
+# Licence
+
+Projet pédagogique réalisé dans le cadre du titre professionnel CDA (Concepteur Développeur d’Applications).

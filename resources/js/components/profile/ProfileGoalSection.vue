@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
 import { Minus, Plus } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import {
     formatFrenchDate,
@@ -31,12 +31,18 @@ type ActiveGoal = {
     goal_type: string | null;
 };
 
+type ProfileGoalPageProps = {
+    flash?: {
+        success?: string;
+    };
+};
+
 const props = defineProps<{
     user: ProfileUser;
     activeGoal: ActiveGoal | null;
 }>();
 
-const page = usePage();
+const page = usePage<ProfileGoalPageProps>();
 const currentWeight = parseWeight(props.user.current_weight);
 const initialTargetWeight = currentWeight;
 
@@ -368,9 +374,7 @@ watch(selectedGoalType, syncWeeklyGoalWithTarget);
                                     class="flex items-baseline border-x border-neutral-200 px-3"
                                 >
                                     <input
-                                        v-model.number="
-                                            goalForm.target_weight
-                                        "
+                                        v-model.number="goalForm.target_weight"
                                         type="number"
                                         min="0"
                                         step="0.25"

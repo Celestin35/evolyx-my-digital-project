@@ -1,5 +1,5 @@
 {
-    "name" : "evolyx",
+    "name": "evolyx",
     "$schema": "https://www.schemastore.org/package.json",
     "private": true,
     "type": "module",
@@ -11,7 +11,14 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
-        "types:check": "vue-tsc --noEmit"
+        "types:check": "vue-tsc --noEmit",
+        
+        "docker:build": "docker compose up -d --build",
+        "docker:up": "docker compose up -d",
+        "docker:down": "docker compose down",
+        "docker:shell": "docker exec -it evolyx-app bash",
+        "docker:install": "docker compose up -d --build && docker exec evolyx-app composer install && docker exec evolyx-app npm install && docker exec evolyx-app php artisan key:generate && docker exec evolyx-app touch database/database.sqlite && docker exec evolyx-app php artisan migrate --seed",
+        "dev:docker": "docker compose up -d && docker exec -it evolyx-app npm run dev -- --host=0.0.0.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",

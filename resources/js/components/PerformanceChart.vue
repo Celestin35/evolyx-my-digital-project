@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
 import Chart from 'chart.js/auto';
-import { DateTime } from 'luxon';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import 'chartjs-adapter-luxon';
 import { transparentize } from '@/lib/utils';
 
@@ -174,9 +173,11 @@ onMounted(() => {
                                 return '';
                             }
 
-                            return DateTime.fromISO(rawPoint.dateIso)
-                                .setLocale('fr')
-                                .toFormat('d LLLL yyyy');
+                            return new Intl.DateTimeFormat('fr-FR', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                            }).format(new Date(rawPoint.dateIso));
                         },
                         label(context) {
                             const rawPoint = context.raw as
@@ -238,7 +239,7 @@ onMounted(() => {
             },
         },
         plugins: [lineShadowPlugin],
-    });
+    }) as Chart<'line', PerformanceChartPoint[], unknown>;
 });
 
 onBeforeUnmount(() => {

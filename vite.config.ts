@@ -1,10 +1,20 @@
-import { wayfinder } from '@laravel/vite-plugin-wayfinder';
+timport { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+    server: {
+        host: '0.0.0.0',
+        origin: 'http://127.0.0.1:5173',
+        cors: {
+            origin: ['http://127.0.0.1:8000', 'http://localhost:8000'],
+        },
+        hmr: {
+            host: '127.0.0.1',
+        },
+    },
     plugins: [
         laravel({
             input: ['resources/js/app.ts'],

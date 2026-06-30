@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
 import Chart from 'chart.js/auto';
-import { DateTime } from 'luxon';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import 'chartjs-adapter-luxon';
 import { CHART_COLORS, transparentize } from '@/lib/utils';
 
@@ -120,9 +119,11 @@ onMounted(() => {
                                 return '';
                             }
 
-                            return DateTime.fromISO(rawPoint.dateIso)
-                                .setLocale('fr')
-                                .toFormat('d LLLL yyyy');
+                            return new Intl.DateTimeFormat('fr-FR', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                            }).format(new Date(rawPoint.dateIso));
                         },
                         label(context) {
                             const rawPoint = context.raw as
@@ -189,7 +190,7 @@ onMounted(() => {
             },
         },
         plugins: [lineShadowPlugin],
-    });
+    }) as Chart<'line', WeightChartPoint[], unknown>;
 });
 
 onBeforeUnmount(() => {
@@ -199,7 +200,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="min-h-0 h-full w-full">
+    <div class="h-full min-h-0 w-full">
         <canvas ref="chartCanvas" class="h-full w-full"></canvas>
     </div>
 </template>

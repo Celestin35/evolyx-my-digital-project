@@ -1,9 +1,9 @@
 <?php
 
-use Laravel\Fortify\Features;
 use Database\Seeders\Base\RolesSeeder;
 use Database\Seeders\Base\SubscriptionPlansSeeder;
 use Database\Seeders\Sports\SportsSeeder;
+use Laravel\Fortify\Features;
 
 beforeEach(function () {
     $this->skipUnlessFortifyFeature(Features::registration());
@@ -49,8 +49,8 @@ test('registration account step can be validated before profile step', function 
         'password_confirmation' => 'different-password',
     ]);
 
-    $response->assertUnprocessable()
-        ->assertJsonValidationErrors('password');
+    $response->assertUnprocessable() // Erreur de validation 422
+        ->assertJsonValidationErrors('password'); // Vérifie que l'erreur de validation concerne le champ "password"
 });
 
 test('users must be at least fifteen years old to register', function () {
@@ -99,8 +99,8 @@ test('account step rejects duplicate email and pseudo', function () {
 
     $response->assertUnprocessable()
         ->assertJsonValidationErrors(['pseudo', 'email'])
-        ->assertJsonPath('errors.pseudo.0', 'Ce pseudo est deja utilise.')
-        ->assertJsonPath('errors.email.0', 'Un compte existe deja avec cet email.');
+        ->assertJsonPath('errors.pseudo.0', 'Ce pseudo est déjà utilisé.')
+        ->assertJsonPath('errors.email.0', 'Un compte existe déjà avec cet email.');
 });
 
 test('account step rejects invalid pseudo and email formats', function () {
@@ -115,7 +115,7 @@ test('account step rejects invalid pseudo and email formats', function () {
     $response->assertUnprocessable()
         ->assertJsonValidationErrors(['pseudo', 'email'])
         ->assertJsonPath('errors.pseudo.0', 'Le pseudo ne peut contenir que des lettres, des chiffres et des underscores.')
-        ->assertJsonPath('errors.email.0', 'L\'email doit etre une adresse valide.');
+        ->assertJsonPath('errors.email.0', 'L\'email doit être une adresse valide.');
 });
 
 test('users can register without selecting a sport', function () {
