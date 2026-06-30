@@ -21,6 +21,9 @@ class Goal extends Model
     protected function casts(): array
     {
         return [
+            'user_id' => 'integer',
+            'macronutrient_id' => 'integer',
+            'goal_type_id' => 'integer',
             'target_weight' => 'decimal:2',
             'weekly_weight_goal' => 'decimal:2',
             'is_active' => 'boolean',

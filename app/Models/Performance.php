@@ -22,6 +22,9 @@ class Performance extends Model
     protected function casts(): array
     {
         return [
+            'exercise_id' => 'integer',
+            'performed_session_id' => 'integer',
+            'user_id' => 'integer',
             'performed_at' => 'datetime',
             'weight' => 'decimal:2',
             'duration_minutes' => 'decimal:2',

@@ -20,6 +20,8 @@ class PerformedSession extends Model
     protected function casts(): array
     {
         return [
+            'user_id' => 'integer',
+            'workout_session_id' => 'integer',
             'performed_at' => 'datetime',
             'completed_at' => 'datetime',
         ];

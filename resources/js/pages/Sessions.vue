@@ -35,6 +35,8 @@ type AvailableExercise = {
     sport_name: string | null;
     category_name: string | null;
     is_custom: boolean;
+    can_update: boolean;
+    can_delete: boolean;
     metrics: ExerciseMetric[];
 };
 
@@ -44,6 +46,8 @@ type WorkoutSession = {
     description: string | null;
     created_at: string | null;
     is_system: boolean;
+    can_update: boolean;
+    can_delete: boolean;
     exercises: Array<{
         id: number;
         name: string;
@@ -60,6 +64,7 @@ type PerformedSession = {
     workout_session: WorkoutSession | null;
     performed_at: string | null;
     completed_at: string | null;
+    can_complete: boolean;
     community_post_id: number | null;
     notes: string | null;
     performances: Array<{
@@ -211,6 +216,12 @@ const libraryErrorMessage = computed(
     () =>
         page.props.errors?.workout_session ??
         page.props.errors?.exercise ??
+        null,
+);
+const completeSessionErrorMessage = computed(
+    () =>
+        page.props.errors?.performed_session_id ??
+        completeSessionForm.errors.performances ??
         null,
 );
 const communityErrorMessage = computed(
@@ -378,7 +389,7 @@ const onCalendarCellClick = (payload: Date | { date: Date }) => {
 };
 
 const isCompletableSession = (session: PerformedSession) => {
-    if (session.completed_at || !session.performed_at) {
+    if (!session.can_complete || !session.performed_at) {
         return false;
     }
 
@@ -574,7 +585,7 @@ const deleteWorkoutSession = (session: WorkoutSession) => {
 };
 
 const openExerciseEditor = (exercise: AvailableExercise) => {
-    if (!exercise.is_custom) {
+    if (!exercise.can_update) {
         return;
     }
 
@@ -613,7 +624,7 @@ const updateExercise = () => {
 };
 
 const deleteExercise = (exercise: AvailableExercise) => {
-    if (!exercise.is_custom) {
+    if (!exercise.can_delete) {
         return;
     }
 
@@ -980,7 +991,7 @@ const sharePerformedSession = () => {
                                 class="flex flex-wrap items-start gap-2 lg:justify-end"
                             >
                                 <Button
-                                    v-if="!session.is_system"
+                                    v-if="session.can_update"
                                     type="button"
                                     class="px-3 py-1.5 text-sm"
                                     @click="openWorkoutSessionEditor(session)"
@@ -995,7 +1006,7 @@ const sharePerformedSession = () => {
                                     Dupliquer
                                 </Button>
                                 <Button
-                                    v-if="!session.is_system"
+                                    v-if="session.can_delete"
                                     type="button"
                                     variant="destructive"
                                     class="px-3 py-1.5 text-sm"
@@ -1075,7 +1086,7 @@ const sharePerformedSession = () => {
                                 class="flex flex-wrap items-start gap-2 lg:justify-end"
                             >
                                 <Button
-                                    v-if="exercise.is_custom"
+                                    v-if="exercise.can_update"
                                     type="button"
                                     class="px-3 py-1.5 text-sm"
                                     @click="openExerciseEditor(exercise)"
@@ -1083,7 +1094,7 @@ const sharePerformedSession = () => {
                                     Modifier
                                 </Button>
                                 <Button
-                                    v-if="exercise.is_custom"
+                                    v-if="exercise.can_delete"
                                     type="button"
                                     variant="destructive"
                                     class="px-3 py-1.5 text-sm"
@@ -1359,6 +1370,12 @@ const sharePerformedSession = () => {
                                 {{ sport.name }}
                             </option>
                         </select>
+                        <p
+                            v-if="customExerciseEditForm.errors.sport_id"
+                            class="text-sm text-red-600"
+                        >
+                            {{ customExerciseEditForm.errors.sport_id }}
+                        </p>
                     </div>
 
                     <div class="space-y-2">
@@ -1384,6 +1401,18 @@ const sharePerformedSession = () => {
                                 {{ category.name }}
                             </option>
                         </select>
+                        <p
+                            v-if="
+                                customExerciseEditForm.errors
+                                    .exercise_category_id
+                            "
+                            class="text-sm text-red-600"
+                        >
+                            {{
+                                customExerciseEditForm.errors
+                                    .exercise_category_id
+                            }}
+                        </p>
                     </div>
 
                     <div class="space-y-2">
@@ -1927,10 +1956,10 @@ const sharePerformedSession = () => {
                     </div>
 
                     <p
-                        v-if="completeSessionForm.errors.performances"
+                        v-if="completeSessionErrorMessage"
                         class="text-sm text-red-600"
                     >
-                        {{ completeSessionForm.errors.performances }}
+                        {{ completeSessionErrorMessage }}
                     </p>
 
                     <div class="flex flex-wrap items-center gap-3">

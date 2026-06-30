@@ -21,6 +21,7 @@ class SecurityLog extends Model
     protected function casts(): array
     {
         return [
+            'user_id' => 'integer',
             'created_at' => 'datetime',
         ];
     }

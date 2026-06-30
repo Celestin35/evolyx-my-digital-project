@@ -17,6 +17,15 @@ class Exercise extends Model
         'user_id',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'exercise_category_id' => 'integer',
+            'sport_id' => 'integer',
+            'user_id' => 'integer',
+        ];
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(ExerciseCategory::class, 'exercise_category_id');

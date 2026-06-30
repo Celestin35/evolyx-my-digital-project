@@ -90,6 +90,8 @@ class SessionPageDataService
                 'sport_name' => $exercise->sport?->name,
                 'category_name' => $exercise->category?->name,
                 'is_custom' => $exercise->user_id !== null,
+                'can_update' => $exercise->user_id === $user->id,
+                'can_delete' => $exercise->user_id === $user->id,
                 'metrics' => $this->formatExerciseMetrics($exercise),
             ]),
             'workoutSessions' => $workoutSessions->map(fn ($session) => [
@@ -98,6 +100,8 @@ class SessionPageDataService
                 'description' => $session->description,
                 'created_at' => $session->created_at?->toISOString(),
                 'is_system' => $session->user_id === null,
+                'can_update' => $session->user_id === $user->id,
+                'can_delete' => $session->user_id === $user->id,
                 'exercises' => $session->exercises->map(fn ($exercise) => [
                     'id' => $exercise->id,
                     'name' => $exercise->name,
@@ -116,6 +120,8 @@ class SessionPageDataService
                     'description' => $performedSession->workoutSession->description,
                     'created_at' => $performedSession->workoutSession->created_at?->toISOString(),
                     'is_system' => $performedSession->workoutSession->user_id === null,
+                    'can_update' => $performedSession->workoutSession->user_id === $user->id,
+                    'can_delete' => $performedSession->workoutSession->user_id === $user->id,
                     'exercises' => $performedSession->workoutSession->exercises->map(fn ($exercise) => [
                         'id' => $exercise->id,
                         'name' => $exercise->name,
@@ -126,6 +132,8 @@ class SessionPageDataService
                 ] : null,
                 'performed_at' => $performedSession->performed_at?->toISOString(),
                 'completed_at' => $performedSession->completed_at?->toISOString(),
+                'can_complete' => $performedSession->user_id === $user->id
+                    && $performedSession->completed_at === null,
                 'community_post_id' => $performedSession->communityPost?->id,
                 'notes' => $performedSession->notes,
                 'performances' => $performedSession->performances->map(fn ($performance) => [

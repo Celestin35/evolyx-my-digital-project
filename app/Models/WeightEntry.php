@@ -16,6 +16,7 @@ class WeightEntry extends Model
     protected function casts(): array
     {
         return [
+            'user_id' => 'integer',
             'weight' => 'decimal:2',
             'body_fat' => 'decimal:2',
         ];

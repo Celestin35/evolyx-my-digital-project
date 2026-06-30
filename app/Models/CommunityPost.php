@@ -18,6 +18,8 @@ class CommunityPost extends Model
     protected function casts(): array
     {
         return [
+            'user_id' => 'integer',
+            'performed_session_id' => 'integer',
             'published_at' => 'datetime',
         ];
     }
