@@ -670,7 +670,7 @@ const completeSelectedSession = () => {
             notes: data.notes,
             performances: wantsPerformanceEntry.value ? data.performances : [],
         }))
-        .patch(
+        .post(
             `/sessions/performed-sessions/${selectedPerformedSession.value.id}/complete`,
             {
                 preserveScroll: true,
