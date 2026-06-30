@@ -1,4 +1,4 @@
-name: Deploy o2switch
+name: Deploy preproduction
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Récupère le code source
         uses: actions/checkout@v4
 
       - name: Setup PHP
@@ -19,7 +19,7 @@ jobs:
           php-version: '8.4'
           tools: composer:v2
 
-      - name: Install PHP dependencies
+      - name: Installe les dépendances PHP
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Setup Node
@@ -28,13 +28,13 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install frontend dependencies
+      - name: Installe les dépendances frontend
         run: npm ci
 
-      - name: Build frontend assets
+      - name: Build les assets frontend
         run: npm run build
 
-      - name: Deploy files with FTPS
+      - name: Deploiement des fichiers avec FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}

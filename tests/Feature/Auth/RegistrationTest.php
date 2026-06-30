@@ -49,8 +49,8 @@ test('registration account step can be validated before profile step', function 
         'password_confirmation' => 'different-password',
     ]);
 
-    $response->assertUnprocessable()
-        ->assertJsonValidationErrors('password');
+    $response->assertUnprocessable() // Erreur de validation 422
+        ->assertJsonValidationErrors('password'); // Vérifie que l'erreur de validation concerne le champ "password"
 });
 
 test('users must be at least fifteen years old to register', function () {
