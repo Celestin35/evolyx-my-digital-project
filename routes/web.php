@@ -37,7 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('sessions/exercises/{exercise}', [SessionsController::class, 'updateExercise'])->name('sessions.exercises.update');
     Route::delete('sessions/exercises/{exercise}', [SessionsController::class, 'destroyExercise'])->name('sessions.exercises.destroy');
     Route::post('sessions/performed-sessions', [SessionsController::class, 'storePerformedSession'])->name('sessions.performed-sessions.store');
-    Route::match(['post', 'patch'], 'sessions/performed-sessions/{performedSession}/complete', [SessionsController::class, 'completePerformedSession'])->name('sessions.performed-sessions.complete');
+    Route::patch('sessions/performed-sessions/{performedSession}/complete', [SessionsController::class, 'completePerformedSession'])->name('sessions.performed-sessions.complete');
     Route::get('nutrition', [CaloriesController::class, 'show'])->name('nutrition');
     Route::patch('nutrition/macros', [CaloriesController::class, 'updateMacros'])->name('nutrition.macros.update');
     Route::get('progress', [ProgressController::class, 'show'])->name('progress');

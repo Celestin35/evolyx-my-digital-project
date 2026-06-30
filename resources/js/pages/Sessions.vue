@@ -667,12 +667,14 @@ const completeSelectedSession = () => {
 
     completeSessionForm
         .transform((data) => ({
+            _method: 'patch',
             notes: data.notes,
             performances: wantsPerformanceEntry.value ? data.performances : [],
         }))
         .post(
             `/sessions/performed-sessions/${selectedPerformedSession.value.id}/complete`,
             {
+                forceFormData: true,
                 preserveScroll: true,
                 onSuccess: closeCompleteSessionModal,
             },
